@@ -174,6 +174,67 @@ async function downloadLabelPdf() {
 });
 labelDom.downloadButton.addEventListener("click", downloadLabelPdf);
 
+const DEFAULT_HOME_NOTICE = `2026.06.19 Ver 1
+
+• Label 출력: 업체명, 인보이스 번호, 박스 수량을 수정해 15×10cm PDF로 출력
+• PDF Merge: ZIP 파일 안의 PDF를 파일명 순서대로 자동 병합
+• UPS 출력: A4 UPS 라벨을 10×15cm 라벨 용지로 변환
+• 피킹리스트 출력: SKU와 로케이션을 연결해 작업자용 Excel·PDF 생성
+• 로케이션 동기화: 재고파일과 DB를 비교해 누락·미등록·재고 없음 확인`;
+const homePanel = document.querySelector("#home-panel");
+const homeNoticeText = document.querySelector("#home-notice-text");
+const brandHome = document.querySelector("#brand-home");
+
+function displayHomeNotice(notice) {
+  const lines = String(notice).split(/\r?\n/);
+  const title = lines.shift()?.trim() || "";
+  const details = lines.filter((line) => line.trim());
+  homeNoticeText.replaceChildren();
+
+  const titleElement = document.createElement("div");
+  titleElement.className = "notice-version";
+  titleElement.textContent = title;
+  homeNoticeText.append(titleElement);
+
+  if (details.length) {
+    const list = document.createElement("ul");
+    list.className = "notice-feature-list";
+    details.forEach((line) => {
+      const item = document.createElement("li");
+      const cleanLine = line.replace(/^[•·\-]\s*/, "");
+      const separator = cleanLine.indexOf(":");
+      if (separator > 0) {
+        const name = document.createElement("strong");
+        name.textContent = cleanLine.slice(0, separator);
+        item.append(name, document.createTextNode(cleanLine.slice(separator)));
+      } else {
+        item.textContent = cleanLine;
+      }
+      list.append(item);
+    });
+    homeNoticeText.append(list);
+  }
+  return notice;
+}
+
+function loadHomeNotice() {
+  return displayHomeNotice(DEFAULT_HOME_NOTICE);
+}
+
+loadHomeNotice();
+
+function showHome() {
+  document.querySelectorAll(".tool-tab").forEach((tab) => {
+    tab.classList.remove("is-active");
+    tab.setAttribute("aria-selected", "false");
+  });
+  Object.values(upsDom.panels).forEach((panel) => {
+    panel.hidden = true;
+  });
+  loadHomeNotice();
+  homePanel.hidden = false;
+}
+
 function showMessage(text, isError = false) {
   dom.message.textContent = text;
   dom.message.classList.toggle("error", isError);
@@ -356,6 +417,7 @@ const upsDom = {
     ups: document.querySelector("#ups-tool"),
     picking: document.querySelector("#picking-tool"),
     sync: document.querySelector("#sync-tool"),
+    admin: document.querySelector("#admin-tool"),
   },
   dropZone: document.querySelector("#ups-drop-zone"),
   input: document.querySelector("#ups-input"),
@@ -386,9 +448,11 @@ function selectTool(name) {
   Object.entries(upsDom.panels).forEach(([panelName, panel]) => {
     panel.hidden = panelName !== name;
   });
+  homePanel.hidden = true;
 
   if (name === "picking") updatePickingLock();
   if (name === "sync") updateSyncLock();
+  if (name === "admin") updateAdminLock();
 }
 
 function showUpsMessage(text, isError = false) {
@@ -1696,3 +1760,36 @@ syncDom.downloadButton.addEventListener("click", downloadSyncReport);
   });
 });
 syncDom.dropZone.addEventListener("drop", (event) => inspectSyncFile(event.dataTransfer.files[0]));
+
+const adminDom = {
+  passwordGate: document.querySelector("#admin-password-gate"),
+  passwordForm: document.querySelector("#admin-password-form"),
+  password: document.querySelector("#admin-password"),
+  passwordError: document.querySelector("#admin-password-error"),
+};
+
+function updateAdminLock() {
+  adminDom.passwordGate.hidden = false;
+  requestAnimationFrame(() => adminDom.password.focus());
+}
+
+async function unlockAdmin(event) {
+  event.preventDefault();
+  const enteredHash = await sha256(adminDom.password.value);
+  if (enteredHash !== PICKING_PASSWORD_HASH) {
+    adminDom.passwordError.hidden = false;
+    adminDom.password.select();
+    return;
+  }
+  adminDom.password.value = "";
+  adminDom.passwordError.hidden = true;
+}
+
+adminDom.passwordForm.addEventListener("submit", unlockAdmin);
+adminDom.password.addEventListener("input", () => {
+  adminDom.passwordError.hidden = true;
+});
+brandHome.addEventListener("click", (event) => {
+  event.preventDefault();
+  showHome();
+});
