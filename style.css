@@ -55,6 +55,7 @@ button {
   font-size: 21px;
   font-weight: 900;
   letter-spacing: -0.04em;
+  flex-shrink: 0;
 }
 
 .brand-mark {
@@ -152,6 +153,13 @@ main {
   display: flex;
   gap: 6px;
   margin: 0;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.header-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .header-tabs .tool-tab {
@@ -237,6 +245,106 @@ main {
 
 .tool-panel[hidden] {
   display: none;
+}
+
+.label-editor {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.8fr) minmax(390px, 1.2fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.label-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.label-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.label-fields label > span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.label-fields > label > input,
+.label-field-row input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  background: #fbfaf7;
+  font-size: 13px;
+}
+
+.label-fields input:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.05);
+}
+
+.label-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.label-preview-wrap {
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f0eee8;
+}
+
+.preview-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.preview-title span {
+  color: #8b8780;
+}
+
+.label-preview {
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 4%;
+  border: 1px solid #d3d0c8;
+  background: white;
+  box-shadow: 0 8px 24px rgba(40, 35, 28, 0.1);
+  color: #000;
+  font-family: Arial, "Malgun Gothic", sans-serif;
+  text-align: center;
+}
+
+#label-preview-company,
+#label-preview-invoice {
+  max-width: 100%;
+  font-size: clamp(20px, 3.1vw, 36px);
+  font-weight: 800;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+#label-preview-invoice {
+  margin-top: 2.5%;
+}
+
+#label-preview-box {
+  margin-top: 3%;
+  font-size: clamp(28px, 4.3vw, 48px);
+  font-weight: 900;
+  line-height: 1;
 }
 
 .tool-heading {
@@ -1272,6 +1380,14 @@ footer p {
 
   .tool-heading {
     flex-direction: column;
+  }
+
+  .label-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .label-preview-wrap {
+    order: -1;
   }
 
   .drop-zone {

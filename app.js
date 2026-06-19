@@ -69,6 +69,111 @@ function downloadFile(bytes, name, type) {
   setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
+const labelDom = {
+  company: document.querySelector("#label-company"),
+  invoice: document.querySelector("#label-invoice"),
+  boxCount: document.querySelector("#label-box-count"),
+  copyCount: document.querySelector("#label-copy-count"),
+  outputName: document.querySelector("#label-output-name"),
+  previewCompany: document.querySelector("#label-preview-company"),
+  previewInvoice: document.querySelector("#label-preview-invoice"),
+  previewBox: document.querySelector("#label-preview-box"),
+  downloadButton: document.querySelector("#label-download-button"),
+  message: document.querySelector("#label-message"),
+};
+
+function labelValues() {
+  return {
+    company: labelDom.company.value.trim() || "House of Kpop Pte Ltd",
+    invoice: labelDom.invoice.value.trim().replace(/^#\s*/, "") || "IN00443990",
+    boxes: Math.max(1, Number(labelDom.boxCount.value) || 1),
+    copies: Math.min(200, Math.max(1, Number(labelDom.copyCount.value) || 1)),
+  };
+}
+
+function updateLabelPreview() {
+  const values = labelValues();
+  labelDom.previewCompany.textContent = values.company;
+  labelDom.previewInvoice.textContent = `# ${values.invoice}`;
+  labelDom.previewBox.textContent = `${values.boxes} BOX`;
+}
+
+function showLabelMessage(text, isError = false) {
+  labelDom.message.textContent = text;
+  labelDom.message.classList.toggle("error", isError);
+  labelDom.message.hidden = !text;
+}
+
+function fitCanvasFont(ctx, text, maxWidth, startSize, minSize = 42) {
+  let size = startSize;
+  while (size > minSize) {
+    ctx.font = `800 ${size}px Arial, "Malgun Gothic", sans-serif`;
+    if (ctx.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  return size;
+}
+
+function createLabelCanvas(values) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1500;
+  canvas.height = 1000;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#000000";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const companySize = fitCanvasFont(ctx, values.company, 1400, 150, 62);
+  ctx.font = `800 ${companySize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.fillText(values.company, 750, 305);
+
+  const invoiceText = `# ${values.invoice}`;
+  const invoiceSize = fitCanvasFont(ctx, invoiceText, 1400, 150, 62);
+  ctx.font = `800 ${invoiceSize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.fillText(invoiceText, 750, 515);
+
+  const boxText = `${values.boxes} BOX`;
+  const boxSize = fitCanvasFont(ctx, boxText, 1400, 200, 82);
+  ctx.font = `900 ${boxSize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.fillText(boxText, 750, 755);
+  return canvas;
+}
+
+async function downloadLabelPdf() {
+  labelDom.downloadButton.disabled = true;
+  showLabelMessage("");
+  try {
+    const values = labelValues();
+    const canvas = createLabelCanvas(values);
+    const imageBytes = canvas.toDataURL("image/png");
+    const pdf = await PDFDocument.create();
+    const image = await pdf.embedPng(imageBytes);
+    const pageWidth = (150 / 25.4) * 72;
+    const pageHeight = (100 / 25.4) * 72;
+
+    for (let index = 0; index < values.copies; index += 1) {
+      const page = pdf.addPage([pageWidth, pageHeight]);
+      page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
+    }
+
+    const output = await pdf.save({ useObjectStreams: true });
+    const outputName = safeBaseName(labelDom.outputName.value) || "LABEL";
+    downloadPdf(output, outputName);
+    showLabelMessage(`15×10cm 라벨 PDF ${values.copies}장을 저장했어요.`);
+  } catch (error) {
+    showLabelMessage(error.message || "라벨 PDF 생성 중 문제가 발생했습니다.", true);
+  } finally {
+    labelDom.downloadButton.disabled = false;
+  }
+}
+
+[labelDom.company, labelDom.invoice, labelDom.boxCount].forEach((input) => {
+  input.addEventListener("input", updateLabelPreview);
+});
+labelDom.downloadButton.addEventListener("click", downloadLabelPdf);
+
 function showMessage(text, isError = false) {
   dom.message.textContent = text;
   dom.message.classList.toggle("error", isError);
@@ -246,6 +351,7 @@ document.addEventListener("drop", (event) => event.preventDefault());
 const upsDom = {
   tabs: document.querySelectorAll(".tool-tab"),
   panels: {
+    label: document.querySelector("#label-tool"),
     zip: document.querySelector("#zip-tool"),
     ups: document.querySelector("#ups-tool"),
     picking: document.querySelector("#picking-tool"),
