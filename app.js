@@ -492,6 +492,7 @@ const pickingDom = {
   outputName: document.querySelector("#picking-output-name"),
   excelButton: document.querySelector("#picking-excel-button"),
   pdfButton: document.querySelector("#picking-pdf-button"),
+  orientationOptions: document.querySelectorAll(".orientation-option"),
   message: document.querySelector("#picking-message"),
 };
 
@@ -502,6 +503,7 @@ let pickingRows = [];
 let pickingColumns = null;
 let pickingFile = null;
 let pickingData = null;
+let pickingOrientation = "landscape";
 let pickingUnlocked = sessionStorage.getItem("woongtoolPickingUnlocked") === "yes";
 
 async function sha256(text) {
@@ -842,6 +844,7 @@ function withWrapStyle(cell, horizontal = "left") {
 
 function buildPickingWorkbook() {
   const data = pickingData;
+  const portrait = pickingOrientation === "portrait";
   const rows = [
     ["PICKING LIST", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
@@ -873,14 +876,14 @@ function buildPickingWorkbook() {
     XLSX.utils.decode_range("B5:H5"),
   ];
   sheet["!cols"] = [
-    { wch: 5 },
-    { wch: 23 },
-    { wch: 58 },
-    { wch: 15 },
-    { wch: 19 },
-    { wch: 9 },
-    { wch: 16 },
-    { wch: 15 },
+    { wch: portrait ? 4 : 5 },
+    { wch: portrait ? 18 : 23 },
+    { wch: portrait ? 44 : 58 },
+    { wch: portrait ? 11 : 15 },
+    { wch: portrait ? 15 : 19 },
+    { wch: portrait ? 7 : 9 },
+    { wch: portrait ? 13 : 16 },
+    { wch: portrait ? 11 : 15 },
   ];
 
   const remarkLines = Math.max(
@@ -896,7 +899,7 @@ function buildPickingWorkbook() {
     { hpt: 8 },
     { hpt: 30 },
     ...data.items.map((item) => ({
-      hpt: Math.max(34, Math.ceil(item.description.length / 42) * 16 + 10),
+      hpt: Math.max(34, Math.ceil(item.description.length / (portrait ? 30 : 42)) * 16 + 10),
     })),
     { hpt: 28 },
   ];
@@ -994,7 +997,12 @@ function buildPickingWorkbook() {
   sheet["!autofilter"] = { ref: `A7:H${7 + data.items.length}` };
   sheet["!freeze"] = { xSplit: 0, ySplit: 7 };
   sheet["!margins"] = { left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1 };
-  sheet["!pageSetup"] = { paperSize: 9, orientation: "landscape", fitToWidth: 1, fitToHeight: 0 };
+  sheet["!pageSetup"] = {
+    paperSize: 9,
+    orientation: portrait ? "portrait" : "landscape",
+    fitToWidth: 1,
+    fitToHeight: 0,
+  };
   sheet["!printArea"] = sheet["!ref"];
   return workbook;
 }
@@ -1023,8 +1031,9 @@ function wrapCanvasText(ctx, text, maxWidth) {
 
 function buildPickingPdfCanvases() {
   const data = pickingData;
-  const width = 1600;
-  const height = 1131;
+  const portrait = pickingOrientation === "portrait";
+  const width = portrait ? 1131 : 1600;
+  const height = portrait ? 1600 : 1131;
   const margin = 50;
   const bottom = 55;
   const pages = [];
@@ -1097,16 +1106,27 @@ function buildPickingPdfCanvases() {
     y += 18;
   }
 
-  const columns = [
-    ["NO", 55],
-    ["SKU", 205],
-    ["DESCRIPTION", 580],
-    ["BRAND", 120],
-    ["BARCODE", 150],
-    ["QTY", 80],
-    ["LOCATION", 150],
-    ["PACKING", 110],
-  ];
+  const columns = portrait
+    ? [
+        ["NO", 45],
+        ["SKU", 160],
+        ["DESCRIPTION", 390],
+        ["BRAND", 90],
+        ["BARCODE", 125],
+        ["QTY", 55],
+        ["LOCATION", 120],
+        ["PACKING", 46],
+      ]
+    : [
+        ["NO", 55],
+        ["SKU", 205],
+        ["DESCRIPTION", 580],
+        ["BRAND", 120],
+        ["BARCODE", 150],
+        ["QTY", 80],
+        ["LOCATION", 150],
+        ["PACKING", 110],
+      ];
 
   function drawTableHeader() {
     let x = margin;
@@ -1212,7 +1232,8 @@ async function downloadPickingExcel() {
       cellStyles: true,
       compression: true,
     });
-    const outputName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
+    const baseName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
+    const outputName = `${baseName}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadFile(
       output,
       `${outputName}.xlsx`,
@@ -1233,15 +1254,16 @@ async function downloadPickingPdf() {
   try {
     const canvases = buildPickingPdfCanvases();
     const pdf = await PDFDocument.create();
-    const pageWidth = 841.8898;
-    const pageHeight = 595.2756;
+    const pageWidth = pickingOrientation === "portrait" ? 595.2756 : 841.8898;
+    const pageHeight = pickingOrientation === "portrait" ? 841.8898 : 595.2756;
     for (const canvas of canvases) {
       const image = await pdf.embedPng(canvas.toDataURL("image/png"));
       const page = pdf.addPage([pageWidth, pageHeight]);
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
     }
     const output = await pdf.save({ useObjectStreams: true });
-    const outputName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
+    const baseName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
+    const outputName = `${baseName}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadPdf(output, outputName);
     showPickingMessage(`작업자용 PDF 피킹리스트 ${canvases.length}페이지를 저장했어요.`);
   } catch (error) {
@@ -1259,6 +1281,16 @@ pickingDom.pdfButton.addEventListener("click", downloadPickingPdf);
 pickingDom.passwordForm.addEventListener("submit", unlockPicking);
 pickingDom.password.addEventListener("input", () => {
   pickingDom.passwordError.hidden = true;
+});
+pickingDom.orientationOptions.forEach((option) => {
+  option.addEventListener("click", () => {
+    pickingOrientation = option.dataset.orientation;
+    pickingDom.orientationOptions.forEach((button) => {
+      const active = button === option;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  });
 });
 
 ["dragenter", "dragover"].forEach((eventName) => {

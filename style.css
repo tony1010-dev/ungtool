@@ -1088,6 +1088,81 @@ main {
   gap: 10px;
 }
 
+.orientation-section {
+  margin-top: 16px;
+}
+
+.orientation-section > .output-label {
+  margin: 0 0 9px;
+}
+
+.orientation-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.orientation-option {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fbfaf7;
+  text-align: left;
+  cursor: pointer;
+}
+
+.orientation-option:hover {
+  border-color: #bcb8b0;
+}
+
+.orientation-option.is-active {
+  border-color: #217346;
+  background: #f0faf4;
+  box-shadow: 0 0 0 2px rgba(33, 115, 70, 0.08);
+}
+
+.orientation-option > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.orientation-option strong {
+  font-size: 13px;
+}
+
+.orientation-option small {
+  color: #8b8780;
+  font-size: 10px;
+}
+
+.paper-icon {
+  display: block;
+  flex: 0 0 auto;
+  border: 2px solid #77736d;
+  border-radius: 3px;
+  background: white;
+}
+
+.landscape-paper {
+  width: 32px;
+  height: 23px;
+}
+
+.portrait-paper {
+  width: 23px;
+  height: 32px;
+  margin: 0 4px;
+}
+
+.orientation-option.is-active .paper-icon {
+  border-color: #217346;
+}
+
 .download-actions .merge-button {
   margin-top: 14px;
 }
@@ -1223,6 +1298,10 @@ footer p {
   .download-actions {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .orientation-options {
+    grid-template-columns: 1fr;
   }
 
   .ups-summary .size-summary {
