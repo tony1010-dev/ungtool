@@ -36,6 +36,10 @@
           <span class="tab-number">03</span>
           <span><strong>피킹리스트 출력</strong><small>SKU Location 자동 입력</small></span>
         </button>
+        <button class="tool-tab" type="button" data-tool="sync">
+          <span class="tab-number">04</span>
+          <span><strong>로케이션 동기화</strong><small>재고·DB 비교</small></span>
+        </button>
       </nav>
     </header>
 
@@ -44,7 +48,7 @@
         <div class="eyebrow"><span></span> WORK TOOLS</div>
         <h1>복잡한 업무를<br /><em>가볍고 빠르게.</em></h1>
         <p>
-          자주 반복하는 문서 작업을 웅툴에서 간단하게 처리하세요.
+          업무를 빠르게 처리 하자
         </p>
       </section>
 
@@ -198,6 +202,33 @@
       </section>
 
       <section class="tool-card tool-panel" id="picking-tool" aria-labelledby="picking-title" hidden>
+        <div class="password-gate" id="picking-password-gate">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
+              <path d="M12 14v3" />
+            </svg>
+          </div>
+          <h2>피킹리스트 전용 메뉴</h2>
+          <p>Google DB를 사용하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
+          <form class="password-form" id="picking-password-form">
+            <input
+              id="picking-password"
+              type="password"
+              inputmode="numeric"
+              autocomplete="current-password"
+              placeholder="비밀번호"
+              maxlength="20"
+              aria-label="피킹리스트 비밀번호"
+            />
+            <button type="submit">확인</button>
+          </form>
+          <div class="password-error" id="picking-password-error" role="alert" hidden>
+            비밀번호가 올바르지 않습니다.
+          </div>
+        </div>
+
+        <div id="picking-content" hidden>
         <div class="tool-heading">
           <div>
             <h2 id="picking-title">피킹리스트 출력</h2>
@@ -272,6 +303,73 @@
         </div>
 
         <div class="message" id="picking-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
+      <section class="tool-card tool-panel" id="sync-tool" aria-labelledby="sync-title" hidden>
+        <div class="password-gate" id="sync-password-gate">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
+              <path d="M12 14v3" />
+            </svg>
+          </div>
+          <h2>로케이션 동기화 전용 메뉴</h2>
+          <p>Google DB와 재고를 비교하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
+          <form class="password-form" id="sync-password-form">
+            <input id="sync-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="로케이션 동기화 비밀번호" />
+            <button type="submit">확인</button>
+          </form>
+          <div class="password-error" id="sync-password-error" role="alert" hidden>비밀번호가 올바르지 않습니다.</div>
+        </div>
+
+        <div id="sync-content" hidden>
+          <div class="tool-heading">
+            <div>
+              <h2 id="sync-title">로케이션 동기화</h2>
+              <p>재고 Manage → CSMS &amp; WMS 재고조회 → Down (Default) → 엑셀파일 업로드</p>
+            </div>
+            <span class="sheet-badge" id="sync-db-status"><span class="status-dot"></span>DB 연결 대기</span>
+          </div>
+
+          <div class="drop-zone" id="sync-drop-zone">
+            <input id="sync-input" type="file" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
+            <div class="upload-icon sheet-upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" /></svg>
+            </div>
+            <strong>재고 엑셀파일을 올려주세요</strong>
+            <span>또는</span>
+            <button class="select-button" id="sync-select-button" type="button">재고파일 선택</button>
+            <small>다운로드한 Default 엑셀파일을 그대로 올려주세요.</small>
+          </div>
+
+          <div class="workspace" id="sync-workspace" hidden>
+            <div class="selected-file">
+              <div class="file-type excel-file-type">XLS</div>
+              <div class="file-meta"><strong id="sync-file-name"></strong><span id="sync-file-info"></span></div>
+              <button class="icon-button" id="sync-reset-button" type="button" aria-label="파일 제거"><svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" /></svg></button>
+            </div>
+
+            <div class="sync-summary">
+              <div><span>전체 상품</span><strong id="sync-total">-</strong><small>개</small></div>
+              <div class="matched-summary"><span>정상</span><strong id="sync-normal">-</strong><small>개</small></div>
+              <div class="missing-summary"><span>로케이션 없음</span><strong id="sync-no-location">-</strong><small>개</small></div>
+              <div class="zero-summary"><span>재고 없음</span><strong id="sync-no-stock">-</strong><small>개</small></div>
+            </div>
+
+            <div class="sync-note">
+              재고가 있는데 로케이션이 없는 상품과, DB에 있지만 현재 재고가 없는 상품을 구분해 표시합니다.
+            </div>
+
+            <label class="output-label" for="sync-output-name">저장할 파일명</label>
+            <div class="output-field"><input id="sync-output-name" type="text" maxlength="120" /><span>.xlsx</span></div>
+            <button class="merge-button picking-download-button" id="sync-download-button" type="button">
+              <span>동기화 결과 Excel 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+          </div>
+          <div class="message" id="sync-message" role="status" aria-live="polite" hidden></div>
+        </div>
       </section>
 
     </main>

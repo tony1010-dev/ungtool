@@ -249,6 +249,7 @@ const upsDom = {
     zip: document.querySelector("#zip-tool"),
     ups: document.querySelector("#ups-tool"),
     picking: document.querySelector("#picking-tool"),
+    sync: document.querySelector("#sync-tool"),
   },
   dropZone: document.querySelector("#ups-drop-zone"),
   input: document.querySelector("#ups-input"),
@@ -279,6 +280,9 @@ function selectTool(name) {
   Object.entries(upsDom.panels).forEach(([panelName, panel]) => {
     panel.hidden = panelName !== name;
   });
+
+  if (name === "picking") updatePickingLock();
+  if (name === "sync") updateSyncLock();
 }
 
 function showUpsMessage(text, isError = false) {
@@ -464,8 +468,14 @@ upsDom.dropZone.addEventListener("drop", (event) => {
 
 const GOOGLE_SHEET_ID = "1RLA7Qs9hYDiBaSL9CScATVPRjwnwIjznDdRNJGGbg1k";
 const GOOGLE_DB_GID = "1060200137";
+const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
 
 const pickingDom = {
+  passwordGate: document.querySelector("#picking-password-gate"),
+  content: document.querySelector("#picking-content"),
+  passwordForm: document.querySelector("#picking-password-form"),
+  password: document.querySelector("#picking-password"),
+  passwordError: document.querySelector("#picking-password-error"),
   dbStatus: document.querySelector("#db-status"),
   dropZone: document.querySelector("#picking-drop-zone"),
   input: document.querySelector("#picking-input"),
@@ -492,6 +502,40 @@ let pickingRows = [];
 let pickingColumns = null;
 let pickingFile = null;
 let pickingData = null;
+let pickingUnlocked = sessionStorage.getItem("woongtoolPickingUnlocked") === "yes";
+
+async function sha256(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function updatePickingLock() {
+  pickingDom.passwordGate.hidden = pickingUnlocked;
+  pickingDom.content.hidden = !pickingUnlocked;
+  if (!pickingUnlocked) {
+    requestAnimationFrame(() => pickingDom.password.focus());
+  }
+}
+
+async function unlockPicking(event) {
+  event.preventDefault();
+  const enteredHash = await sha256(pickingDom.password.value);
+  if (enteredHash !== PICKING_PASSWORD_HASH) {
+    pickingDom.passwordError.hidden = false;
+    pickingDom.password.select();
+    return;
+  }
+
+  pickingUnlocked = true;
+  sessionStorage.setItem("woongtoolPickingUnlocked", "yes");
+  pickingDom.password.value = "";
+  pickingDom.passwordError.hidden = true;
+  updatePickingLock();
+  loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
+}
 
 function normalizeHeader(value) {
   return String(value ?? "")
@@ -514,8 +558,10 @@ function showPickingMessage(text, isError = false) {
 }
 
 function setDbStatus(state, text) {
-  pickingDom.dbStatus.className = `sheet-badge ${state ? `is-${state}` : ""}`;
-  pickingDom.dbStatus.innerHTML = `<span class="status-dot"></span>${text}`;
+  [pickingDom.dbStatus, document.querySelector("#sync-db-status")].filter(Boolean).forEach((element) => {
+    element.className = `sheet-badge ${state ? `is-${state}` : ""}`;
+    element.innerHTML = `<span class="status-dot"></span>${text}`;
+  });
 }
 
 function gvizCellValue(cell) {
@@ -535,12 +581,10 @@ function makeLocationMap(response) {
     const sku = normalizeSku(gvizCellValue(cells[0]));
     const location = String(gvizCellValue(cells[3]) ?? "").trim();
     if (sku === "상품코드" || sku === "SKU") continue;
-    if (sku && location) map.set(sku, location);
+    if (sku) map.set(sku, location);
   }
 
-  if (!map.size) {
-    throw new Error("DB 탭 A열 상품코드 또는 D열 로케이션 데이터를 찾지 못했습니다.");
-  }
+  if (!map.size) throw new Error("DB 탭 A열 상품코드 데이터를 찾지 못했습니다.");
   return map;
 }
 
@@ -694,7 +738,7 @@ function extractPickingData(sheet, columns, rows) {
 }
 
 function updatePickingSummary() {
-  const missing = pickingRows.filter((item) => !locationDb?.has(item.sku));
+  const missing = pickingRows.filter((item) => !locationDb?.get(item.sku));
   const matched = pickingRows.length - missing.length;
   pickingDom.total.textContent = String(pickingRows.length);
   pickingDom.matched.textContent = String(matched);
@@ -1212,6 +1256,10 @@ pickingDom.input.addEventListener("change", () => inspectPickingFile(pickingDom.
 pickingDom.resetButton.addEventListener("click", resetPickingTool);
 pickingDom.excelButton.addEventListener("click", downloadPickingExcel);
 pickingDom.pdfButton.addEventListener("click", downloadPickingPdf);
+pickingDom.passwordForm.addEventListener("submit", unlockPicking);
+pickingDom.password.addEventListener("input", () => {
+  pickingDom.passwordError.hidden = true;
+});
 
 ["dragenter", "dragover"].forEach((eventName) => {
   pickingDom.dropZone.addEventListener(eventName, (event) => {
@@ -1232,3 +1280,281 @@ pickingDom.pdfButton.addEventListener("click", downloadPickingPdf);
 pickingDom.dropZone.addEventListener("drop", (event) => {
   inspectPickingFile(event.dataTransfer.files[0]);
 });
+
+const syncDom = {
+  passwordGate: document.querySelector("#sync-password-gate"),
+  content: document.querySelector("#sync-content"),
+  passwordForm: document.querySelector("#sync-password-form"),
+  password: document.querySelector("#sync-password"),
+  passwordError: document.querySelector("#sync-password-error"),
+  dropZone: document.querySelector("#sync-drop-zone"),
+  input: document.querySelector("#sync-input"),
+  selectButton: document.querySelector("#sync-select-button"),
+  workspace: document.querySelector("#sync-workspace"),
+  fileName: document.querySelector("#sync-file-name"),
+  fileInfo: document.querySelector("#sync-file-info"),
+  resetButton: document.querySelector("#sync-reset-button"),
+  total: document.querySelector("#sync-total"),
+  normal: document.querySelector("#sync-normal"),
+  noLocation: document.querySelector("#sync-no-location"),
+  noStock: document.querySelector("#sync-no-stock"),
+  outputName: document.querySelector("#sync-output-name"),
+  downloadButton: document.querySelector("#sync-download-button"),
+  message: document.querySelector("#sync-message"),
+};
+
+let syncUnlocked = sessionStorage.getItem("woongtoolSyncUnlocked") === "yes";
+let syncFile = null;
+let syncResults = [];
+
+function showSyncMessage(text, isError = false) {
+  syncDom.message.textContent = text;
+  syncDom.message.classList.toggle("error", isError);
+  syncDom.message.hidden = !text;
+}
+
+function updateSyncLock() {
+  syncDom.passwordGate.hidden = syncUnlocked;
+  syncDom.content.hidden = !syncUnlocked;
+  if (!syncUnlocked) requestAnimationFrame(() => syncDom.password.focus());
+}
+
+async function unlockSync(event) {
+  event.preventDefault();
+  const enteredHash = await sha256(syncDom.password.value);
+  if (enteredHash !== PICKING_PASSWORD_HASH) {
+    syncDom.passwordError.hidden = false;
+    syncDom.password.select();
+    return;
+  }
+  syncUnlocked = true;
+  sessionStorage.setItem("woongtoolSyncUnlocked", "yes");
+  syncDom.password.value = "";
+  syncDom.passwordError.hidden = true;
+  updateSyncLock();
+  loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
+}
+
+function resetSyncTool() {
+  syncFile = null;
+  syncResults = [];
+  syncDom.input.value = "";
+  syncDom.workspace.hidden = true;
+  syncDom.dropZone.hidden = false;
+  showSyncMessage("");
+}
+
+function parseNumber(value) {
+  const number = Number(String(value ?? "").replace(/,/g, "").trim());
+  return Number.isFinite(number) ? number : 0;
+}
+
+function parseStockHtml(text) {
+  const documentNode = new DOMParser().parseFromString(text, "text/html");
+  const table = documentNode.querySelector("table");
+  if (!table) throw new Error("재고 표를 찾지 못했습니다.");
+  const rows = Array.from(table.querySelectorAll("tr")).map((row) =>
+    Array.from(row.querySelectorAll("th,td")).map((cell) => cell.textContent.trim()),
+  );
+  return stockRowsFromMatrix(rows);
+}
+
+function stockRowsFromMatrix(rows) {
+  let headerIndex = rows.findIndex((row) =>
+    row.some((value) => normalizeHeader(value) === "상품코드"),
+  );
+  if (headerIndex < 0) headerIndex = 1;
+  const header = rows[headerIndex] || [];
+  let skuColumn = header.findIndex((value) => normalizeHeader(value) === "상품코드");
+  let stockColumn = header.findIndex((value) => normalizeHeader(value) === "재고수량");
+  if (skuColumn < 0) skuColumn = 1;
+  if (stockColumn < 0) stockColumn = 7;
+
+  const items = [];
+  for (let index = headerIndex + 1; index < rows.length; index += 1) {
+    const row = rows[index];
+    const sku = normalizeSku(row[skuColumn]);
+    if (!sku || sku === "상품코드") continue;
+    items.push({
+      sku,
+      name: String(row[2] ?? "").trim(),
+      brand: String(row[3] ?? "").trim(),
+      stock: parseNumber(row[stockColumn]),
+    });
+  }
+  if (!items.length) throw new Error("B열 상품코드 데이터를 찾지 못했습니다.");
+  return items;
+}
+
+function parseStockWorkbook(buffer) {
+  const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  return stockRowsFromMatrix(XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }));
+}
+
+async function inspectSyncFile(file) {
+  showSyncMessage("");
+  if (!file || !/\.(xls|xlsx)$/i.test(file.name)) {
+    showSyncMessage("XLS 또는 XLSX 형식의 재고파일을 선택해 주세요.", true);
+    return;
+  }
+  syncDom.selectButton.disabled = true;
+  syncDom.selectButton.textContent = "비교 중…";
+  try {
+    const [db, buffer] = await Promise.all([loadGoogleDb(), file.arrayBuffer()]);
+    const head = new TextDecoder("utf-8").decode(buffer.slice(0, 200)).toLowerCase();
+    const items = head.includes("<html")
+      ? parseStockHtml(new TextDecoder("utf-8").decode(buffer))
+      : parseStockWorkbook(buffer);
+
+    locationDb = db;
+    const inventorySkus = new Set(items.map((item) => item.sku));
+    syncResults = items.map((item) => {
+      const inDb = locationDb.has(item.sku);
+      const location = locationDb.get(item.sku) || "";
+      let status = "정상";
+      if (item.stock <= 0) status = "재고 없음";
+      else if (!inDb) status = "DB 미등록";
+      else if (!location) status = "로케이션 없음";
+      return { ...item, location, status };
+    });
+    for (const [sku, location] of locationDb.entries()) {
+      if (!inventorySkus.has(sku)) {
+        syncResults.push({
+          sku,
+          name: "",
+          brand: "",
+          stock: 0,
+          location,
+          status: "재고 없음",
+        });
+      }
+    }
+    syncFile = file;
+
+    const normal = syncResults.filter((item) => item.status === "정상").length;
+    const noLocation = syncResults.filter((item) => item.status === "로케이션 없음").length;
+    const noStock = syncResults.filter((item) => item.status === "재고 없음").length;
+    const notRegistered = syncResults.filter((item) => item.status === "DB 미등록").length;
+    syncDom.total.textContent = String(syncResults.length);
+    syncDom.normal.textContent = String(normal);
+    syncDom.noLocation.textContent = String(noLocation + notRegistered);
+    syncDom.noStock.textContent = String(noStock);
+    syncDom.fileName.textContent = file.name;
+    syncDom.fileInfo.textContent = `${formatBytes(file.size)} · ${syncResults.length.toLocaleString()}개 상품 비교 완료`;
+    syncDom.outputName.value = `${safeBaseName(file.name)}_로케이션동기화`;
+    syncDom.dropZone.hidden = true;
+    syncDom.workspace.hidden = false;
+    showSyncMessage(
+      `로케이션 확인 필요 ${noLocation}개 · DB 미등록 ${notRegistered}개 · 재고 없음 ${noStock}개`,
+      noLocation + notRegistered > 0,
+    );
+  } catch (error) {
+    resetSyncTool();
+    showSyncMessage(error.message || "재고파일 비교 중 문제가 발생했습니다.", true);
+  } finally {
+    syncDom.selectButton.disabled = false;
+    syncDom.selectButton.textContent = "재고파일 선택";
+  }
+}
+
+function buildSyncWorkbook() {
+  const ordered = [...syncResults].sort((a, b) => {
+    const priority = { "로케이션 없음": 0, "DB 미등록": 1, "재고 없음": 2, 정상: 3 };
+    return priority[a.status] - priority[b.status] || naturalCollator.compare(a.sku, b.sku);
+  });
+  const rows = [
+    ["로케이션 동기화 결과", "", "", "", "", ""],
+    ["기준", "재고파일 B열 상품코드 / H열 재고 수량 / DB A열 상품코드 / D열 로케이션", "", "", "", ""],
+    ["상태", "상품코드", "상품명", "브랜드", "재고 수량", "로케이션"],
+    ...ordered.map((item) => [item.status, item.sku, item.name, item.brand, item.stock, item.location]),
+  ];
+  const sheet = XLSX.utils.aoa_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, sheet, "동기화 결과");
+  sheet["!merges"] = [XLSX.utils.decode_range("A1:F1"), XLSX.utils.decode_range("B2:F2")];
+  sheet["!cols"] = [{ wch: 17 }, { wch: 25 }, { wch: 58 }, { wch: 18 }, { wch: 12 }, { wch: 18 }];
+  sheet["!rows"] = [{ hpt: 34 }, { hpt: 25 }, { hpt: 28 }, ...ordered.map((item) => ({ hpt: Math.max(28, Math.ceil(item.name.length / 50) * 16 + 8) }))];
+
+  const border = {
+    top: { style: "thin", color: { rgb: "D8D5CE" } },
+    bottom: { style: "thin", color: { rgb: "D8D5CE" } },
+    left: { style: "thin", color: { rgb: "D8D5CE" } },
+    right: { style: "thin", color: { rgb: "D8D5CE" } },
+  };
+  const range = XLSX.utils.decode_range(sheet["!ref"]);
+  for (let row = 0; row <= range.e.r; row += 1) {
+    for (let col = 0; col <= range.e.c; col += 1) {
+      const cell = ensureCell(sheet, row, col);
+      cell.s = {
+        font: { name: "맑은 고딕", sz: 9, color: { rgb: "222222" } },
+        alignment: { vertical: "center", wrapText: true },
+        border: row >= 2 ? border : undefined,
+      };
+    }
+  }
+  sheet.A1.s = { fill: { fgColor: { rgb: "171717" } }, font: { name: "맑은 고딕", sz: 20, bold: true, color: { rgb: "FFFFFF" } }, alignment: { vertical: "center" } };
+  sheet.A2.s = { fill: { fgColor: { rgb: "EEEAE3" } }, font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "55514B" } }, alignment: { horizontal: "center", vertical: "center" } };
+  sheet.B2.s = { fill: { fgColor: { rgb: "F8F7F3" } }, font: { name: "맑은 고딕", sz: 9, color: { rgb: "55514B" } }, alignment: { vertical: "center" } };
+  for (let col = 0; col < 6; col += 1) {
+    sheet[XLSX.utils.encode_cell({ r: 2, c: col })].s = { fill: { fgColor: { rgb: "217346" } }, font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, border };
+  }
+  ordered.forEach((item, index) => {
+    const row = index + 3;
+    const colors = {
+      정상: ["F0FAF4", "217346"],
+      "로케이션 없음": ["FFF2EE", "B84629"],
+      "DB 미등록": ["FFF2EE", "B84629"],
+      "재고 없음": ["F3F1F9", "6853A4"],
+    }[item.status];
+    for (let col = 0; col < 6; col += 1) {
+      const cell = sheet[XLSX.utils.encode_cell({ r: row, c: col })];
+      cell.s = { fill: { fgColor: { rgb: index % 2 ? "FAF9F6" : "FFFFFF" } }, font: { name: "맑은 고딕", sz: col === 0 || col === 5 ? 10 : 9, bold: col === 0 || col === 5, color: { rgb: col === 0 ? colors[1] : "222222" } }, alignment: { horizontal: [0, 4, 5].includes(col) ? "center" : "left", vertical: "center", wrapText: true }, border };
+    }
+    sheet[XLSX.utils.encode_cell({ r: row, c: 0 })].s.fill = { fgColor: { rgb: colors[0] } };
+  });
+  sheet["!autofilter"] = { ref: `A3:F${ordered.length + 3}` };
+  sheet["!freeze"] = { xSplit: 0, ySplit: 3 };
+  sheet["!pageSetup"] = { paperSize: 9, orientation: "landscape", fitToWidth: 1, fitToHeight: 0 };
+  sheet["!margins"] = { left: 0.2, right: 0.2, top: 0.3, bottom: 0.3, header: 0.1, footer: 0.1 };
+  return workbook;
+}
+
+function downloadSyncReport() {
+  if (!syncResults.length) return;
+  syncDom.downloadButton.disabled = true;
+  try {
+    const workbook = buildSyncWorkbook();
+    const output = XLSX.write(workbook, { type: "array", bookType: "xlsx", cellStyles: true, compression: true });
+    const outputName = safeBaseName(syncDom.outputName.value) || "웅툴_로케이션동기화";
+    downloadFile(output, `${outputName}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    showSyncMessage("로케이션 동기화 결과 Excel을 저장했어요.");
+  } catch (error) {
+    showSyncMessage(error.message || "결과 파일 생성 중 문제가 발생했습니다.", true);
+  } finally {
+    syncDom.downloadButton.disabled = false;
+  }
+}
+
+syncDom.passwordForm.addEventListener("submit", unlockSync);
+syncDom.password.addEventListener("input", () => { syncDom.passwordError.hidden = true; });
+syncDom.selectButton.addEventListener("click", () => syncDom.input.click());
+syncDom.input.addEventListener("change", () => inspectSyncFile(syncDom.input.files[0]));
+syncDom.resetButton.addEventListener("click", resetSyncTool);
+syncDom.downloadButton.addEventListener("click", downloadSyncReport);
+
+["dragenter", "dragover"].forEach((eventName) => {
+  syncDom.dropZone.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    syncDom.dropZone.classList.add("is-dragging");
+  });
+});
+["dragleave", "drop"].forEach((eventName) => {
+  syncDom.dropZone.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    syncDom.dropZone.classList.remove("is-dragging");
+  });
+});
+syncDom.dropZone.addEventListener("drop", (event) => inspectSyncFile(event.dataTransfer.files[0]));

@@ -157,7 +157,7 @@ main {
 .header-tabs .tool-tab {
   min-height: 48px;
   gap: 9px;
-  padding: 8px 11px;
+  padding: 8px 9px;
   border-color: transparent;
   border-radius: 10px;
   background: transparent;
@@ -176,7 +176,7 @@ main {
 }
 
 .header-tabs .tool-tab strong {
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .header-tabs .tool-tab small {
@@ -450,6 +450,96 @@ main {
 
 .sheet-badge.is-error .status-dot {
   background: #d05a43;
+}
+
+.password-gate {
+  min-height: 390px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 38px 20px;
+  text-align: center;
+}
+
+.lock-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 17px;
+  color: var(--accent);
+  border-radius: 18px;
+  background: #fff0e9;
+}
+
+.lock-icon svg {
+  width: 29px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.password-gate h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.04em;
+}
+
+.password-gate p {
+  margin: 10px 0 20px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.password-form {
+  width: min(330px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 78px;
+  gap: 7px;
+}
+
+.password-form input {
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  background: #fbfaf7;
+  font-size: 14px;
+}
+
+.password-form input:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.06);
+}
+
+.password-form button {
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.password-error {
+  margin-top: 10px;
+  color: #b13e29;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#picking-content {
+  animation: reveal 0.25s ease;
+}
+
+#sync-content {
+  animation: reveal 0.25s ease;
 }
 
 @keyframes pulse {
@@ -827,6 +917,74 @@ main {
   margin-top: 16px;
 }
 
+.sync-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sync-summary > div {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-content: center;
+  justify-content: center;
+  column-gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbfaf7;
+}
+
+.sync-summary span {
+  grid-column: 1 / -1;
+  color: #8b8780;
+  font-size: 10px;
+  text-align: center;
+}
+
+.sync-summary strong {
+  font-size: 21px;
+  letter-spacing: -0.04em;
+}
+
+.sync-summary small {
+  align-self: end;
+  padding-bottom: 3px;
+  color: #99958e;
+  font-size: 10px;
+}
+
+.sync-summary .matched-summary {
+  border-color: #bfe1ce;
+  background: #f0faf4;
+}
+
+.sync-summary .missing-summary {
+  border-color: #f0d3ca;
+  background: #fff6f3;
+}
+
+.sync-summary .zero-summary {
+  border-color: #d9d5e9;
+  background: #f6f4fb;
+}
+
+.zero-summary strong {
+  color: #6853a4;
+}
+
+.sync-note {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: #68645e;
+  background: #f3f1ec;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 .picking-summary > div {
   min-height: 82px;
   display: grid;
@@ -1029,7 +1187,7 @@ footer p {
   }
 
   .header-tabs .tool-tab strong {
-    font-size: 9px;
+    font-size: 8px;
     white-space: nowrap;
   }
 
@@ -1056,6 +1214,10 @@ footer p {
 
   .change-list {
     grid-template-columns: 1fr;
+  }
+
+  .sync-summary {
+    grid-template-columns: 1fr 1fr;
   }
 
   .download-actions {
