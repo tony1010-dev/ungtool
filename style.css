@@ -341,11 +341,11 @@ main {
 }
 
 .header-tabs .tool-tab strong {
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .header-tabs .tool-tab small {
-  font-size: 8px;
+  font-size: 9px;
 }
 
 .tool-tab {
@@ -1730,7 +1730,7 @@ html[data-theme="dark"] .sync-note {
   }
 
   .header-tabs .tool-tab strong {
-    font-size: 8px;
+    font-size: 9px;
     white-space: nowrap;
   }
 
