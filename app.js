@@ -2200,13 +2200,13 @@ async function sendBusinessMessage() {
     loadingRow.remove();
     addBusinessMessage("assistant", answer);
     businessHistory.push({ role: "assistant", content: answer });
-  } catch {
+  } catch (error) {
     loadingRow.remove();
     addBusinessMessage(
       "assistant",
-      "AI에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+      error.message || "AI에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
     );
-    showBusinessMessage("AI 연결을 확인해 주세요.", true);
+    showBusinessMessage(error.message || "AI 연결을 확인해 주세요.", true);
   } finally {
     businessBusy = false;
     businessDom.sendButton.disabled = false;
