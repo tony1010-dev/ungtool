@@ -85,7 +85,7 @@ button {
 }
 
 main {
-  width: min(900px, calc(100% - 40px));
+  width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
 }
 
@@ -202,7 +202,7 @@ main {
 }
 
 .hero {
-  padding: 44px 0 28px;
+  padding: 30px 0 22px;
 }
 
 .eyebrow {
@@ -404,11 +404,128 @@ main {
   display: none;
 }
 
-.label-editor {
+.label-workspaces {
   display: grid;
-  grid-template-columns: minmax(250px, 0.8fr) minmax(390px, 1.2fr);
-  gap: 26px;
-  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.label-mode-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fbfaf7;
+}
+
+.label-mode-card--custom {
+  background: #fffaf7;
+}
+
+.label-mode-heading {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.label-mode-heading > div > span {
+  color: var(--accent-dark);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.label-mode-heading h3 {
+  margin: 3px 0 0;
+  font-size: 17px;
+  letter-spacing: -0.035em;
+}
+
+.custom-label-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.custom-label-title svg {
+  width: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.preset-label-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.preset-label-title svg {
+  width: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.label-size-badge {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #77736d;
+  background: white;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.custom-label-toolbar {
+  display: block;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+}
+
+.custom-label-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.custom-label-toolbar label > span {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.font-size-control {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) 34px;
+  gap: 8px;
+  align-items: center;
+}
+
+.font-size-control input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.font-size-control output {
+  color: var(--accent-dark);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: right;
 }
 
 .label-fields {
@@ -455,6 +572,44 @@ main {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #f0eee8;
+}
+
+.custom-label-preview-wrap {
+  padding: 14px;
+  background: #f3eee9;
+}
+
+.custom-label-preview {
+  min-height: 0;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.16;
+  cursor: text;
+  caret-color: var(--accent);
+}
+
+.custom-label-preview:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+
+.custom-label-fields {
+  margin-top: auto;
+}
+
+.label-card-footer {
+  margin-top: auto;
+}
+
+.label-card-footer .merge-button {
+  width: 100%;
+}
+
+.label-card-footer .message {
+  margin-top: 10px;
 }
 
 .preview-title {
@@ -643,6 +798,10 @@ main {
   background: #fbfaf7;
 }
 
+.selected-file[hidden] {
+  display: none;
+}
+
 .file-type {
   width: 38px;
   height: 38px;
@@ -725,6 +884,13 @@ main {
   flex-direction: column;
   padding: 38px 20px;
   text-align: center;
+}
+
+.password-gate[hidden],
+#picking-content[hidden],
+#sync-content[hidden],
+#admin-content[hidden] {
+  display: none !important;
 }
 
 .lock-icon {
@@ -1414,6 +1580,17 @@ main {
   gap: 10px;
 }
 
+.picking-download-actions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.picking-download-actions .merge-button {
+  min-width: 0;
+  padding-inline: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .orientation-section {
   margin-top: 16px;
 }
@@ -1469,24 +1646,27 @@ main {
 .paper-icon {
   display: block;
   flex: 0 0 auto;
-  border: 2px solid #77736d;
-  border-radius: 3px;
-  background: white;
+  fill: white;
+  stroke: #77736d;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .landscape-paper {
-  width: 32px;
-  height: 23px;
+  width: 36px;
+  height: 26px;
 }
 
 .portrait-paper {
-  width: 23px;
-  height: 32px;
-  margin: 0 4px;
+  width: 26px;
+  height: 36px;
+  margin: 0 5px;
 }
 
 .orientation-option.is-active .paper-icon {
-  border-color: #217346;
+  fill: #ffffff;
+  stroke: #217346;
 }
 
 .download-actions .merge-button {
@@ -1565,6 +1745,22 @@ html[data-theme="dark"] .tool-tab,
 html[data-theme="dark"] .home-notice-card,
 html[data-theme="dark"] .tool-card {
   background: rgba(36, 35, 33, 0.94);
+}
+
+html[data-theme="dark"] .label-mode-card,
+html[data-theme="dark"] .custom-label-toolbar {
+  border-color: #3a3834;
+  background: #22211f;
+}
+
+html[data-theme="dark"] .label-mode-card--custom {
+  background: #27211e;
+}
+
+html[data-theme="dark"] .label-size-badge {
+  border-color: #44413c;
+  color: #d2cec7;
+  background: #292825;
 }
 
 html[data-theme="dark"] .theme-button:hover {
@@ -1742,7 +1938,7 @@ html[data-theme="dark"] .sync-note {
     flex-direction: column;
   }
 
-  .label-editor {
+  .label-workspaces {
     grid-template-columns: 1fr;
   }
 
@@ -1760,8 +1956,8 @@ html[data-theme="dark"] .sync-note {
     gap: 0;
   }
 
-  .label-preview-wrap {
-    order: -1;
+  .custom-label-toolbar {
+    grid-template-columns: 1fr;
   }
 
   .drop-zone {
@@ -1788,6 +1984,15 @@ html[data-theme="dark"] .sync-note {
   .download-actions {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .picking-download-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .picking-download-actions .merge-button {
+    margin-top: 0;
   }
 
   .orientation-options {

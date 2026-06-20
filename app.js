@@ -35,6 +35,7 @@ const dom = {
   zipInput: document.querySelector("#zip-input"),
   selectButton: document.querySelector("#select-button"),
   workspace: document.querySelector("#workspace"),
+  selectedFile: document.querySelector("#workspace .selected-file"),
   zipName: document.querySelector("#zip-name"),
   zipSize: document.querySelector("#zip-size"),
   resetButton: document.querySelector("#reset-button"),
@@ -203,8 +204,147 @@ async function downloadLabelPdf() {
 });
 labelDom.downloadButton.addEventListener("click", downloadLabelPdf);
 
+const customLabelDom = {
+  preview: document.querySelector("#custom-label-preview"),
+  fontSize: document.querySelector("#custom-label-font-size"),
+  fontSizeValue: document.querySelector("#custom-label-font-size-value"),
+  copyCount: document.querySelector("#custom-label-copy-count"),
+  outputName: document.querySelector("#custom-label-output-name"),
+  downloadButton: document.querySelector("#custom-label-download-button"),
+  message: document.querySelector("#custom-label-message"),
+};
+
+const customLabelAlign = "center";
+
+function customLabelText() {
+  return customLabelDom.preview.innerText
+    .replace(/\u00a0/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function updateCustomLabelState() {
+  const empty = !customLabelText();
+  customLabelDom.preview.classList.toggle("is-empty", empty);
+  customLabelDom.fontSizeValue.value = customLabelDom.fontSize.value;
+  customLabelDom.preview.style.fontSize = `${customLabelDom.fontSize.value}px`;
+  customLabelDom.preview.style.textAlign = customLabelAlign;
+}
+
+function showCustomLabelMessage(text, isError = false) {
+  customLabelDom.message.textContent = text;
+  customLabelDom.message.classList.toggle("error", isError);
+  customLabelDom.message.hidden = !text;
+}
+
+function wrapCanvasText(ctx, text, maxWidth) {
+  const sourceLines = text.split(/\r?\n/);
+  const lines = [];
+
+  sourceLines.forEach((sourceLine) => {
+    if (!sourceLine) {
+      lines.push("");
+      return;
+    }
+
+    let current = "";
+    Array.from(sourceLine).forEach((character) => {
+      const candidate = current + character;
+      if (current && ctx.measureText(candidate).width > maxWidth) {
+        lines.push(current.trimEnd());
+        current = character.trimStart();
+      } else {
+        current = candidate;
+      }
+    });
+    lines.push(current);
+  });
+
+  return lines.slice(0, 8);
+}
+
+function createCustomLabelCanvas(text, fontSize, alignment) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1500;
+  canvas.height = 1000;
+  const ctx = canvas.getContext("2d");
+  const canvasFontSize = Math.round(fontSize * 2.55);
+  const padding = 90;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#000000";
+  ctx.font = `800 ${canvasFontSize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.textBaseline = "middle";
+  ctx.textAlign = alignment;
+
+  const lines = wrapCanvasText(ctx, text, canvas.width - padding * 2);
+  const lineHeight = canvasFontSize * 1.18;
+  const totalHeight = lineHeight * lines.length;
+  const startY = (canvas.height - totalHeight) / 2 + lineHeight / 2;
+  const x = alignment === "left" ? padding : alignment === "right" ? canvas.width - padding : canvas.width / 2;
+
+  lines.forEach((line, index) => {
+    ctx.fillText(line, x, startY + index * lineHeight);
+  });
+  return canvas;
+}
+
+async function downloadCustomLabelPdf() {
+  const text = customLabelText();
+  if (!text) {
+    showCustomLabelMessage("미리보기 안에 출력할 문구를 입력해 주세요.", true);
+    customLabelDom.preview.focus();
+    return;
+  }
+
+  customLabelDom.downloadButton.disabled = true;
+  showCustomLabelMessage("");
+  try {
+    const copies = Math.min(200, Math.max(1, Number(customLabelDom.copyCount.value) || 1));
+    const fontSize = Number(customLabelDom.fontSize.value) || 48;
+    const canvas = createCustomLabelCanvas(text, fontSize, customLabelAlign);
+    const pdf = await PDFDocument.create();
+    const image = await pdf.embedPng(canvas.toDataURL("image/png"));
+    const pageWidth = (150 / 25.4) * 72;
+    const pageHeight = (100 / 25.4) * 72;
+
+    for (let index = 0; index < copies; index += 1) {
+      const page = pdf.addPage([pageWidth, pageHeight]);
+      page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
+    }
+
+    const output = await pdf.save({ useObjectStreams: true });
+    const outputName = safeBaseName(customLabelDom.outputName.value) || "CUSTOM_LABEL";
+    downloadPdf(output, outputName);
+    showCustomLabelMessage(`직접 편집 라벨 PDF ${copies}장을 저장했어요.`);
+  } catch (error) {
+    showCustomLabelMessage(error.message || "직접 편집 라벨 생성 중 문제가 발생했습니다.", true);
+  } finally {
+    customLabelDom.downloadButton.disabled = false;
+  }
+}
+
+customLabelDom.preview.addEventListener("input", () => {
+  showCustomLabelMessage("");
+  updateCustomLabelState();
+});
+customLabelDom.preview.addEventListener("focus", () => {
+  if (customLabelText()) return;
+  customLabelDom.preview.classList.add("is-empty");
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(customLabelDom.preview);
+  range.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(range);
+});
+customLabelDom.preview.addEventListener("blur", updateCustomLabelState);
+customLabelDom.fontSize.addEventListener("input", updateCustomLabelState);
+customLabelDom.downloadButton.addEventListener("click", downloadCustomLabelPdf);
+updateCustomLabelState();
+
 const DEFAULT_HOME_NOTICE = `2026.06.19 | Genesis Release
-핵심 기능을 한눈에 확인하세요
 
 • Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성
 • PDF Merge (ZIP): ZIP 내 PDF 자동 병합
@@ -282,9 +422,12 @@ function resetTool() {
   selectedZip = null;
   pdfEntries = [];
   dom.zipInput.value = "";
-  dom.workspace.hidden = true;
+  dom.workspace.hidden = false;
+  dom.selectedFile.hidden = true;
   dom.dropZone.hidden = false;
   dom.pdfList.replaceChildren();
+  dom.fileCount.textContent = "0개";
+  dom.outputName.value = "";
   dom.progressWrap.hidden = true;
   setProgress(0, "PDF를 병합하고 있어요");
   showMessage("");
@@ -351,6 +494,7 @@ async function loadZip(file) {
     renderPdfList();
     dom.dropZone.hidden = true;
     dom.workspace.hidden = false;
+    dom.selectedFile.hidden = false;
   } catch (error) {
     selectedZip = null;
     pdfEntries = [];
@@ -362,7 +506,10 @@ async function loadZip(file) {
 }
 
 async function mergePdfs() {
-  if (!selectedZip || !pdfEntries.length) return;
+  if (!selectedZip || !pdfEntries.length) {
+    showMessage("먼저 병합할 ZIP 파일을 올려주세요.", true);
+    return;
+  }
 
   dom.mergeButton.disabled = true;
   dom.resetButton.disabled = true;
@@ -453,6 +600,7 @@ const upsDom = {
   input: document.querySelector("#ups-input"),
   selectButton: document.querySelector("#ups-select-button"),
   workspace: document.querySelector("#ups-workspace"),
+  selectedFile: document.querySelector("#ups-workspace .selected-file"),
   fileName: document.querySelector("#ups-file-name"),
   fileInfo: document.querySelector("#ups-file-info"),
   resetButton: document.querySelector("#ups-reset-button"),
@@ -512,8 +660,12 @@ function resetUpsTool() {
   upsBytes = null;
   upsPages = [];
   upsDom.input.value = "";
-  upsDom.workspace.hidden = true;
+  upsDom.workspace.hidden = false;
+  upsDom.selectedFile.hidden = true;
   upsDom.dropZone.hidden = false;
+  upsDom.totalPages.textContent = "-";
+  upsDom.labelPages.textContent = "-";
+  upsDom.outputName.value = "";
   upsDom.progressWrap.hidden = true;
   setUpsProgress(0, "라벨을 변환하고 있어요");
   showUpsMessage("");
@@ -560,6 +712,7 @@ async function inspectUpsPdf(file) {
     updateUpsCount();
     upsDom.dropZone.hidden = true;
     upsDom.workspace.hidden = false;
+    upsDom.selectedFile.hidden = false;
 
     const backupCount = pages.filter((page) => page.isBackup).length;
     if (backupCount) {
@@ -681,6 +834,7 @@ const pickingDom = {
   input: document.querySelector("#picking-input"),
   selectButton: document.querySelector("#picking-select-button"),
   workspace: document.querySelector("#picking-workspace"),
+  selectedFile: document.querySelector("#picking-workspace .selected-file"),
   fileName: document.querySelector("#picking-file-name"),
   fileInfo: document.querySelector("#picking-file-info"),
   resetButton: document.querySelector("#picking-reset-button"),
@@ -692,6 +846,8 @@ const pickingDom = {
   outputName: document.querySelector("#picking-output-name"),
   excelButton: document.querySelector("#picking-excel-button"),
   pdfButton: document.querySelector("#picking-pdf-button"),
+  locationExcelButton: document.querySelector("#picking-location-excel-button"),
+  locationPdfButton: document.querySelector("#picking-location-pdf-button"),
   orientationOptions: document.querySelectorAll(".orientation-option"),
   message: document.querySelector("#picking-message"),
 };
@@ -928,12 +1084,25 @@ function extractPickingData(sheet, columns, rows) {
     packing: "",
   }));
 
+  const salesPersonParts = [
+    String(sheetValue(sheet, 10, 14))
+      .replace(/^(?:CONTACT|SHIP\s*VIA)\s*:?\s*/i, "")
+      .trim(),
+    String(sheetValue(sheet, 10, 25)).trim(),
+  ].filter(Boolean);
+  const salesPerson = salesPersonParts.join(" ");
+  const shippingCarrier = String(sheetValue(sheet, 24, 9))
+    .replace(/^SHIP\s*VIA\s*:?\s*/i, "")
+    .trim();
+
   return {
     invoiceNo: invoiceMatch?.[0] || safeBaseName(pickingFile?.name || ""),
     date,
     customer,
     shipTo: shipToParts.join("\n"),
     remark,
+    salesPerson,
+    shippingCarrier,
     totalQuantity: items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
     items,
   };
@@ -957,8 +1126,13 @@ function resetPickingTool() {
   pickingFile = null;
   pickingData = null;
   pickingDom.input.value = "";
-  pickingDom.workspace.hidden = true;
+  pickingDom.workspace.hidden = false;
+  pickingDom.selectedFile.hidden = true;
   pickingDom.dropZone.hidden = false;
+  pickingDom.total.textContent = "-";
+  pickingDom.matched.textContent = "-";
+  pickingDom.missing.textContent = "-";
+  pickingDom.outputName.value = "";
   pickingDom.missingList.hidden = true;
   showPickingMessage("");
 }
@@ -1006,6 +1180,7 @@ async function inspectPickingFile(file) {
     updatePickingSummary();
     pickingDom.dropZone.hidden = true;
     pickingDom.workspace.hidden = false;
+    pickingDom.selectedFile.hidden = false;
   } catch (error) {
     resetPickingTool();
     showPickingMessage(error.message || "엑셀파일을 분석할 수 없습니다.", true);
@@ -1042,15 +1217,47 @@ function withWrapStyle(cell, horizontal = "left") {
   };
 }
 
-function buildPickingWorkbook() {
-  const data = pickingData;
+function getLocationSortedPickingData() {
+  const items = [...pickingData.items]
+    .sort((a, b) => {
+      const locationA = String(a.location || "").trim();
+      const locationB = String(b.location || "").trim();
+      if (!locationA && !locationB) return a.index - b.index;
+      if (!locationA) return 1;
+      if (!locationB) return -1;
+      return (
+        locationA.localeCompare(locationB, "en", {
+          numeric: true,
+          sensitivity: "base",
+        }) || a.index - b.index
+      );
+    })
+    .map((item, index) => ({ ...item, index: index + 1 }));
+
+  return { ...pickingData, items };
+}
+
+function buildPickingWorkbook(data = pickingData) {
   const portrait = pickingOrientation === "portrait";
+  const referenceParts = [];
+  if (data.salesPerson) referenceParts.push(`영업사원 : ${data.salesPerson}`);
+  if (data.shippingCarrier) referenceParts.push(`배송사 : ${data.shippingCarrier}`);
+  const referenceLine = referenceParts.join("   |   ");
+  const referenceRows = referenceLine
+    ? [[referenceLine, "", "", "", "", "", "", ""]]
+    : [];
+  const shipRow = 3 + referenceRows.length;
+  const remarkRow = shipRow + 1;
+  const spacerRow = remarkRow + 1;
+  const headerRow = spacerRow + 1;
+  const firstItemRow = headerRow + 1;
   const rows = [
     ["PICKING LIST", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
     ["INVOICE", data.invoiceNo, "DATE", data.date, "CUSTOMER", data.customer, "TOTAL QTY", data.totalQuantity],
+    ...referenceRows,
     ["SHIP TO", data.shipTo, "", "", "", "", "", ""],
-    ["REMARK", data.remark, "", "", "", "", "", ""],
+    ["특이사항", data.remark, "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
     ["NO", "SKU", "DESCRIPTION", "BRAND", "BARCODE", "QTY", "LOCATION", "PACKING"],
     ...data.items.map((item) => [
@@ -1072,14 +1279,15 @@ function buildPickingWorkbook() {
 
   sheet["!merges"] = [
     XLSX.utils.decode_range("A1:H2"),
-    XLSX.utils.decode_range("B4:H4"),
-    XLSX.utils.decode_range("B5:H5"),
+    ...(referenceLine ? [XLSX.utils.decode_range("A4:H4")] : []),
+    XLSX.utils.decode_range(`B${shipRow + 1}:H${shipRow + 1}`),
+    XLSX.utils.decode_range(`B${remarkRow + 1}:H${remarkRow + 1}`),
   ];
   sheet["!cols"] = [
     { wch: portrait ? 4 : 5 },
     { wch: portrait ? 18 : 23 },
-    { wch: portrait ? 44 : 58 },
-    { wch: portrait ? 11 : 15 },
+    { wch: portrait ? 40 : 54 },
+    { wch: portrait ? 15 : 19 },
     { wch: portrait ? 15 : 19 },
     { wch: portrait ? 7 : 9 },
     { wch: portrait ? 13 : 16 },
@@ -1094,6 +1302,7 @@ function buildPickingWorkbook() {
     { hpt: 30 },
     { hpt: 18 },
     { hpt: 27 },
+    ...(referenceLine ? [{ hpt: 34 }] : []),
     { hpt: Math.max(34, 16 * data.shipTo.split(/\r?\n/).length + 8) },
     { hpt: Math.max(46, remarkLines * 16 + 12) },
     { hpt: 8 },
@@ -1128,7 +1337,14 @@ function buildPickingWorkbook() {
     alignment: { horizontal: "left", vertical: "center" },
   };
 
-  for (const address of ["A3", "C3", "E3", "G3", "A4", "A5"]) {
+  for (const address of [
+    "A3",
+    "C3",
+    "E3",
+    "G3",
+    `A${shipRow + 1}`,
+    `A${remarkRow + 1}`,
+  ]) {
     sheet[address].s = {
       fill: { fgColor: { rgb: "EEEAE3" } },
       font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "55514B" } },
@@ -1137,22 +1353,38 @@ function buildPickingWorkbook() {
     };
   }
 
-  for (const address of ["B3", "D3", "F3", "H3", "B4", "B5"]) {
+  for (const address of [
+    "B3",
+    "D3",
+    "F3",
+    "H3",
+    `B${shipRow + 1}`,
+    `B${remarkRow + 1}`,
+  ]) {
     sheet[address].s = {
-      fill: { fgColor: { rgb: address === "B5" ? "FFF5F0" : "FFFFFF" } },
+      fill: { fgColor: { rgb: address === `B${remarkRow + 1}` ? "FFF5F0" : "FFFFFF" } },
       font: {
         name: "맑은 고딕",
-        sz: address === "B5" ? 10 : 9,
-        bold: address === "B5",
-        color: { rgb: address === "B5" ? "9D3B25" : "222222" },
+        sz: address === `B${remarkRow + 1}` ? 10 : 9,
+        bold: address === `B${remarkRow + 1}`,
+        color: { rgb: address === `B${remarkRow + 1}` ? "9D3B25" : "222222" },
       },
       alignment: { vertical: "center", wrapText: true },
       border: thinBorder,
     };
   }
 
+  if (referenceLine) {
+    sheet.A4.s = {
+      fill: { fgColor: { rgb: "FFF8F4" } },
+      font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "33312E" } },
+      alignment: { horizontal: "left", vertical: "center", wrapText: false },
+      border: thinBorder,
+    };
+  }
+
   for (let col = 0; col < 8; col += 1) {
-    const cell = sheet[XLSX.utils.encode_cell({ r: 6, c: col })];
+    const cell = sheet[XLSX.utils.encode_cell({ r: headerRow, c: col })];
     cell.s = {
       fill: { fgColor: { rgb: "F26B3A" } },
       font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "FFFFFF" } },
@@ -1162,7 +1394,7 @@ function buildPickingWorkbook() {
   }
 
   data.items.forEach((item, index) => {
-    const row = index + 7;
+    const row = index + firstItemRow;
     for (let col = 0; col < 8; col += 1) {
       const cell = sheet[XLSX.utils.encode_cell({ r: row, c: col })];
       cell.s = {
@@ -1183,7 +1415,7 @@ function buildPickingWorkbook() {
     }
   });
 
-  const totalRow = data.items.length + 7;
+  const totalRow = data.items.length + firstItemRow;
   for (let col = 0; col < 8; col += 1) {
     const cell = sheet[XLSX.utils.encode_cell({ r: totalRow, c: col })];
     cell.s = {
@@ -1194,8 +1426,10 @@ function buildPickingWorkbook() {
     };
   }
 
-  sheet["!autofilter"] = { ref: `A7:H${7 + data.items.length}` };
-  sheet["!freeze"] = { xSplit: 0, ySplit: 7 };
+  sheet["!autofilter"] = {
+    ref: `A${headerRow + 1}:H${headerRow + 1 + data.items.length}`,
+  };
+  sheet["!freeze"] = { xSplit: 0, ySplit: headerRow + 1 };
   sheet["!margins"] = { left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1 };
   sheet["!pageSetup"] = {
     paperSize: 9,
@@ -1229,8 +1463,7 @@ function wrapCanvasText(ctx, text, maxWidth) {
   return lines;
 }
 
-function buildPickingPdfCanvases() {
-  const data = pickingData;
+function buildPickingPdfCanvases(data = pickingData) {
   const portrait = pickingOrientation === "portrait";
   const width = portrait ? 1131 : 1600;
   const height = portrait ? 1600 : 1131;
@@ -1240,6 +1473,14 @@ function buildPickingPdfCanvases() {
   let page;
   let ctx;
   let y;
+  const printedAt = new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date());
 
   function newPage(continuation = "") {
     page = document.createElement("canvas");
@@ -1255,7 +1496,7 @@ function buildPickingPdfCanvases() {
     ctx.font = "600 17px 'Malgun Gothic', sans-serif";
     ctx.fillStyle = "#77736d";
     ctx.textAlign = "right";
-    ctx.fillText(`${data.invoiceNo}${continuation ? ` · ${continuation}` : ""}`, width - margin, 66);
+    ctx.fillText(`${printedAt}${continuation ? ` · ${continuation}` : ""}`, width - margin, 66);
     ctx.textAlign = "left";
     y = 96;
     pages.push(page);
@@ -1284,19 +1525,47 @@ function buildPickingPdfCanvases() {
     y += 92;
   }
 
+  function drawReferencePairs() {
+    const parts = [];
+    if (data.salesPerson) parts.push(`영업사원 : ${data.salesPerson}`);
+    if (data.shippingCarrier) parts.push(`배송사 : ${data.shippingCarrier}`);
+    const text = parts.join("   |   ");
+    if (!text) return;
+
+    const rowHeight = 54;
+    if (y + rowHeight > height - bottom) newPage("추가 정보");
+    ctx.fillStyle = "#fff8f4";
+    ctx.fillRect(margin, y, width - margin * 2, rowHeight);
+    ctx.strokeStyle = "#ddd8d0";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(margin, y, width - margin * 2, rowHeight);
+
+    let fontSize = 17;
+    do {
+      ctx.font = `700 ${fontSize}px 'Malgun Gothic', sans-serif`;
+      if (ctx.measureText(text).width <= width - margin * 2 - 28) break;
+      fontSize -= 1;
+    } while (fontSize > 10);
+
+    ctx.fillStyle = "#33312e";
+    ctx.textAlign = "left";
+    ctx.fillText(text, margin + 14, y + 34);
+    y += rowHeight + 12;
+  }
+
   function drawRemark() {
     ctx.fillStyle = "#fff2ec";
     ctx.fillRect(margin, y, width - margin * 2, 38);
     ctx.fillStyle = "#b84629";
     ctx.font = "800 16px 'Malgun Gothic', sans-serif";
-    ctx.fillText("REMARK · 인보이스 특이사항", margin + 14, y + 25);
+    ctx.fillText("특이사항", margin + 14, y + 25);
     y += 50;
     ctx.fillStyle = "#2a2927";
     ctx.font = "600 16px 'Malgun Gothic', sans-serif";
     const lines = wrapCanvasText(ctx, data.remark || "특이사항 없음", width - margin * 2 - 20);
     lines.forEach((line, index) => {
       if (y + 24 > height - bottom) {
-        newPage("REMARK 계속");
+        newPage("특이사항 계속");
         ctx.fillStyle = "#2a2927";
         ctx.font = "600 16px 'Malgun Gothic', sans-serif";
       }
@@ -1310,22 +1579,22 @@ function buildPickingPdfCanvases() {
     ? [
         ["NO", 45],
         ["SKU", 160],
-        ["DESCRIPTION", 390],
+        ["DESCRIPTION", 366],
         ["BRAND", 90],
         ["BARCODE", 125],
         ["QTY", 55],
         ["LOCATION", 120],
-        ["PACKING", 46],
+        ["PACKING", 70],
       ]
     : [
         ["NO", 55],
         ["SKU", 205],
-        ["DESCRIPTION", 580],
+        ["DESCRIPTION", 540],
         ["BRAND", 120],
         ["BARCODE", 150],
         ["QTY", 80],
         ["LOCATION", 150],
-        ["PACKING", 110],
+        ["PACKING", 150],
       ];
 
   function drawTableHeader() {
@@ -1405,6 +1674,7 @@ function buildPickingPdfCanvases() {
 
   newPage();
   drawSummary();
+  drawReferencePairs();
   drawRemark();
   drawItems();
 
@@ -1413,19 +1683,24 @@ function buildPickingPdfCanvases() {
     footer.fillStyle = "#8b8780";
     footer.font = "500 12px 'Malgun Gothic', sans-serif";
     footer.textAlign = "left";
-    footer.fillText("웅툴 · 작업자용 피킹리스트", margin, height - 22);
+    footer.fillText("웅툴 - 피킹리스트", margin, height - 22);
     footer.textAlign = "right";
     footer.fillText(`${index + 1} / ${pages.length}`, width - margin, height - 22);
   });
   return pages;
 }
 
-async function downloadPickingExcel() {
-  if (!pickingData) return;
-  pickingDom.excelButton.disabled = true;
+async function downloadPickingExcel(sortByLocation = false) {
+  if (!pickingData) {
+    showPickingMessage("먼저 인보이스 엑셀파일을 올려주세요.", true);
+    return;
+  }
+  const button = sortByLocation ? pickingDom.locationExcelButton : pickingDom.excelButton;
+  button.disabled = true;
   showPickingMessage("");
   try {
-    const workbook = buildPickingWorkbook();
+    const data = sortByLocation ? getLocationSortedPickingData() : pickingData;
+    const workbook = buildPickingWorkbook(data);
     const output = XLSX.write(workbook, {
       type: "array",
       bookType: "xlsx",
@@ -1433,26 +1708,36 @@ async function downloadPickingExcel() {
       compression: true,
     });
     const baseName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
-    const outputName = `${baseName}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
+    const sortSuffix = sortByLocation ? "_Location순" : "";
+    const outputName = `${baseName}${sortSuffix}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadFile(
       output,
       `${outputName}.xlsx`,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
-    showPickingMessage(`작업자용 Excel 피킹리스트를 저장했어요.`);
+    showPickingMessage(
+      sortByLocation
+        ? "Location 알파벳순 Excel 피킹리스트를 저장했어요."
+        : "작업자용 Excel 피킹리스트를 저장했어요.",
+    );
   } catch (error) {
     showPickingMessage(error.message || "Excel 생성 중 문제가 발생했습니다.", true);
   } finally {
-    pickingDom.excelButton.disabled = false;
+    button.disabled = false;
   }
 }
 
-async function downloadPickingPdf() {
-  if (!pickingData) return;
-  pickingDom.pdfButton.disabled = true;
+async function downloadPickingPdf(sortByLocation = false) {
+  if (!pickingData) {
+    showPickingMessage("먼저 인보이스 엑셀파일을 올려주세요.", true);
+    return;
+  }
+  const button = sortByLocation ? pickingDom.locationPdfButton : pickingDom.pdfButton;
+  button.disabled = true;
   showPickingMessage("");
   try {
-    const canvases = buildPickingPdfCanvases();
+    const data = sortByLocation ? getLocationSortedPickingData() : pickingData;
+    const canvases = buildPickingPdfCanvases(data);
     const pdf = await PDFDocument.create();
     const pageWidth = pickingOrientation === "portrait" ? 595.2756 : 841.8898;
     const pageHeight = pickingOrientation === "portrait" ? 841.8898 : 595.2756;
@@ -1463,21 +1748,28 @@ async function downloadPickingPdf() {
     }
     const output = await pdf.save({ useObjectStreams: true });
     const baseName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
-    const outputName = `${baseName}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
+    const sortSuffix = sortByLocation ? "_Location순" : "";
+    const outputName = `${baseName}${sortSuffix}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadPdf(output, outputName);
-    showPickingMessage(`작업자용 PDF 피킹리스트 ${canvases.length}페이지를 저장했어요.`);
+    showPickingMessage(
+      sortByLocation
+        ? `Location 알파벳순 PDF 피킹리스트 ${canvases.length}페이지를 저장했어요.`
+        : `작업자용 PDF 피킹리스트 ${canvases.length}페이지를 저장했어요.`,
+    );
   } catch (error) {
     showPickingMessage(error.message || "PDF 생성 중 문제가 발생했습니다.", true);
   } finally {
-    pickingDom.pdfButton.disabled = false;
+    button.disabled = false;
   }
 }
 
 pickingDom.selectButton.addEventListener("click", () => pickingDom.input.click());
 pickingDom.input.addEventListener("change", () => inspectPickingFile(pickingDom.input.files[0]));
 pickingDom.resetButton.addEventListener("click", resetPickingTool);
-pickingDom.excelButton.addEventListener("click", downloadPickingExcel);
-pickingDom.pdfButton.addEventListener("click", downloadPickingPdf);
+pickingDom.excelButton.addEventListener("click", () => downloadPickingExcel());
+pickingDom.pdfButton.addEventListener("click", () => downloadPickingPdf());
+pickingDom.locationExcelButton.addEventListener("click", () => downloadPickingExcel(true));
+pickingDom.locationPdfButton.addEventListener("click", () => downloadPickingPdf(true));
 pickingDom.passwordForm.addEventListener("submit", unlockPicking);
 pickingDom.password.addEventListener("input", () => {
   pickingDom.passwordError.hidden = true;
@@ -1523,6 +1815,7 @@ const syncDom = {
   input: document.querySelector("#sync-input"),
   selectButton: document.querySelector("#sync-select-button"),
   workspace: document.querySelector("#sync-workspace"),
+  selectedFile: document.querySelector("#sync-workspace .selected-file"),
   fileName: document.querySelector("#sync-file-name"),
   fileInfo: document.querySelector("#sync-file-info"),
   resetButton: document.querySelector("#sync-reset-button"),
@@ -1571,8 +1864,14 @@ function resetSyncTool() {
   syncFile = null;
   syncResults = [];
   syncDom.input.value = "";
-  syncDom.workspace.hidden = true;
+  syncDom.workspace.hidden = false;
+  syncDom.selectedFile.hidden = true;
   syncDom.dropZone.hidden = false;
+  syncDom.total.textContent = "-";
+  syncDom.normal.textContent = "-";
+  syncDom.noLocation.textContent = "-";
+  syncDom.noStock.textContent = "-";
+  syncDom.outputName.value = "";
   showSyncMessage("");
 }
 
@@ -1677,6 +1976,7 @@ async function inspectSyncFile(file) {
     syncDom.outputName.value = `${safeBaseName(file.name)}_로케이션동기화`;
     syncDom.dropZone.hidden = true;
     syncDom.workspace.hidden = false;
+    syncDom.selectedFile.hidden = false;
     showSyncMessage(
       `로케이션 확인 필요 ${noLocation}개 · DB 미등록 ${notRegistered}개 · 재고 없음 ${noStock}개`,
       noLocation + notRegistered > 0,
@@ -1753,7 +2053,10 @@ function buildSyncWorkbook() {
 }
 
 function downloadSyncReport() {
-  if (!syncResults.length) return;
+  if (!syncResults.length) {
+    showSyncMessage("먼저 재고 엑셀파일을 올려주세요.", true);
+    return;
+  }
   syncDom.downloadButton.disabled = true;
   try {
     const workbook = buildSyncWorkbook();
@@ -1798,9 +2101,11 @@ const adminDom = {
   passwordError: document.querySelector("#admin-password-error"),
 };
 
+let adminUnlocked = sessionStorage.getItem("woongtoolAdminUnlocked") === "yes";
+
 function updateAdminLock() {
-  adminDom.passwordGate.hidden = false;
-  requestAnimationFrame(() => adminDom.password.focus());
+  adminDom.passwordGate.hidden = adminUnlocked;
+  if (!adminUnlocked) requestAnimationFrame(() => adminDom.password.focus());
 }
 
 async function unlockAdmin(event) {
@@ -1811,8 +2116,11 @@ async function unlockAdmin(event) {
     adminDom.password.select();
     return;
   }
+  adminUnlocked = true;
+  sessionStorage.setItem("woongtoolAdminUnlocked", "yes");
   adminDom.password.value = "";
   adminDom.passwordError.hidden = true;
+  updateAdminLock();
 }
 
 adminDom.passwordForm.addEventListener("submit", unlockAdmin);
