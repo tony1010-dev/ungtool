@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#171717" />
     <meta
       name="description"
-      content="ZIP 파일 속 PDF를 압축 해제 없이 순서대로 병합하는 웅툴"
+      content="ZIP 파일 속 PDF 또는 여러 PDF 파일을 순서대로 병합하는 웅툴"
     />
     <script>
       (() => {
@@ -16,9 +16,9 @@
         document.documentElement.dataset.theme = saved === "system" ? (dark ? "dark" : "light") : saved;
       })();
     </script>
-    <title>KPOP TEAM TOOLS</title>
+    <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=2" />
+    <link rel="stylesheet" href="style.css?v=9" />
   </head>
   <body>
     <header class="site-header">
@@ -38,7 +38,7 @@
         </button>
         <button class="tool-tab" type="button" data-tool="zip">
           <span class="tab-number">02</span>
-          <span><strong>PDF Merge(ZIP파일)</strong><small>압축 속 PDF를 하나로</small></span>
+          <span><strong>PDF 병합</strong><small>ZIP 속 PDF · 여러 PDF 병합</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="ups">
           <span class="tab-number">03</span>
@@ -52,8 +52,12 @@
           <span class="tab-number">05</span>
           <span><strong>로케이션 동기화</strong><small>재고·DB 비교</small></span>
         </button>
-        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+        <button class="tool-tab" type="button" data-tool="business">
           <span class="tab-number">06</span>
+          <span><strong>웅툴 AI</strong><small>간단한 질문과 업무 도움</small></span>
+        </button>
+        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+          <span class="tab-number">07</span>
           <span><strong>Admin</strong><small>관리</small></span>
         </button>
       </nav>
@@ -80,11 +84,8 @@
 
     <main>
       <section class="hero">
-        <div class="eyebrow"><span></span> WORK TOOLS</div>
-        <h1>복잡한 업무를<br /><em>가볍고 빠르게.</em></h1>
-        <p>
-          업무를 빠르게 처리 하자
-        </p>
+        <div class="eyebrow"><span></span> KPOP TEAM TOOLS</div>
+        <h1><em>업무</em>를 가볍고 빠르게</h1>
       </section>
 
       <section class="home-notice" id="home-panel" aria-labelledby="home-notice-title">
@@ -96,7 +97,12 @@
           </svg>
           <div>
             <h2 id="home-notice-title">웅툴 공지</h2>
-            <div id="home-notice-text">업무를 빠르게 처리 하자</div>
+            <div id="home-notice-text">2026.06.19 | Genesis Release<br />
+Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성<br />
+PDF 병합: ZIP 안의 PDF 또는 여러 PDF 자동 정렬·병합<br />
+UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
+피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성<br />
+로케이션 동기화: 재고 데이터와 DB 비교로 누락 · 미등록 · 재고없음 검증</div>
           </div>
         </div>
         <p>상단 메뉴에서 필요한 도구를 선택해 주세요.</p>
@@ -117,56 +123,134 @@
           </span>
         </div>
 
-        <div class="label-editor">
-          <div class="label-fields">
-            <label>
-              <span>업체명</span>
-              <input id="label-company" type="text" value="House of Kpop Pte Ltd" maxlength="80" />
-            </label>
-            <label>
-              <span>인보이스 번호</span>
-              <input id="label-invoice" type="text" value="IN00443990" maxlength="40" />
-            </label>
-            <div class="label-field-row">
-              <label>
-                <span>박스 수량</span>
-                <input id="label-box-count" type="number" value="2" min="1" max="9999" />
-              </label>
-              <label>
-                <span>출력 장수</span>
-                <input id="label-copy-count" type="number" value="1" min="1" max="200" />
-              </label>
-            </div>
-            <label>
-              <span>저장할 파일명</span>
-              <div class="output-field">
-                <input id="label-output-name" type="text" value="LABEL" maxlength="120" />
-                <span>.pdf</span>
+        <div class="label-workspaces">
+          <section class="label-mode-card label-mode-card--custom" aria-labelledby="custom-label-title">
+            <div class="label-mode-heading">
+              <div>
+                <span>직접 편집</span>
+                <h3 id="custom-label-title" class="custom-label-title">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m4 20 4.2-1 10.7-10.7a2.1 2.1 0 0 0-3-3L5.2 16 4 20Z" />
+                    <path d="m14.7 6.5 3 3M4 20h5" />
+                  </svg>
+                  입력 수정
+                </h3>
               </div>
-            </label>
-            <button class="merge-button" id="label-download-button" type="button">
-              <span>라벨 PDF 받기</span>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
-            </button>
-          </div>
-
-          <div class="label-preview-wrap">
-            <div class="preview-title"><strong>미리보기</strong><span>15 × 10cm</span></div>
-            <div class="label-preview" id="label-preview">
-              <div id="label-preview-company">House of Kpop Pte Ltd</div>
-              <div id="label-preview-invoice"># IN00443990</div>
-              <div id="label-preview-box">2 BOX</div>
+              <span class="label-size-badge">15 × 10cm</span>
             </div>
-          </div>
+
+            <div class="label-preview-wrap custom-label-preview-wrap">
+              <div
+                class="label-preview custom-label-preview is-empty"
+                id="custom-label-preview"
+                contenteditable="true"
+                role="textbox"
+                aria-label="라벨 문구 직접 입력"
+                aria-multiline="true"
+                spellcheck="false"
+              ></div>
+            </div>
+
+            <div class="custom-label-toolbar">
+              <label>
+                <span>글자 크기</span>
+                <div class="font-size-control">
+                  <input id="custom-label-font-size" type="range" min="24" max="250" value="48" />
+                  <output id="custom-label-font-size-value" for="custom-label-font-size">48</output>
+                </div>
+              </label>
+            </div>
+
+            <div class="label-fields custom-label-fields">
+              <div class="label-field-row">
+                <label>
+                  <span>출력 장수</span>
+                  <input id="custom-label-copy-count" type="number" value="1" min="1" max="200" />
+                </label>
+                <label>
+                  <span>저장할 파일명</span>
+                  <div class="output-field">
+                    <input id="custom-label-output-name" type="text" value="CUSTOM_LABEL" maxlength="120" />
+                    <span>.pdf</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="label-card-footer">
+              <button class="merge-button" id="custom-label-download-button" type="button">
+                <span>받기</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+              </button>
+              <div class="message" id="custom-label-message" role="status" aria-live="polite" hidden></div>
+            </div>
+          </section>
+
+          <section class="label-mode-card" aria-labelledby="preset-label-title">
+            <div class="label-mode-heading">
+              <div>
+                <span>기존 양식</span>
+                <h3 id="preset-label-title" class="preset-label-title">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 5h11l5 5v9H4V5Z" />
+                    <path d="M15 5v5h5M7.5 14h9M7.5 17h6" />
+                  </svg>
+                  업체 라벨 출력
+                </h3>
+              </div>
+              <span class="label-size-badge">15 × 10cm</span>
+            </div>
+
+            <div class="label-preview-wrap">
+              <div class="label-preview" id="label-preview">
+                <div id="label-preview-company">House of Kpop Pte Ltd</div>
+                <div id="label-preview-invoice"># IN00443990</div>
+                <div id="label-preview-box">2 BOX</div>
+              </div>
+            </div>
+
+            <div class="label-fields">
+              <label>
+                <span>업체명</span>
+                <input id="label-company" type="text" value="House of Kpop Pte Ltd" maxlength="80" />
+              </label>
+              <label>
+                <span>인보이스 번호</span>
+                <input id="label-invoice" type="text" value="IN00443990" maxlength="40" />
+              </label>
+              <div class="label-field-row">
+                <label>
+                  <span>박스 수량</span>
+                  <input id="label-box-count" type="number" value="2" min="1" max="9999" />
+                </label>
+                <label>
+                  <span>출력 장수</span>
+                  <input id="label-copy-count" type="number" value="1" min="1" max="200" />
+                </label>
+              </div>
+              <label>
+                <span>저장할 파일명</span>
+                <div class="output-field">
+                  <input id="label-output-name" type="text" value="LABEL" maxlength="120" />
+                  <span>.pdf</span>
+                </div>
+              </label>
+            </div>
+            <div class="label-card-footer">
+              <button class="merge-button" id="label-download-button" type="button">
+                <span>받기</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+              </button>
+              <div class="message" id="label-message" role="status" aria-live="polite" hidden></div>
+            </div>
+          </section>
         </div>
-        <div class="message" id="label-message" role="status" aria-live="polite" hidden></div>
       </section>
 
       <section class="tool-card tool-panel" id="zip-tool" aria-labelledby="tool-title" hidden>
         <div class="tool-heading">
           <div>
-            <h2 id="tool-title">ZIP PDF 병합</h2>
-            <p>숫자가 포함된 파일명도 올바른 순서로 정렬됩니다.</p>
+            <h2 id="tool-title">PDF 병합</h2>
+            <p>ZIP 안의 PDF 또는 여러 PDF를 파일명 순서대로 정렬해 병합합니다.</p>
           </div>
           <span class="local-badge">
             <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -178,21 +262,21 @@
         </div>
 
         <div class="drop-zone" id="drop-zone">
-          <input id="zip-input" type="file" accept=".zip,application/zip" hidden />
+          <input id="zip-input" type="file" accept=".zip,.pdf,application/zip,application/pdf" multiple hidden />
           <div class="upload-icon" aria-hidden="true">
             <svg viewBox="0 0 28 28">
               <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
             </svg>
           </div>
-          <strong>ZIP 파일을 여기로 끌어오세요</strong>
+          <strong>PDF가 담긴 ZIP 또는 여러 PDF를 여기로 끌어오세요</strong>
           <span>또는</span>
           <button class="select-button" id="select-button" type="button">파일 선택</button>
-          <small>ZIP 형식 · 최대 500MB 권장</small>
+          <small>ZIP·PDF 형식 · 여러 PDF 동시 선택 가능</small>
         </div>
 
-        <div class="workspace" id="workspace" hidden>
-          <div class="selected-file">
-            <div class="file-type">ZIP</div>
+        <div class="workspace" id="workspace">
+          <div class="selected-file" hidden>
+            <div class="file-type" id="merge-file-type">PDF</div>
             <div class="file-meta">
               <strong id="zip-name"></strong>
               <span id="zip-size"></span>
@@ -219,7 +303,7 @@
           </div>
 
           <button class="merge-button" id="merge-button" type="button">
-            <span>PDF 병합하기</span>
+            <span>받기</span>
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>
           </button>
 
@@ -263,8 +347,8 @@
           <small>A4·Letter 형식 · 여러 페이지 가능</small>
         </div>
 
-        <div class="workspace" id="ups-workspace" hidden>
-          <div class="selected-file">
+        <div class="workspace" id="ups-workspace">
+          <div class="selected-file" hidden>
             <div class="file-type pdf-file-type">PDF</div>
             <div class="file-meta">
               <strong id="ups-file-name"></strong>
@@ -295,7 +379,7 @@
           </div>
 
           <button class="merge-button" id="ups-convert-button" type="button">
-            <span>10×15cm 라벨 PDF 만들기</span>
+            <span>받기</span>
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>
           </button>
 
@@ -363,8 +447,8 @@
           <small>XLS·XLSX 형식 · SKU 기준 자동 매칭</small>
         </div>
 
-        <div class="workspace" id="picking-workspace" hidden>
-          <div class="selected-file">
+        <div class="workspace" id="picking-workspace">
+          <div class="selected-file" hidden>
             <div class="file-type excel-file-type">XLS</div>
             <div class="file-meta">
               <strong id="picking-file-name"></strong>
@@ -386,14 +470,6 @@
             <p id="missing-skus"></p>
           </div>
 
-          <div class="change-list">
-            <div><span>✓</span>Remark 특이사항 전체 표시</div>
-            <div><span>✓</span>Description 상품명 전체 표시</div>
-            <div><span>✓</span>Location 자동 입력</div>
-            <div><span>✓</span>Packing 작업란 제공</div>
-            <div><span>✓</span>A4 작업자용 디자인</div>
-          </div>
-
           <label class="output-label" for="picking-output-name">저장할 파일명</label>
           <div class="output-field">
             <input id="picking-output-name" type="text" maxlength="120" />
@@ -404,23 +480,37 @@
             <span class="output-label">출력 방향</span>
             <div class="orientation-options" role="radiogroup" aria-label="피킹리스트 출력 방향">
               <button class="orientation-option is-active" type="button" data-orientation="landscape" aria-pressed="true">
-                <span class="paper-icon landscape-paper"></span>
+                <svg class="paper-icon landscape-paper" viewBox="0 0 36 26" aria-hidden="true">
+                  <path d="M3 2h23l7 7v15H3V2Z" />
+                  <path d="M26 2v7h7M8 14h20M8 18h15" />
+                </svg>
                 <span><strong>가로형</strong><small>전체 항목을 한눈에</small></span>
               </button>
               <button class="orientation-option" type="button" data-orientation="portrait" aria-pressed="false">
-                <span class="paper-icon portrait-paper"></span>
+                <svg class="paper-icon portrait-paper" viewBox="0 0 26 36" aria-hidden="true">
+                  <path d="M2 2h15l7 7v25H2V2Z" />
+                  <path d="M17 2v7h7M7 17h12M7 22h12M7 27h8" />
+                </svg>
                 <span><strong>세로형</strong><small>상품명 중심으로 크게</small></span>
               </button>
             </div>
           </div>
 
-          <div class="download-actions">
+          <div class="download-actions picking-download-actions">
             <button class="merge-button picking-download-button" id="picking-excel-button" type="button">
               <span>Excel 받기</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
+            <button class="merge-button picking-download-button" id="picking-location-excel-button" type="button">
+              <span>로케이션 정리 Excel</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
             <button class="merge-button pdf-download-button" id="picking-pdf-button" type="button">
               <span>PDF 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+            <button class="merge-button pdf-download-button" id="picking-location-pdf-button" type="button">
+              <span>로케이션 정리 PDF</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
           </div>
@@ -467,8 +557,8 @@
             <small>다운로드한 Default 엑셀파일을 그대로 올려주세요.</small>
           </div>
 
-          <div class="workspace" id="sync-workspace" hidden>
-            <div class="selected-file">
+          <div class="workspace" id="sync-workspace">
+            <div class="selected-file" hidden>
               <div class="file-type excel-file-type">XLS</div>
               <div class="file-meta"><strong id="sync-file-name"></strong><span id="sync-file-info"></span></div>
               <button class="icon-button" id="sync-reset-button" type="button" aria-label="파일 제거"><svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" /></svg></button>
@@ -496,6 +586,44 @@
         </div>
       </section>
 
+      <section class="tool-card tool-panel" id="business-tool" aria-labelledby="business-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="business-title">웅툴 AI</h2>
+            <p>간단한 질문, 요약, 업무 문장 작성에 활용할 수 있습니다.</p>
+          </div>
+          <span class="local-badge">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M4 4.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
+              <path d="M6 8h8M6 11h5" />
+            </svg>
+            Groq AI
+          </span>
+        </div>
+
+        <div class="local-chat">
+          <div class="chat-topbar">
+            <span><i class="status-dot is-ready"></i> Qwen3 32B</span>
+            <button class="secondary-button" id="business-reset-button" type="button">새 대화</button>
+          </div>
+
+          <div class="chat-messages" id="business-messages" role="log" aria-live="polite">
+            <div class="chat-message assistant">
+              <span class="chat-avatar">AI</span>
+              <div class="chat-bubble">안녕하세요. 간단한 질문이나 업무 문장 작성, 요약을 도와드릴게요.</div>
+            </div>
+          </div>
+
+          <div class="chat-composer">
+            <textarea id="business-input" maxlength="3000" rows="2" placeholder="메시지를 입력하세요"></textarea>
+            <button class="chat-send-button" id="business-send-button" type="button" aria-label="메시지 보내기">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 14-7-4 14-3-5-7-2Z" /><path d="m10 12 7-9" /></svg>
+            </button>
+          </div>
+          <div class="message" id="business-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
       <section class="tool-card tool-panel" id="admin-tool" aria-labelledby="admin-title" hidden>
         <div class="password-gate" id="admin-password-gate">
           <div class="lock-icon" aria-hidden="true">
@@ -505,7 +633,7 @@
             </svg>
           </div>
           <h2>Admin</h2>
-          <p>홈 화면 공지를 관리합니다.<br />비밀번호를 입력해 주세요.</p>
+          <p>비밀번호를 입력해 주세요</p>
           <form class="password-form" id="admin-password-form">
             <input id="admin-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="관리자 비밀번호" />
             <button type="submit">확인</button>
@@ -524,13 +652,13 @@
         </span>
         <span>웅툴</span>
       </div>
-      <p>복잡한 일을 가볍게.</p>
+      <p>Made by Tony</p>
     </footer>
 
     <script src="vendor/jszip.min.js"></script>
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-    <script src="app.js?v=2"></script>
+  <script src="app.js?v=20"></script>
   </body>
 </html>
