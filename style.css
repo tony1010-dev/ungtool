@@ -37,8 +37,8 @@ button {
 }
 
 .site-header {
-  width: min(1280px, calc(100% - 32px));
-  height: 76px;
+  width: min(1440px, calc(100% - 32px));
+  height: 82px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -320,9 +320,9 @@ main {
 }
 
 .header-tabs .tool-tab {
-  min-height: 48px;
-  gap: 9px;
-  padding: 8px 9px;
+  min-height: 54px;
+  gap: 10px;
+  padding: 9px 11px;
   border-color: transparent;
   border-radius: 10px;
   background: transparent;
@@ -341,11 +341,15 @@ main {
 }
 
 .header-tabs .tool-tab strong {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .header-tabs .tool-tab small {
-  font-size: 9px;
+  font-size: 10px;
+}
+
+.header-tabs .tab-number {
+  font-size: 12px;
 }
 
 .tool-tab {
@@ -2084,9 +2088,9 @@ html[data-theme="dark"] .sync-note {
   }
 
   .header-tabs .tool-tab {
-    min-height: 40px;
+    min-height: 44px;
     gap: 5px;
-    padding: 7px 6px;
+    padding: 8px 7px;
   }
 
   .header-tabs .tab-number {
@@ -2094,7 +2098,7 @@ html[data-theme="dark"] .sync-note {
   }
 
   .header-tabs .tool-tab strong {
-    font-size: 9px;
+    font-size: 11px;
     white-space: nowrap;
   }
 
