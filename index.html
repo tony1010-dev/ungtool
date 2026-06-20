@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#171717" />
     <meta
       name="description"
-      content="ZIP 파일 속 PDF를 압축 해제 없이 순서대로 병합하는 웅툴"
+      content="ZIP 파일 속 PDF 또는 여러 PDF 파일을 순서대로 병합하는 웅툴"
     />
     <script>
       (() => {
@@ -38,7 +38,7 @@
         </button>
         <button class="tool-tab" type="button" data-tool="zip">
           <span class="tab-number">02</span>
-          <span><strong>PDF Merge(ZIP파일)</strong><small>압축 속 PDF를 하나로</small></span>
+          <span><strong>PDF 병합</strong><small>ZIP 속 PDF · 여러 PDF 병합</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="ups">
           <span class="tab-number">03</span>
@@ -95,7 +95,7 @@
             <h2 id="home-notice-title">웅툴 공지</h2>
             <div id="home-notice-text">2026.06.19 | Genesis Release<br />
 Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성<br />
-PDF Merge (ZIP): ZIP 내 PDF 자동 병합<br />
+PDF 병합: ZIP 안의 PDF 또는 여러 PDF 자동 정렬·병합<br />
 UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
 피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성<br />
 로케이션 동기화: 재고 데이터와 DB 비교로 누락 · 미등록 · 재고없음 검증</div>
@@ -245,8 +245,8 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
       <section class="tool-card tool-panel" id="zip-tool" aria-labelledby="tool-title" hidden>
         <div class="tool-heading">
           <div>
-            <h2 id="tool-title">ZIP PDF 병합</h2>
-            <p>숫자가 포함된 파일명도 올바른 순서로 정렬됩니다.</p>
+            <h2 id="tool-title">PDF 병합</h2>
+            <p>ZIP 안의 PDF 또는 여러 PDF를 파일명 순서대로 정렬해 병합합니다.</p>
           </div>
           <span class="local-badge">
             <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -258,21 +258,21 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
         </div>
 
         <div class="drop-zone" id="drop-zone">
-          <input id="zip-input" type="file" accept=".zip,application/zip" hidden />
+          <input id="zip-input" type="file" accept=".zip,.pdf,application/zip,application/pdf" multiple hidden />
           <div class="upload-icon" aria-hidden="true">
             <svg viewBox="0 0 28 28">
               <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
             </svg>
           </div>
-          <strong>ZIP 파일을 여기로 끌어오세요</strong>
+          <strong>PDF가 담긴 ZIP 또는 여러 PDF를 여기로 끌어오세요</strong>
           <span>또는</span>
           <button class="select-button" id="select-button" type="button">파일 선택</button>
-          <small>ZIP 형식 · 최대 500MB 권장</small>
+          <small>ZIP·PDF 형식 · 여러 PDF 동시 선택 가능</small>
         </div>
 
         <div class="workspace" id="workspace">
           <div class="selected-file" hidden>
-            <div class="file-type">ZIP</div>
+            <div class="file-type" id="merge-file-type">PDF</div>
             <div class="file-meta">
               <strong id="zip-name"></strong>
               <span id="zip-size"></span>
@@ -617,6 +617,6 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
   </body>
 </html>

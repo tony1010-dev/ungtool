@@ -36,6 +36,7 @@ const dom = {
   selectButton: document.querySelector("#select-button"),
   workspace: document.querySelector("#workspace"),
   selectedFile: document.querySelector("#workspace .selected-file"),
+  fileType: document.querySelector("#merge-file-type"),
   zipName: document.querySelector("#zip-name"),
   zipSize: document.querySelector("#zip-size"),
   resetButton: document.querySelector("#reset-button"),
@@ -50,7 +51,7 @@ const dom = {
   message: document.querySelector("#message"),
 };
 
-let selectedZip = null;
+let mergeInputLoaded = false;
 let pdfEntries = [];
 let upsFile = null;
 let upsBytes = null;
@@ -347,7 +348,7 @@ updateCustomLabelState();
 const DEFAULT_HOME_NOTICE = `2026.06.19 | Genesis Release
 
 • Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성
-• PDF Merge (ZIP): ZIP 내 PDF 자동 병합
+• PDF 병합: ZIP 안의 PDF 또는 여러 PDF 자동 정렬·병합
 • UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환
 • 피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성
 • 로케이션 동기화: 재고 데이터와 DB 비교로 누락 · 미등록 · 재고없음 검증`;
@@ -419,7 +420,7 @@ function setProgress(value, label) {
 }
 
 function resetTool() {
-  selectedZip = null;
+  mergeInputLoaded = false;
   pdfEntries = [];
   dom.zipInput.value = "";
   dom.workspace.hidden = false;
@@ -455,50 +456,80 @@ function renderPdfList() {
   dom.fileCount.textContent = `${pdfEntries.length}개`;
 }
 
-async function loadZip(file) {
+async function loadMergeFiles(fileList) {
   showMessage("");
+  const files = Array.from(fileList || []);
+  const zipFiles = files.filter((file) => file.name.toLowerCase().endsWith(".zip"));
+  const pdfFiles = files.filter((file) => file.name.toLowerCase().endsWith(".pdf"));
 
-  if (!file || !file.name.toLowerCase().endsWith(".zip")) {
-    showMessage("ZIP 형식의 파일을 선택해 주세요.", true);
+  if (!files.length || zipFiles.length + pdfFiles.length !== files.length) {
+    showMessage("ZIP 또는 PDF 형식의 파일만 선택해 주세요.", true);
     return;
   }
 
-  if (file.size > 500 * 1024 * 1024) {
-    showMessage("500MB보다 큰 파일은 브라우저 메모리 부족으로 실패할 수 있어요.", true);
+  if (zipFiles.length && (zipFiles.length > 1 || pdfFiles.length)) {
+    showMessage("ZIP 파일 1개 또는 PDF 파일 여러 개 중 한 방식으로 올려주세요.", true);
+    return;
+  }
+
+  const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+  if (totalSize > 500 * 1024 * 1024) {
+    showMessage("전체 파일이 500MB보다 크면 브라우저 메모리 부족으로 실패할 수 있어요.", true);
   }
 
   dom.selectButton.disabled = true;
   dom.selectButton.textContent = "확인 중…";
 
   try {
-    const archive = await JSZip.loadAsync(file);
-    const entries = Object.values(archive.files)
-      .filter(
-        (entry) =>
-          !entry.dir &&
-          entry.name.toLowerCase().endsWith(".pdf") &&
-          !entry.name.includes("__MACOSX/") &&
-          !entry.name.split("/").at(-1).startsWith("._"),
-      )
-      .sort((a, b) => naturalCollator.compare(a.name, b.name));
+    if (zipFiles.length) {
+      const zipFile = zipFiles[0];
+      const archive = await JSZip.loadAsync(zipFile);
+      pdfEntries = Object.values(archive.files)
+        .filter(
+          (entry) =>
+            !entry.dir &&
+            entry.name.toLowerCase().endsWith(".pdf") &&
+            !entry.name.includes("__MACOSX/") &&
+            !entry.name.split("/").at(-1).startsWith("._"),
+        )
+        .map((entry) => ({
+          name: entry.name,
+          getBytes: () => entry.async("uint8array"),
+        }))
+        .sort((a, b) => naturalCollator.compare(a.name, b.name));
 
-    if (!entries.length) {
-      throw new Error("ZIP 파일 안에서 PDF를 찾지 못했어요.");
+      if (!pdfEntries.length) {
+        throw new Error("ZIP 파일 안에서 PDF를 찾지 못했어요.");
+      }
+
+      dom.fileType.textContent = "ZIP";
+      dom.zipName.textContent = zipFile.name;
+      dom.zipSize.textContent = `${formatBytes(zipFile.size)} · PDF ${pdfEntries.length}개`;
+      dom.outputName.value = `${safeBaseName(zipFile.name)}_병합`;
+    } else {
+      pdfEntries = pdfFiles
+        .map((file) => ({
+          name: file.name,
+          getBytes: async () => new Uint8Array(await file.arrayBuffer()),
+        }))
+        .sort((a, b) => naturalCollator.compare(a.name, b.name));
+
+      dom.fileType.textContent = "PDF";
+      dom.zipName.textContent = `PDF ${pdfEntries.length}개`;
+      dom.zipSize.textContent = `${formatBytes(totalSize)} · 파일명 순서로 정렬`;
+      const firstName = pdfEntries[0].name.replace(/\.pdf$/i, "");
+      dom.outputName.value = `${safeBaseName(firstName)}_병합`;
     }
 
-    selectedZip = file;
-    pdfEntries = entries;
-    dom.zipName.textContent = file.name;
-    dom.zipSize.textContent = formatBytes(file.size);
-    dom.outputName.value = `${safeBaseName(file.name)}_병합`;
+    mergeInputLoaded = true;
     renderPdfList();
     dom.dropZone.hidden = true;
     dom.workspace.hidden = false;
     dom.selectedFile.hidden = false;
   } catch (error) {
-    selectedZip = null;
+    mergeInputLoaded = false;
     pdfEntries = [];
-    showMessage(error.message || "ZIP 파일을 열 수 없어요. 파일을 다시 확인해 주세요.", true);
+    showMessage(error.message || "파일을 열 수 없어요. 파일을 다시 확인해 주세요.", true);
   } finally {
     dom.selectButton.disabled = false;
     dom.selectButton.textContent = "파일 선택";
@@ -506,8 +537,8 @@ async function loadZip(file) {
 }
 
 async function mergePdfs() {
-  if (!selectedZip || !pdfEntries.length) {
-    showMessage("먼저 병합할 ZIP 파일을 올려주세요.", true);
+  if (!mergeInputLoaded || !pdfEntries.length) {
+    showMessage("먼저 병합할 ZIP 또는 PDF 파일을 올려주세요.", true);
     return;
   }
 
@@ -528,7 +559,7 @@ async function mergePdfs() {
       );
 
       await new Promise((resolve) => requestAnimationFrame(resolve));
-      const bytes = await entry.async("uint8array");
+      const bytes = await entry.getBytes();
       let source;
 
       try {
@@ -561,7 +592,7 @@ async function mergePdfs() {
 }
 
 dom.selectButton.addEventListener("click", () => dom.zipInput.click());
-dom.zipInput.addEventListener("change", () => loadZip(dom.zipInput.files[0]));
+dom.zipInput.addEventListener("change", () => loadMergeFiles(dom.zipInput.files));
 dom.resetButton.addEventListener("click", resetTool);
 dom.mergeButton.addEventListener("click", mergePdfs);
 
@@ -580,7 +611,7 @@ dom.mergeButton.addEventListener("click", mergePdfs);
 });
 
 dom.dropZone.addEventListener("drop", (event) => {
-  loadZip(event.dataTransfer.files[0]);
+  loadMergeFiles(event.dataTransfer.files);
 });
 
 document.addEventListener("dragover", (event) => event.preventDefault());
