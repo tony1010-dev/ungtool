@@ -1265,11 +1265,12 @@ function getLocationSortedPickingData() {
     })
     .map((item, index) => ({ ...item, index: index + 1 }));
 
-  return { ...pickingData, items };
+  return { ...pickingData, items, outputType: "로케이션 정리" };
 }
 
 function buildPickingWorkbook(data = pickingData) {
   const portrait = pickingOrientation === "portrait";
+  const outputType = data.outputType || "기본 출력";
   const referenceParts = [];
   if (data.salesPerson) referenceParts.push(`영업사원 : ${data.salesPerson}`);
   if (data.shippingCarrier) referenceParts.push(`배송사 : ${data.shippingCarrier}`);
@@ -1283,7 +1284,7 @@ function buildPickingWorkbook(data = pickingData) {
   const headerRow = spacerRow + 1;
   const firstItemRow = headerRow + 1;
   const rows = [
-    ["PICKING LIST", "", "", "", "", "", "", ""],
+    [`PICKING LIST · ${outputType}`, "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
     ["INVOICE", data.invoiceNo, "DATE", data.date, "CUSTOMER", data.customer, "TOTAL QTY", data.totalQuantity],
     ...referenceRows,
@@ -1496,6 +1497,7 @@ function wrapCanvasText(ctx, text, maxWidth) {
 
 function buildPickingPdfCanvases(data = pickingData) {
   const portrait = pickingOrientation === "portrait";
+  const outputType = data.outputType || "기본 출력";
   const width = portrait ? 1131 : 1600;
   const height = portrait ? 1600 : 1131;
   const margin = 50;
@@ -1523,7 +1525,7 @@ function buildPickingPdfCanvases(data = pickingData) {
     ctx.fillStyle = "#171717";
     ctx.fillRect(0, 0, width, 18);
     ctx.font = "800 34px 'Malgun Gothic', sans-serif";
-    ctx.fillText("PICKING LIST", margin, 70);
+    ctx.fillText(`PICKING LIST · ${outputType}`, margin, 70);
     ctx.font = "600 17px 'Malgun Gothic', sans-serif";
     ctx.fillStyle = "#77736d";
     ctx.textAlign = "right";
