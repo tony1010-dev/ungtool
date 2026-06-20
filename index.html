@@ -52,8 +52,12 @@
           <span class="tab-number">05</span>
           <span><strong>로케이션 동기화</strong><small>재고·DB 비교</small></span>
         </button>
-        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+        <button class="tool-tab" type="button" data-tool="business">
           <span class="tab-number">06</span>
+          <span><strong>웅툴 AI</strong><small>간단한 질문과 업무 도움</small></span>
+        </button>
+        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+          <span class="tab-number">07</span>
           <span><strong>Admin</strong><small>관리</small></span>
         </button>
       </nav>
@@ -582,6 +586,44 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
         </div>
       </section>
 
+      <section class="tool-card tool-panel" id="business-tool" aria-labelledby="business-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="business-title">웅툴 AI</h2>
+            <p>간단한 질문, 요약, 업무 문장 작성에 활용할 수 있습니다.</p>
+          </div>
+          <span class="local-badge">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M4 4.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
+              <path d="M6 8h8M6 11h5" />
+            </svg>
+            Groq AI
+          </span>
+        </div>
+
+        <div class="local-chat">
+          <div class="chat-topbar">
+            <span><i class="status-dot is-ready"></i> Qwen3 32B</span>
+            <button class="secondary-button" id="business-reset-button" type="button">새 대화</button>
+          </div>
+
+          <div class="chat-messages" id="business-messages" role="log" aria-live="polite">
+            <div class="chat-message assistant">
+              <span class="chat-avatar">AI</span>
+              <div class="chat-bubble">안녕하세요. 간단한 질문이나 업무 문장 작성, 요약을 도와드릴게요.</div>
+            </div>
+          </div>
+
+          <div class="chat-composer">
+            <textarea id="business-input" maxlength="3000" rows="2" placeholder="메시지를 입력하세요"></textarea>
+            <button class="chat-send-button" id="business-send-button" type="button" aria-label="메시지 보내기">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 14-7-4 14-3-5-7-2Z" /><path d="m10 12 7-9" /></svg>
+            </button>
+          </div>
+          <div class="message" id="business-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
       <section class="tool-card tool-panel" id="admin-tool" aria-labelledby="admin-title" hidden>
         <div class="password-gate" id="admin-password-gate">
           <div class="lock-icon" aria-hidden="true">
@@ -617,6 +659,6 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=20"></script>
   </body>
 </html>

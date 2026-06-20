@@ -625,6 +625,7 @@ const upsDom = {
     ups: document.querySelector("#ups-tool"),
     picking: document.querySelector("#picking-tool"),
     sync: document.querySelector("#sync-tool"),
+    business: document.querySelector("#business-tool"),
     admin: document.querySelector("#admin-tool"),
   },
   dropZone: document.querySelector("#ups-drop-zone"),
@@ -2126,6 +2127,115 @@ syncDom.downloadButton.addEventListener("click", downloadSyncReport);
   });
 });
 syncDom.dropZone.addEventListener("drop", (event) => inspectSyncFile(event.dataTransfer.files[0]));
+
+const businessDom = {
+  input: document.querySelector("#business-input"),
+  messages: document.querySelector("#business-messages"),
+  sendButton: document.querySelector("#business-send-button"),
+  resetButton: document.querySelector("#business-reset-button"),
+  message: document.querySelector("#business-message"),
+};
+
+const BUSINESS_SYSTEM_MESSAGE =
+  "당신은 웅툴의 한국어 AI 도우미입니다. 간단한 질문, 요약, 아이디어 정리, 번역, 물류·영업 업무 문장 작성을 돕습니다. 기본적으로 짧고 명확하게 한국어로 답하세요. 모르는 사실은 추측하지 말고 모른다고 말하세요. 사용자가 업무 문장을 요청하면 뜻, 업체명, 상품명, 수량, 날짜를 보존하면서 정중하고 자연스럽게 작성하세요.";
+let businessHistory = [];
+let businessBusy = false;
+
+function showBusinessMessage(text, isError = false) {
+  businessDom.message.textContent = text;
+  businessDom.message.classList.toggle("error", isError);
+  businessDom.message.hidden = !text;
+}
+
+function addBusinessMessage(role, text, loading = false) {
+  const row = document.createElement("div");
+  row.className = `chat-message ${role}`;
+  const avatar = document.createElement("span");
+  avatar.className = "chat-avatar";
+  avatar.textContent = role === "user" ? "나" : "AI";
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble${loading ? " is-loading" : ""}`;
+  bubble.textContent = text;
+  row.append(avatar, bubble);
+  businessDom.messages.append(row);
+  businessDom.messages.scrollTop = businessDom.messages.scrollHeight;
+  return row;
+}
+
+async function sendBusinessMessage() {
+  const content = businessDom.input.value.trim();
+  if (!content || businessBusy) {
+    if (!content) businessDom.input.focus();
+    return;
+  }
+
+  businessBusy = true;
+  businessDom.sendButton.disabled = true;
+  businessDom.input.disabled = true;
+  businessDom.input.value = "";
+  showBusinessMessage("");
+  addBusinessMessage("user", content);
+  businessHistory.push({ role: "user", content });
+  const loadingRow = addBusinessMessage("assistant", "답변을 작성하고 있어요…", true);
+
+  try {
+    const response = await fetch("/api/groq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system: BUSINESS_SYSTEM_MESSAGE,
+        messages: [
+          ...businessHistory.slice(-12),
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "AI 연결 실패");
+    }
+    const answer = String(data.text || "").trim();
+    if (!answer) throw new Error("답변 없음");
+
+    loadingRow.remove();
+    addBusinessMessage("assistant", answer);
+    businessHistory.push({ role: "assistant", content: answer });
+  } catch {
+    loadingRow.remove();
+    addBusinessMessage(
+      "assistant",
+      "AI에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    );
+    showBusinessMessage("AI 연결을 확인해 주세요.", true);
+  } finally {
+    businessBusy = false;
+    businessDom.sendButton.disabled = false;
+    businessDom.input.disabled = false;
+    businessDom.input.focus();
+  }
+}
+
+businessDom.sendButton.addEventListener("click", sendBusinessMessage);
+businessDom.resetButton.addEventListener("click", () => {
+  if (businessBusy) return;
+  businessHistory = [];
+  businessDom.input.value = "";
+  businessDom.messages.innerHTML = `
+    <div class="chat-message assistant">
+      <span class="chat-avatar">AI</span>
+      <div class="chat-bubble">새 대화를 시작했어요. 무엇을 도와드릴까요?</div>
+    </div>
+  `;
+  showBusinessMessage("");
+  businessDom.input.focus();
+});
+businessDom.input.addEventListener("input", () => showBusinessMessage(""));
+businessDom.input.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    sendBusinessMessage();
+  }
+});
 
 const adminDom = {
   passwordGate: document.querySelector("#admin-password-gate"),
