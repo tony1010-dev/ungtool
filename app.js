@@ -1,6 +1,35 @@
 const { PDFDocument } = PDFLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
 
+const themeButtons = document.querySelectorAll(".theme-button");
+const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+function applyTheme(mode, save = true) {
+  const resolved = mode === "system" ? (systemTheme.matches ? "dark" : "light") : mode;
+  document.documentElement.dataset.themeMode = mode;
+  document.documentElement.dataset.theme = resolved;
+  themeColorMeta.content = resolved === "dark" ? "#171717" : "#f8f7f3";
+
+  themeButtons.forEach((button) => {
+    const active = button.dataset.themeChoice === mode;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  if (save) localStorage.setItem("woongtoolTheme", mode);
+}
+
+themeButtons.forEach((button) => {
+  button.addEventListener("click", () => applyTheme(button.dataset.themeChoice));
+});
+
+systemTheme.addEventListener("change", () => {
+  if (document.documentElement.dataset.themeMode === "system") applyTheme("system", false);
+});
+
+applyTheme(document.documentElement.dataset.themeMode || "system", false);
+
 const dom = {
   dropZone: document.querySelector("#drop-zone"),
   zipInput: document.querySelector("#zip-input"),

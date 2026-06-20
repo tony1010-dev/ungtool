@@ -274,6 +274,51 @@ main {
   display: none;
 }
 
+.theme-switcher {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 2px;
+  margin-left: 8px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.theme-button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: 0.16s ease;
+}
+
+.theme-button:hover {
+  color: var(--ink);
+  background: rgba(23, 23, 23, 0.06);
+}
+
+.theme-button.is-active {
+  color: white;
+  background: var(--ink);
+  box-shadow: 0 2px 7px rgba(23, 23, 23, 0.18);
+}
+
+.theme-button svg {
+  width: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .header-tabs .tool-tab {
   min-height: 48px;
   gap: 9px;
@@ -1486,6 +1531,139 @@ footer p {
   font-size: 12px;
 }
 
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #f3f1ec;
+  --muted: #aaa69e;
+  --line: #3b3935;
+  --paper: #171717;
+  --white: #242321;
+  --accent: #ff7a49;
+  --accent-dark: #ff8a5f;
+  --green: #73c99c;
+}
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 107, 53, 0.1), transparent 28%),
+    var(--paper);
+}
+
+html[data-theme="dark"] .site-header,
+html[data-theme="dark"] footer {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme="dark"] .brand-mark {
+  color: #171717;
+  background: #f3f1ec;
+}
+
+html[data-theme="dark"] .theme-switcher,
+html[data-theme="dark"] .header-tabs .tool-tab:hover,
+html[data-theme="dark"] .tool-tab,
+html[data-theme="dark"] .home-notice-card,
+html[data-theme="dark"] .tool-card {
+  background: rgba(36, 35, 33, 0.94);
+}
+
+html[data-theme="dark"] .theme-button:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+html[data-theme="dark"] .theme-button.is-active,
+html[data-theme="dark"] .header-tabs .tool-tab.is-active,
+html[data-theme="dark"] .select-button,
+html[data-theme="dark"] .password-form button {
+  color: #171717;
+  background: #f3f1ec;
+}
+
+html[data-theme="dark"] .home-notice-card {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme="dark"] #home-notice-text,
+html[data-theme="dark"] .notice-feature-list li,
+html[data-theme="dark"] .hero p,
+html[data-theme="dark"] .sync-note {
+  color: #aaa69e;
+}
+
+html[data-theme="dark"] .notice-feature-list strong {
+  color: #f0ede7;
+}
+
+html[data-theme="dark"] .label-fields input,
+html[data-theme="dark"] .password-form input,
+html[data-theme="dark"] .admin-editor textarea,
+html[data-theme="dark"] .selected-file,
+html[data-theme="dark"] .sheet-badge,
+html[data-theme="dark"] .output-field,
+html[data-theme="dark"] .ups-summary > div,
+html[data-theme="dark"] .sync-summary > div,
+html[data-theme="dark"] .picking-summary > div,
+html[data-theme="dark"] .secondary-button,
+html[data-theme="dark"] .orientation-option {
+  color: var(--ink);
+  background: #211f1d;
+}
+
+html[data-theme="dark"] .drop-zone {
+  border-color: #55514b;
+  background:
+    linear-gradient(rgba(31, 30, 28, 0.86), rgba(31, 30, 28, 0.86)),
+    repeating-linear-gradient(-45deg, #242321, #242321 8px, #1d1c1a 8px, #1d1c1a 16px);
+}
+
+html[data-theme="dark"] .drop-zone.is-dragging {
+  border-color: var(--accent);
+  background: #2c211d;
+}
+
+html[data-theme="dark"] .label-preview-wrap {
+  background: #211f1d;
+}
+
+html[data-theme="dark"] .label-preview {
+  border-color: #5a5650;
+  background: white;
+}
+
+html[data-theme="dark"] .icon-button:hover,
+html[data-theme="dark"] .secondary-button:hover,
+html[data-theme="dark"] .progress-track {
+  background: #35322e;
+}
+
+html[data-theme="dark"] .pdf-list li {
+  border-color: #35322e;
+}
+
+html[data-theme="dark"] .local-badge,
+html[data-theme="dark"] .sheet-badge.is-ready,
+html[data-theme="dark"] .sync-summary .matched-summary,
+html[data-theme="dark"] .message {
+  color: #8bd6af;
+  border-color: #315a45;
+  background: #1c3026;
+}
+
+html[data-theme="dark"] .sheet-badge.is-error,
+html[data-theme="dark"] .sync-summary .missing-summary,
+html[data-theme="dark"] .message.error {
+  color: #ff9b7c;
+  border-color: #653c31;
+  background: #39231e;
+}
+
+html[data-theme="dark"] .ups-summary .accent-summary,
+html[data-theme="dark"] .sync-summary .zero-summary,
+html[data-theme="dark"] .missing-list,
+html[data-theme="dark"] .sync-note {
+  background: #2b2522;
+}
+
 @media (max-width: 700px) {
   .site-header {
     width: min(100% - 20px, 1180px);
@@ -1524,6 +1702,15 @@ footer p {
 
   .header-tabs {
     gap: 2px;
+  }
+
+  .theme-switcher {
+    margin-left: 4px;
+  }
+
+  .theme-button {
+    width: 27px;
+    height: 28px;
   }
 
   .tool-tab {
