@@ -347,11 +347,11 @@ updateCustomLabelState();
 
 const DEFAULT_HOME_NOTICE = `2026.06.21 | Feature Update
 
-• Label 출력: 직접 입력 편집 및 최대 250px 글자 크기 지원
-• PDF 병합: ZIP 안의 PDF와 여러 PDF 파일 자동 정렬·병합
-• 피킹리스트 출력: 기본 출력 · 로케이션 정리 Excel / PDF 지원
-• UNGTOOL AI: Groq Qwen3 32B 기반 공용 AI 기능 추가
-• 화면 개선: 상단 메뉴 글자 크기 확대 및 공지 이력 표시
+• Label 출력: 폰트 크기 조절기능 추가
+• PDF Merge: 기능통합
+• 피킹리스트 출력: 기본 출력 · 로케이션 정렬순 출력 기능 추가
+• UNGTOOL AI: Qwen3 32B 기반 공용 AI 기능 추가
+• 화면 개선: 상단 메뉴 글자 크기 확대
 
 2026.06.19 | Genesis Release
 
