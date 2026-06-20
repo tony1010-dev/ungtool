@@ -203,13 +203,14 @@ async function downloadLabelPdf() {
 });
 labelDom.downloadButton.addEventListener("click", downloadLabelPdf);
 
-const DEFAULT_HOME_NOTICE = `2026.06.19 Ver 1
+const DEFAULT_HOME_NOTICE = `2026.06.19 | Genesis Release
+핵심 기능을 한눈에 확인하세요
 
-• Label 출력: 업체명, 인보이스 번호, 박스 수량을 수정해 15×10cm PDF로 출력
-• PDF Merge: ZIP 파일 안의 PDF를 파일명 순서대로 자동 병합
-• UPS 출력: A4 UPS 라벨을 10×15cm 라벨 용지로 변환
-• 피킹리스트 출력: SKU와 로케이션을 연결해 작업자용 Excel·PDF 생성
-• 로케이션 동기화: 재고파일과 DB를 비교해 누락·미등록·재고 없음 확인`;
+• Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성
+• PDF Merge (ZIP): ZIP 내 PDF 자동 병합
+• UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환
+• 피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성
+• 로케이션 동기화: 재고 데이터와 DB 비교로 누락 · 미등록 · 재고없음 검증`;
 const homePanel = document.querySelector("#home-panel");
 const homeNoticeText = document.querySelector("#home-notice-text");
 const brandHome = document.querySelector("#brand-home");
