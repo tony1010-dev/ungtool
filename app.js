@@ -345,13 +345,14 @@ customLabelDom.fontSize.addEventListener("input", updateCustomLabelState);
 customLabelDom.downloadButton.addEventListener("click", downloadCustomLabelPdf);
 updateCustomLabelState();
 
-const DEFAULT_HOME_NOTICE = `2026.06.19 | Genesis Release
+const DEFAULT_HOME_NOTICE = `2026.06.21 | Feature Update
 
-• Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성
-• PDF 병합: ZIP 안의 PDF 또는 여러 PDF 자동 정렬·병합
+• Label 출력: 직접 입력 편집 및 최대 250px 글자 크기 지원
+• PDF 병합: ZIP 안의 PDF와 여러 PDF 파일 자동 정렬·병합
 • UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환
-• 피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성
-• 로케이션 동기화: 재고 데이터와 DB 비교로 누락 · 미등록 · 재고없음 검증`;
+• 피킹리스트 출력: 기본 출력 · 로케이션 정리 Excel / PDF 지원
+• 로케이션 동기화: 재고 데이터와 DB 비교 검증
+• UNGTOOL AI: Qwen3 32B 기반 간단한 질문 · 요약 · 업무 문장 지원`;
 const homePanel = document.querySelector("#home-panel");
 const homeNoticeText = document.querySelector("#home-notice-text");
 const brandHome = document.querySelector("#brand-home");
