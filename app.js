@@ -347,19 +347,19 @@ updateCustomLabelState();
 
 const DEFAULT_HOME_NOTICE = `2026.06.21 | Feature Update
 
-• Label 출력: 폰트 크기 조절기능 추가
+• Label Print: 폰트 크기 조절기능 추가
 • PDF Merge: 기능통합
-• 피킹리스트 출력: 기본 출력 · 로케이션 정렬순 출력 기능 추가
-• UNGTOOL AI: Qwen3 32B 기반 공용 AI 기능 추가
+• Picking List: 기본 출력 · 로케이션 정렬순 출력 기능 추가
+• UNGTOOL AI: Qwen3 32B 기반 AI 기능 추가
 • 화면 개선: 상단 메뉴 글자 크기 확대
 
 2026.06.19 | Genesis Release
 
-• Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성
+• Label Print: 업체명 · Invoice No. · Box Qty PDF 자동 생성
 • PDF Merge (ZIP): ZIP 내 PDF 자동 병합
-• UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환
-• 피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성
-• 로케이션 동기화: 재고 데이터와 DB 비교 검증`;
+• UPS Print: A4 UPS Label → 10×15cm Thermal Label 변환
+• Picking List: SKU · Location 매핑 Excel / PDF 생성
+• Location Sync: 재고 데이터와 DB 비교 검증`;
 const homePanel = document.querySelector("#home-panel");
 const homeNoticeText = document.querySelector("#home-notice-text");
 const brandHome = document.querySelector("#brand-home");
@@ -687,8 +687,8 @@ function selectTool(name) {
   });
   homePanel.hidden = true;
 
-  if (name === "picking") updatePickingLock();
-  if (name === "sync") updateSyncLock();
+  if (name === "picking") loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
+  if (name === "sync") loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
   if (name === "admin") updateAdminLock();
 }
 
@@ -883,11 +883,7 @@ const GOOGLE_DB_GID = "1060200137";
 const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
 
 const pickingDom = {
-  passwordGate: document.querySelector("#picking-password-gate"),
   content: document.querySelector("#picking-content"),
-  passwordForm: document.querySelector("#picking-password-form"),
-  password: document.querySelector("#picking-password"),
-  passwordError: document.querySelector("#picking-password-error"),
   dbStatus: document.querySelector("#db-status"),
   dropZone: document.querySelector("#picking-drop-zone"),
   input: document.querySelector("#picking-input"),
@@ -919,7 +915,6 @@ let pickingColumns = null;
 let pickingFile = null;
 let pickingData = null;
 let pickingOrientation = "landscape";
-let pickingUnlocked = sessionStorage.getItem("woongtoolPickingUnlocked") === "yes";
 
 async function sha256(text) {
   const bytes = new TextEncoder().encode(text);
@@ -927,31 +922,6 @@ async function sha256(text) {
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
-}
-
-function updatePickingLock() {
-  pickingDom.passwordGate.hidden = pickingUnlocked;
-  pickingDom.content.hidden = !pickingUnlocked;
-  if (!pickingUnlocked) {
-    requestAnimationFrame(() => pickingDom.password.focus());
-  }
-}
-
-async function unlockPicking(event) {
-  event.preventDefault();
-  const enteredHash = await sha256(pickingDom.password.value);
-  if (enteredHash !== PICKING_PASSWORD_HASH) {
-    pickingDom.passwordError.hidden = false;
-    pickingDom.password.select();
-    return;
-  }
-
-  pickingUnlocked = true;
-  sessionStorage.setItem("woongtoolPickingUnlocked", "yes");
-  pickingDom.password.value = "";
-  pickingDom.passwordError.hidden = true;
-  updatePickingLock();
-  loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
 }
 
 function normalizeHeader(value) {
@@ -1831,10 +1801,6 @@ pickingDom.excelButton.addEventListener("click", () => downloadPickingExcel());
 pickingDom.pdfButton.addEventListener("click", () => downloadPickingPdf());
 pickingDom.locationExcelButton.addEventListener("click", () => downloadPickingExcel(true));
 pickingDom.locationPdfButton.addEventListener("click", () => downloadPickingPdf(true));
-pickingDom.passwordForm.addEventListener("submit", unlockPicking);
-pickingDom.password.addEventListener("input", () => {
-  pickingDom.passwordError.hidden = true;
-});
 pickingDom.orientationOptions.forEach((option) => {
   option.addEventListener("click", () => {
     pickingOrientation = option.dataset.orientation;
@@ -1867,11 +1833,7 @@ pickingDom.dropZone.addEventListener("drop", (event) => {
 });
 
 const syncDom = {
-  passwordGate: document.querySelector("#sync-password-gate"),
   content: document.querySelector("#sync-content"),
-  passwordForm: document.querySelector("#sync-password-form"),
-  password: document.querySelector("#sync-password"),
-  passwordError: document.querySelector("#sync-password-error"),
   dropZone: document.querySelector("#sync-drop-zone"),
   input: document.querySelector("#sync-input"),
   selectButton: document.querySelector("#sync-select-button"),
@@ -1889,7 +1851,6 @@ const syncDom = {
   message: document.querySelector("#sync-message"),
 };
 
-let syncUnlocked = sessionStorage.getItem("woongtoolSyncUnlocked") === "yes";
 let syncFile = null;
 let syncResults = [];
 
@@ -1897,28 +1858,6 @@ function showSyncMessage(text, isError = false) {
   syncDom.message.textContent = text;
   syncDom.message.classList.toggle("error", isError);
   syncDom.message.hidden = !text;
-}
-
-function updateSyncLock() {
-  syncDom.passwordGate.hidden = syncUnlocked;
-  syncDom.content.hidden = !syncUnlocked;
-  if (!syncUnlocked) requestAnimationFrame(() => syncDom.password.focus());
-}
-
-async function unlockSync(event) {
-  event.preventDefault();
-  const enteredHash = await sha256(syncDom.password.value);
-  if (enteredHash !== PICKING_PASSWORD_HASH) {
-    syncDom.passwordError.hidden = false;
-    syncDom.password.select();
-    return;
-  }
-  syncUnlocked = true;
-  sessionStorage.setItem("woongtoolSyncUnlocked", "yes");
-  syncDom.password.value = "";
-  syncDom.passwordError.hidden = true;
-  updateSyncLock();
-  loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
 }
 
 function resetSyncTool() {
@@ -2132,8 +2071,6 @@ function downloadSyncReport() {
   }
 }
 
-syncDom.passwordForm.addEventListener("submit", unlockSync);
-syncDom.password.addEventListener("input", () => { syncDom.passwordError.hidden = true; });
 syncDom.selectButton.addEventListener("click", () => syncDom.input.click());
 syncDom.input.addEventListener("change", () => inspectSyncFile(syncDom.input.files[0]));
 syncDom.resetButton.addEventListener("click", resetSyncTool);

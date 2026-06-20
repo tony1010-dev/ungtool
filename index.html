@@ -98,17 +98,17 @@
           <div>
             <h2 id="home-notice-title">웅툴 공지</h2>
             <div id="home-notice-text">2026.06.21 | Feature Update<br />
-Label 출력: 폰트 크기 조절기능 추가<br />
+Label Print: 폰트 크기 조절기능 추가<br />
 PDF Merge: 기능통합<br />
-피킹리스트 출력: 기본 출력 · 로케이션 정렬순 출력 기능 추가<br />
-UNGTOOL AI: Qwen3 32B 기반 공용 AI 기능 추가<br />
+Picking List: 기본 출력 · 로케이션 정렬순 출력 기능 추가<br />
+UNGTOOL AI: Qwen3 32B 기반 AI 기능 추가<br />
 화면 개선: 상단 메뉴 글자 크기 확대<br /><br />
 2026.06.19 | Genesis Release<br />
-Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성<br />
+Label Print: 업체명 · Invoice No. · Box Qty PDF 자동 생성<br />
 PDF Merge (ZIP): ZIP 내 PDF 자동 병합<br />
-UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
-피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성<br />
-로케이션 동기화: 재고 데이터와 DB 비교 검증</div>
+UPS Print: A4 UPS Label → 10×15cm Thermal Label 변환<br />
+Picking List: SKU · Location 매핑 Excel / PDF 생성<br />
+Location Sync: 재고 데이터와 DB 비교 검증</div>
           </div>
         </div>
         <p>상단 메뉴에서 필요한 도구를 선택해 주세요.</p>
@@ -402,33 +402,7 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
       </section>
 
       <section class="tool-card tool-panel" id="picking-tool" aria-labelledby="picking-title" hidden>
-        <div class="password-gate" id="picking-password-gate">
-          <div class="lock-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
-              <path d="M12 14v3" />
-            </svg>
-          </div>
-          <h2>피킹리스트 전용 메뉴</h2>
-          <p>Google DB를 사용하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
-          <form class="password-form" id="picking-password-form">
-            <input
-              id="picking-password"
-              type="password"
-              inputmode="numeric"
-              autocomplete="current-password"
-              placeholder="비밀번호"
-              maxlength="20"
-              aria-label="피킹리스트 비밀번호"
-            />
-            <button type="submit">확인</button>
-          </form>
-          <div class="password-error" id="picking-password-error" role="alert" hidden>
-            비밀번호가 올바르지 않습니다.
-          </div>
-        </div>
-
-        <div id="picking-content" hidden>
+        <div id="picking-content">
         <div class="tool-heading">
           <div>
             <h2 id="picking-title">피킹리스트 출력</h2>
@@ -527,23 +501,7 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
       </section>
 
       <section class="tool-card tool-panel" id="sync-tool" aria-labelledby="sync-title" hidden>
-        <div class="password-gate" id="sync-password-gate">
-          <div class="lock-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
-              <path d="M12 14v3" />
-            </svg>
-          </div>
-          <h2>로케이션 동기화 전용 메뉴</h2>
-          <p>Google DB와 재고를 비교하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
-          <form class="password-form" id="sync-password-form">
-            <input id="sync-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="로케이션 동기화 비밀번호" />
-            <button type="submit">확인</button>
-          </form>
-          <div class="password-error" id="sync-password-error" role="alert" hidden>비밀번호가 올바르지 않습니다.</div>
-        </div>
-
-        <div id="sync-content" hidden>
+        <div id="sync-content">
           <div class="tool-heading">
             <div>
               <h2 id="sync-title">로케이션 동기화</h2>
@@ -665,6 +623,6 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=26"></script>
   </body>
 </html>
