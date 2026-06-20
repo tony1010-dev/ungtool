@@ -163,6 +163,17 @@ main {
   letter-spacing: -0.025em;
 }
 
+.notice-history-item + .notice-history-item {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.notice-history-item + .notice-history-item .notice-version {
+  color: #77736d;
+  font-size: 15px;
+}
+
 .notice-feature-list {
   display: grid;
   gap: 8px;

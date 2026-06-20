@@ -349,29 +349,54 @@ const DEFAULT_HOME_NOTICE = `2026.06.21 | Feature Update
 
 • Label 출력: 직접 입력 편집 및 최대 250px 글자 크기 지원
 • PDF 병합: ZIP 안의 PDF와 여러 PDF 파일 자동 정렬·병합
-• UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환
 • 피킹리스트 출력: 기본 출력 · 로케이션 정리 Excel / PDF 지원
-• 로케이션 동기화: 재고 데이터와 DB 비교 검증
-• UNGTOOL AI: Qwen3 32B 기반 간단한 질문 · 요약 · 업무 문장 지원`;
+• UNGTOOL AI: Groq Qwen3 32B 기반 공용 AI 기능 추가
+• 화면 개선: 상단 메뉴 글자 크기 확대 및 공지 이력 표시
+
+2026.06.19 | Genesis Release
+
+• Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성
+• PDF Merge (ZIP): ZIP 내 PDF 자동 병합
+• UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환
+• 피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성
+• 로케이션 동기화: 재고 데이터와 DB 비교 검증`;
 const homePanel = document.querySelector("#home-panel");
 const homeNoticeText = document.querySelector("#home-notice-text");
 const brandHome = document.querySelector("#brand-home");
 
 function displayHomeNotice(notice) {
   const lines = String(notice).split(/\r?\n/);
-  const title = lines.shift()?.trim() || "";
-  const details = lines.filter((line) => line.trim());
+  const sections = [];
+  let currentSection = null;
+
+  lines.forEach((line) => {
+    const cleanLine = line.trim();
+    if (!cleanLine) return;
+    if (/^\d{4}\.\d{2}\.\d{2}\s*\|/.test(cleanLine)) {
+      currentSection = { title: cleanLine, details: [] };
+      sections.push(currentSection);
+      return;
+    }
+    if (!currentSection) {
+      currentSection = { title: "", details: [] };
+      sections.push(currentSection);
+    }
+    currentSection.details.push(cleanLine);
+  });
+
   homeNoticeText.replaceChildren();
 
-  const titleElement = document.createElement("div");
-  titleElement.className = "notice-version";
-  titleElement.textContent = title;
-  homeNoticeText.append(titleElement);
+  sections.forEach((section) => {
+    const sectionElement = document.createElement("section");
+    sectionElement.className = "notice-history-item";
+    const titleElement = document.createElement("div");
+    titleElement.className = "notice-version";
+    titleElement.textContent = section.title;
+    sectionElement.append(titleElement);
 
-  if (details.length) {
     const list = document.createElement("ul");
     list.className = "notice-feature-list";
-    details.forEach((line) => {
+    section.details.forEach((line) => {
       const item = document.createElement("li");
       const cleanLine = line.replace(/^[•·\-]\s*/, "");
       const separator = cleanLine.indexOf(":");
@@ -384,8 +409,9 @@ function displayHomeNotice(notice) {
       }
       list.append(item);
     });
-    homeNoticeText.append(list);
-  }
+    sectionElement.append(list);
+    homeNoticeText.append(sectionElement);
+  });
   return notice;
 }
 
