@@ -2275,9 +2275,11 @@ async function downloadPickingExcel(sortByLocation = false) {
       cellStyles: true,
       compression: true,
     });
-    const baseName = safeOutputBaseName(pickingDom.outputName, "웅툴_피킹리스트");
-    const sortSuffix = sortByLocation ? "_Location순" : "";
-    const outputName = `${baseName}${sortSuffix}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
+    const baseName = safeOutputBaseName(
+      pickingDom.outputName,
+      sortByLocation ? "웅툴_피킹리스트" : "웅툴_패킹리스트",
+    );
+    const outputName = `${baseName}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadFile(
       output,
       `${outputName}.xlsx`,
@@ -2286,7 +2288,7 @@ async function downloadPickingExcel(sortByLocation = false) {
     showPickingMessage(
       sortByLocation
         ? "Location 알파벳순 Excel 피킹리스트를 저장했어요."
-        : "작업자용 Excel 피킹리스트를 저장했어요.",
+        : "작업자용 Excel 패킹리스트를 저장했어요.",
     );
   } catch (error) {
     showPickingMessage(error.message || "Excel 생성 중 문제가 발생했습니다.", true);
@@ -2315,14 +2317,16 @@ async function downloadPickingPdf(sortByLocation = false) {
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
     }
     const output = await pdf.save({ useObjectStreams: true });
-    const baseName = safeOutputBaseName(pickingDom.outputName, "웅툴_피킹리스트");
-    const sortSuffix = sortByLocation ? "_Location순" : "";
-    const outputName = `${baseName}${sortSuffix}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
+    const baseName = safeOutputBaseName(
+      pickingDom.outputName,
+      sortByLocation ? "웅툴_피킹리스트" : "웅툴_패킹리스트",
+    );
+    const outputName = `${baseName}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadPdf(output, outputName);
     showPickingMessage(
       sortByLocation
         ? `Location 알파벳순 PDF 피킹리스트 ${canvases.length}페이지를 저장했어요.`
-        : `작업자용 PDF 피킹리스트 ${canvases.length}페이지를 저장했어요.`,
+        : `작업자용 PDF 패킹리스트 ${canvases.length}페이지를 저장했어요.`,
     );
   } catch (error) {
     showPickingMessage(error.message || "PDF 생성 중 문제가 발생했습니다.", true);
