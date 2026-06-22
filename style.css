@@ -2651,22 +2651,58 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  height: 28px;
+  gap: 4px;
+  min-width: 56px;
+  height: 30px;
   padding: 0 10px;
   border-radius: 999px;
   border: 1.5px solid var(--border);
   background: var(--surface);
-  color: var(--accent);
+  color: var(--text);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: .04em;
+  line-height: 1;
+  flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .04);
 }
 
-.mat-icon-badge.is-box {
-  color: #d97706;
-  background: #fff8e7;
-  border-color: #f3d8a0;
+.mat-icon-badge-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.mat-icon-badge.box {
+  color: #8c5200;
+  background: #fff4de;
+  border-color: #f0c98a;
+}
+
+.mat-icon-badge.air {
+  color: #0f766e;
+  background: #e6fffb;
+  border-color: #99e7dd;
+}
+
+.mat-icon-badge.tape {
+  color: #92400e;
+  background: #fff7ed;
+  border-color: #f1c48a;
+}
+
+.mat-icon-badge.wrap {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #b7cdfc;
 }
 
 .mat-item-name {

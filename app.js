@@ -2954,14 +2954,22 @@ function renderMaterials(matTable) {
   }
 
   function materialBadge(name) {
-    const text = name.includes("뽕뽕")
-      ? "AIR"
+    const kind = name.includes("뽕뽕")
+      ? "air"
       : name.includes("테이프")
-        ? "TAPE"
+        ? "tape"
         : name.includes("랩") || name.includes("필름")
-          ? "WRAP"
-          : "BOX";
-    return `<span class="mat-icon-badge">${text}</span>`;
+          ? "wrap"
+          : "box";
+    const label = kind === "air" ? "AIR" : kind === "tape" ? "TAPE" : kind === "wrap" ? "WRAP" : "BOX";
+    const icon = kind === "air"
+      ? "☁"
+      : kind === "tape"
+        ? "◉"
+        : kind === "wrap"
+          ? "▤"
+          : "▦";
+    return `<span class="mat-icon-badge ${kind}" aria-label="${label}"><span class="mat-icon-badge-mark">${icon}</span><span>${label}</span></span>`;
   }
 
   if (boxItems.length) {
@@ -2970,7 +2978,7 @@ function renderMaterials(matTable) {
     card.innerHTML = `
       <h3>박스 재고</h3>
       <div class="mat-item-grid">
-        ${boxItems.map((m) => `<div class="mat-item"><span class="mat-icon-badge is-box">BOX</span><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div>`).join("")}
+        ${boxItems.map((m) => `<div class="mat-item"><span class="mat-icon-badge box" aria-label="BOX"><span class="mat-icon-badge-mark">▦</span><span>BOX</span></span><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div>`).join("")}
       </div>`;
     container.append(card);
   }
