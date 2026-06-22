@@ -181,13 +181,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
                   <span>출력 장수</span>
                   <input id="custom-label-copy-count" type="number" value="1" min="1" max="200" />
                 </label>
-                <label>
-                  <span>저장할 파일명</span>
-                  <div class="output-field">
-                    <input id="custom-label-output-name" type="text" value="CUSTOM_LABEL" maxlength="120" />
-                    <span>.pdf</span>
-                  </div>
-                </label>
               </div>
             </div>
             <div class="label-card-footer">
@@ -241,13 +234,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
                   <input id="label-copy-count" type="number" value="1" min="1" max="200" />
                 </label>
               </div>
-              <label>
-                <span>저장할 파일명</span>
-                <div class="output-field">
-                  <input id="label-output-name" type="text" value="LABEL" maxlength="120" />
-                  <span>.pdf</span>
-                </div>
-              </label>
             </div>
             <div class="label-card-footer">
               <button class="merge-button" id="label-download-button" type="button">
@@ -309,12 +295,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
           </div>
 
           <ol class="pdf-list" id="pdf-list"></ol>
-
-          <label class="output-label" for="output-name">저장할 파일명</label>
-          <div class="output-field">
-            <input id="output-name" type="text" maxlength="120" />
-            <span>.pdf</span>
-          </div>
 
           <button class="merge-button" id="merge-button" type="button">
             <span>받기</span>
@@ -386,12 +366,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             <span><strong>Backup Document 자동 제외</strong><small>배송 라벨 페이지만 출력합니다.</small></span>
           </label>
 
-          <label class="output-label" for="ups-output-name">저장할 파일명</label>
-          <div class="output-field">
-            <input id="ups-output-name" type="text" maxlength="120" />
-            <span>.pdf</span>
-          </div>
-
           <button class="merge-button" id="ups-convert-button" type="button">
             <span>받기</span>
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>
@@ -456,12 +430,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
           <div class="missing-list" id="missing-list" hidden>
             <strong>Location을 찾지 못한 SKU</strong>
             <p id="missing-skus"></p>
-          </div>
-
-          <label class="output-label" for="picking-output-name">저장할 파일명</label>
-          <div class="output-field">
-            <input id="picking-output-name" type="text" maxlength="120" />
-            <span>파일명</span>
           </div>
 
           <div class="download-actions picking-download-actions">
@@ -534,9 +502,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               </div>
             </div>
 
-            <!-- 항상 고정: 파일명 입력 -->
-            <label class="output-label" for="sync-output-name">저장할 파일명</label>
-            <div class="output-field"><input id="sync-output-name" type="text" maxlength="120" /><span>.xlsx</span></div>
             <div class="message" id="sync-message" role="status" aria-live="polite" hidden></div>
           </div>
 

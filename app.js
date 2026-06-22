@@ -100,6 +100,14 @@ function downloadFile(bytes, name, type) {
   setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
+function safeOutputBaseName(input, fallback) {
+  return safeBaseName(input?.value ?? "") || fallback;
+}
+
+function setIfPresent(input, value) {
+  if (input) input.value = value;
+}
+
 const labelDom = {
   company: document.querySelector("#label-company"),
   invoice: document.querySelector("#label-invoice"),
@@ -190,7 +198,7 @@ async function downloadLabelPdf() {
     }
 
     const output = await pdf.save({ useObjectStreams: true });
-    const outputName = safeBaseName(labelDom.outputName.value) || "LABEL";
+    const outputName = safeOutputBaseName(labelDom.outputName, "LABEL");
     downloadPdf(output, outputName);
     showLabelMessage(`15×10cm 라벨 PDF ${values.copies}장을 저장했어요.`);
   } catch (error) {
@@ -316,7 +324,7 @@ async function downloadCustomLabelPdf() {
     }
 
     const output = await pdf.save({ useObjectStreams: true });
-    const outputName = safeBaseName(customLabelDom.outputName.value) || "CUSTOM_LABEL";
+    const outputName = safeOutputBaseName(customLabelDom.outputName, "CUSTOM_LABEL");
     downloadPdf(output, outputName);
     showCustomLabelMessage(`직접 편집 라벨 PDF ${copies}장을 저장했어요.`);
   } catch (error) {
@@ -455,7 +463,7 @@ function resetTool() {
   dom.dropZone.hidden = false;
   dom.pdfList.replaceChildren();
   dom.fileCount.textContent = "0개";
-  dom.outputName.value = "";
+  setIfPresent(dom.outputName, "");
   dom.progressWrap.hidden = true;
   setProgress(0, "PDF를 병합하고 있어요");
   showMessage("");
@@ -532,7 +540,7 @@ async function loadMergeFiles(fileList) {
       dom.fileType.textContent = "ZIP";
       dom.zipName.textContent = zipFile.name;
       dom.zipSize.textContent = `${formatBytes(zipFile.size)} · PDF ${pdfEntries.length}개`;
-      dom.outputName.value = `${safeBaseName(zipFile.name)}_병합`;
+      setIfPresent(dom.outputName, `${safeBaseName(zipFile.name)}_병합`);
     } else {
       pdfEntries = pdfFiles
         .map((file) => ({
@@ -545,7 +553,7 @@ async function loadMergeFiles(fileList) {
       dom.zipName.textContent = `PDF ${pdfEntries.length}개`;
       dom.zipSize.textContent = `${formatBytes(totalSize)} · 파일명 순서로 정렬`;
       const firstName = pdfEntries[0].name.replace(/\.pdf$/i, "");
-      dom.outputName.value = `${safeBaseName(firstName)}_병합`;
+      setIfPresent(dom.outputName, `${safeBaseName(firstName)}_병합`);
     }
 
     mergeInputLoaded = true;
@@ -604,7 +612,7 @@ async function mergePdfs() {
 
     setProgress(92, "완성된 PDF를 저장하고 있어요");
     const result = await merged.save({ useObjectStreams: true });
-    const outputName = safeBaseName(dom.outputName.value) || "웅툴_병합";
+    const outputName = safeOutputBaseName(dom.outputName, "웅툴_병합");
     downloadPdf(result, outputName);
 
     setProgress(100, "병합이 완료됐어요");
@@ -728,7 +736,7 @@ function resetUpsTool() {
   upsDom.dropZone.hidden = false;
   upsDom.totalPages.textContent = "-";
   upsDom.labelPages.textContent = "-";
-  upsDom.outputName.value = "";
+  setIfPresent(upsDom.outputName, "");
   upsDom.progressWrap.hidden = true;
   setUpsProgress(0, "라벨을 변환하고 있어요");
   showUpsMessage("");
@@ -771,7 +779,7 @@ async function inspectUpsPdf(file) {
     upsPages = pages;
     upsDom.fileName.textContent = file.name;
     upsDom.fileInfo.textContent = `${formatBytes(file.size)} · UPS 문서 분석 완료`;
-    upsDom.outputName.value = `${safeBaseName(file.name)}_10x15`;
+    setIfPresent(upsDom.outputName, `${safeBaseName(file.name)}_10x15`);
     updateUpsCount();
     upsDom.dropZone.hidden = true;
     upsDom.workspace.hidden = false;
@@ -840,7 +848,7 @@ async function convertUpsPdf() {
     }
 
     const result = await output.save({ useObjectStreams: true });
-    const outputName = safeBaseName(upsDom.outputName.value) || "웅툴_UPS_10x15";
+    const outputName = safeOutputBaseName(upsDom.outputName, "웅툴_UPS_10x15");
     downloadPdf(result, outputName);
     setUpsProgress(100, "10×15cm 라벨이 완성됐어요");
     showUpsMessage(`배송 라벨 ${pagesToConvert.length}장을 “${outputName}.pdf”로 저장했어요.`);
@@ -1413,7 +1421,7 @@ function resetPickingTool() {
   pickingDom.total.textContent = "-";
   pickingDom.matched.textContent = "-";
   pickingDom.missing.textContent = "-";
-  pickingDom.outputName.value = "";
+  setIfPresent(pickingDom.outputName, "");
   pickingDom.missingList.hidden = true;
   showPickingMessage("");
 }
@@ -1457,7 +1465,7 @@ async function inspectPickingFile(file) {
 
     pickingDom.fileName.textContent = file.name;
     pickingDom.fileInfo.textContent = `${formatBytes(file.size)} · ${rows.length}개 상품 확인`;
-    pickingDom.outputName.value = `${safeBaseName(file.name)}_피킹리스트`;
+    setIfPresent(pickingDom.outputName, `${safeBaseName(file.name)}_피킹리스트`);
     updatePickingSummary();
     pickingDom.dropZone.hidden = true;
     pickingDom.workspace.hidden = false;
@@ -2119,7 +2127,7 @@ async function downloadPickingExcel(sortByLocation = false) {
       cellStyles: true,
       compression: true,
     });
-    const baseName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
+    const baseName = safeOutputBaseName(pickingDom.outputName, "웅툴_피킹리스트");
     const sortSuffix = sortByLocation ? "_Location순" : "";
     const outputName = `${baseName}${sortSuffix}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadFile(
@@ -2159,7 +2167,7 @@ async function downloadPickingPdf(sortByLocation = false) {
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
     }
     const output = await pdf.save({ useObjectStreams: true });
-    const baseName = safeBaseName(pickingDom.outputName.value) || "웅툴_피킹리스트";
+    const baseName = safeOutputBaseName(pickingDom.outputName, "웅툴_피킹리스트");
     const sortSuffix = sortByLocation ? "_Location순" : "";
     const outputName = `${baseName}${sortSuffix}_${pickingOrientation === "portrait" ? "세로" : "가로"}`;
     downloadPdf(output, outputName);
@@ -2241,7 +2249,7 @@ function resetSyncTool() {
   syncDom.normal.textContent = "-";
   syncDom.noLocation.textContent = "-";
   syncDom.noStock.textContent = "-";
-  syncDom.outputName.value = "";
+  setIfPresent(syncDom.outputName, "");
   showSyncMessage("");
 }
 
@@ -2343,7 +2351,7 @@ async function inspectSyncFile(file) {
     syncDom.noStock.textContent = String(noStock);
     syncDom.fileName.textContent = file.name;
     syncDom.fileInfo.textContent = `${formatBytes(file.size)} · ${syncResults.length.toLocaleString()}개 상품 비교 완료`;
-    syncDom.outputName.value = `${safeBaseName(file.name)}_로케이션동기화`;
+    setIfPresent(syncDom.outputName, `${safeBaseName(file.name)}_로케이션동기화`);
     syncDom.dropZone.hidden = true;
     syncDom.workspace.hidden = false;
     syncDom.selectedFile.hidden = false;
@@ -2431,7 +2439,7 @@ function downloadSyncReport() {
   try {
     const workbook = buildSyncWorkbook();
     const output = XLSX.write(workbook, { type: "array", bookType: "xlsx", cellStyles: true, compression: true });
-    const outputName = safeBaseName(syncDom.outputName.value) || "웅툴_로케이션동기화";
+    const outputName = safeOutputBaseName(syncDom.outputName, "웅툴_로케이션동기화");
     downloadFile(output, `${outputName}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     showSyncMessage("로케이션 동기화 결과 Excel을 저장했어요.");
   } catch (error) {
