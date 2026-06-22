@@ -222,7 +222,7 @@
               </div>
               <div class="label-field-row">
                 <label>
-                  <span>박스 수량</span>
+                  <span>수량</span>
                   <input id="label-box-count" type="number" value="2" min="1" max="9999" />
                 </label>
                 <label>
@@ -523,8 +523,8 @@
       <section class="tool-card tool-panel" id="license-tool" aria-labelledby="license-title" hidden>
         <div class="tool-heading">
           <div>
-            <h2 id="license-title">Export Permit</h2>
-            <p>DHL 면허 다운로드</p>
+            <h2 id="license-title">DHL 면허</h2>
+            <p>DHL 면허를 다운로드 합니다.</p>
           </div>
           <span class="sheet-badge" id="license-sheet-status"><span class="status-dot"></span>면허 탭 연결 대기</span>
         </div>
@@ -536,7 +536,7 @@
             <span id="license-summary">DHL 면허를 다운로드 합니다.</span>
           </div>
           <button class="merge-button picking-download-button" id="license-download-button" type="button">
-            <span>받기</span>
+            <span>Excel 받기</span>
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
           </button>
         </div>
@@ -588,9 +588,20 @@
         <div class="tool-heading">
           <div>
             <h2 id="dashboard-title">Dashboard</h2>
-
           </div>
-          <span class="sheet-badge" id="dashboard-sheet-status"><span class="status-dot"></span>데이터 불러오는 중</span>
+          <div class="dashboard-header-right">
+            <div class="dashboard-export-actions" aria-label="대시보드 내보내기">
+              <button class="dashboard-export-button" id="dashboard-excel-button" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h8l4 4v10H4z"/><path d="M12 3v4h4"/><path d="M7 8l6 6M13 8l-6 6"/></svg>
+                <span>엑셀</span>
+              </button>
+              <button class="dashboard-export-button" id="dashboard-pdf-button" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.8h6.8L15.8 6v11.2H5z"/><path d="M12 2.8V6h3.8"/><path d="M7 10h6M7 13h5"/></svg>
+                <span>PDF</span>
+              </button>
+            </div>
+            <span class="sheet-badge" id="dashboard-sheet-status"><span class="status-dot"></span>데이터 불러오는 중</span>
+          </div>
         </div>
 
         <nav class="dash-tabs" aria-label="대시보드 탭">

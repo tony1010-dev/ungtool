@@ -162,6 +162,18 @@ function safeOutputBaseName(input, fallback) {
   return safeBaseName(input?.value ?? "") || fallback;
 }
 
+function dashboardFileBase() {
+  return `웅툴_대시보드_${seoulDateString()}`;
+}
+
+function dashboardCellText(cell) {
+  return String(gvizCellValue(cell ?? null) ?? "").trim();
+}
+
+function dashboardRowsFromTable(table, mapRow) {
+  return (table?.rows || []).map((row, index) => mapRow(row?.c || [], index)).filter(Boolean);
+}
+
 function setIfPresent(input, value) {
   if (input) input.value = value;
 }
@@ -180,7 +192,18 @@ const labelDom = {
   message: document.querySelector("#label-message"),
 };
 
+const dashboardDom = {
+  excelButton: document.querySelector("#dashboard-excel-button"),
+  pdfButton: document.querySelector("#dashboard-pdf-button"),
+};
+
 let labelUnit = "BOX";
+
+const dashboardState = {
+  incoming: null,
+  outgoing: null,
+  materials: null,
+};
 
 function labelValues() {
   return {
@@ -1363,7 +1386,7 @@ async function downloadLicenseWorkbook() {
     showLicenseMessage(error.message || "면허 파일을 만들지 못했습니다.", true);
   } finally {
     licenseDom.downloadButton.disabled = false;
-    licenseDom.downloadButton.querySelector("span").textContent = "Download";
+    licenseDom.downloadButton.querySelector("span").textContent = "Excel 받기";
   }
 }
 
@@ -2987,6 +3010,29 @@ function renderIncoming(table, totalsTable) {
     <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
+  dashboardState.incoming = {
+    summary: {
+      count: dataRows.length,
+      pltTotal,
+      boxTotal,
+      totalAmt,
+    },
+    rows: dataRows.map((row) => {
+      const cells = row.c || [];
+      return [
+        dashCell(cells, 0),
+        dashCell(cells, 1),
+        dashCell(cells, 3),
+        fmtNum(gvizCellValue(cells[7] ?? null)),
+        fmtNum(gvizCellValue(cells[8] ?? null)),
+        fmtKrw(gvizCellValue(cells[9] ?? null)),
+        dashCell(cells, 10) || "-",
+        dashCell(cells, 13) || "-",
+        dashCell(cells, 17) || "-",
+      ];
+    }),
+  };
+
   const chartWrap = document.querySelector("#dash-in-chart");
   if (chartWrap) chartWrap.innerHTML = "";
 }
@@ -3048,6 +3094,30 @@ function renderOutgoing(table, matRows, totalsTable) {
     <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(amtStr)}</strong></div>
   `;
 
+  dashboardState.outgoing = {
+    summary: {
+      count: dataRows.length,
+      pltTotal,
+      boxTotal,
+      amtStr,
+    },
+    rows: dataRows.map((row) => {
+      const cells = row.c || [];
+      return [
+        dashCell(cells, 0),
+        dashCell(cells, 1),
+        dashCell(cells, 2).replace(/\r/g, ""),
+        dashCell(cells, 3),
+        dashCell(cells, 8) || "-",
+        dashCell(cells, 9) || "-",
+        fmtUsd(gvizCellValue(cells[10] ?? null)),
+        normalizeCarrierName(dashCell(cells, 11) || "-"),
+        dashCell(cells, 14) || "-",
+      ];
+    }),
+    carriers: [],
+  };
+
   // 배송사별 카드 — 고정 8개 항목, 항상 표시 (민호탭 rows[6-8] 기준)
   const CARRIER_COLS = [
     { col: 2,  name: "FedEx 코어", key: "fedex" },
@@ -3077,6 +3147,12 @@ function renderOutgoing(table, matRows, totalsTable) {
 
     const totalInv = carriers.reduce((s, c) => s + c.invoice, 0);
     const totalBox = carriers.reduce((s, c) => s + c.box, 0);
+
+    dashboardState.outgoing.carriers = carriers.map((c) => ({
+      name: normalizeCarrierName(c.name),
+      invoice: c.invoice || 0,
+      box: c.box || 0,
+    }));
 
     const cards = carriers.map((c) => {
       const col = CARRIER_COLORS[c.key] || CARRIER_COLORS.default;
@@ -3192,6 +3268,339 @@ function renderMaterials(matTable) {
         ${packItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div></div>`).join("")}
       </div>`;
     container.append(card);
+  }
+
+  dashboardState.materials = {
+    boxItems,
+    packItems,
+  };
+}
+
+function dashboardExportReady() {
+  if (!dashboardState.incoming || !dashboardState.outgoing || !dashboardState.materials) {
+    throw new Error("대시보드 데이터를 아직 불러오지 못했어요.");
+  }
+}
+
+function dashboardBlankRow(width) {
+  return Array.from({ length: width }, () => "");
+}
+
+function dashboardBuildWorkbookSheet(title, widths, header, rows, summaryRows = []) {
+  const matrix = [
+    [title, ...dashboardBlankRow(widths.length - 1)],
+    [`생성일자 : ${seoulDateString()}`, ...dashboardBlankRow(widths.length - 1)],
+    ...summaryRows,
+    dashboardBlankRow(widths.length),
+    header,
+    ...rows,
+  ];
+  const sheet = XLSX.utils.aoa_to_sheet(matrix);
+  const workbookSheetName = title.replace(/^웅툴 - /, "").slice(0, 31);
+  const titleRange = `A1:${XLSX.utils.encode_col(widths.length - 1)}1`;
+  const dateRange = `A2:${XLSX.utils.encode_col(widths.length - 1)}2`;
+  const headerRow = summaryRows.length + 3;
+  const lastRow = matrix.length - 1;
+  const lastCol = widths.length - 1;
+  const border = {
+    top: { style: "thin", color: { rgb: "D8D5CE" } },
+    bottom: { style: "thin", color: { rgb: "D8D5CE" } },
+    left: { style: "thin", color: { rgb: "D8D5CE" } },
+    right: { style: "thin", color: { rgb: "D8D5CE" } },
+  };
+
+  sheet["!merges"] = [XLSX.utils.decode_range(titleRange), XLSX.utils.decode_range(dateRange)];
+  sheet["!cols"] = widths.map((wch) => ({ wch }));
+  sheet["!rows"] = matrix.map((_, row) => ({ hpt: row === 0 ? 28 : row === 1 ? 20 : row === headerRow ? 24 : 22 }));
+  sheet["!autofilter"] = { ref: `A${headerRow + 1}:${XLSX.utils.encode_col(lastCol)}${lastRow + 1}` };
+
+  for (let row = 0; row <= lastRow; row += 1) {
+    for (let col = 0; col <= lastCol; col += 1) {
+      const cell = ensureCell(sheet, row, col);
+      const isTitle = row === 0;
+      const isDate = row === 1;
+      const isHeader = row === headerRow;
+      const isSummary = row >= 2 && row < 2 + summaryRows.length;
+      cell.s = {
+        font: {
+          name: "맑은 고딕",
+          sz: isTitle ? 15 : isHeader ? 10 : 9,
+          bold: isTitle || isHeader,
+          color: { rgb: isTitle ? "FFFFFF" : "222222" },
+        },
+        alignment: {
+          horizontal: isTitle ? "left" : isHeader ? "center" : "left",
+          vertical: "center",
+          wrapText: true,
+        },
+        border: row >= headerRow ? border : undefined,
+        fill: isTitle
+          ? { fgColor: { rgb: "171717" } }
+          : isHeader
+            ? { fgColor: { rgb: "EDEAE4" } }
+            : isSummary
+              ? { fgColor: { rgb: "F8F7F3" } }
+              : undefined,
+      };
+      if (isDate && col > 0) cell.v = "";
+    }
+  }
+
+  return { sheet, workbookSheetName };
+}
+
+function buildDashboardWorkbook() {
+  dashboardExportReady();
+
+  const workbook = XLSX.utils.book_new();
+
+  const incoming = dashboardState.incoming;
+  const incomingSummary = [
+    ["요약", `${incoming.summary.count}건`, `${incoming.summary.pltTotal} PLT`, `${incoming.summary.boxTotal} BOX`, fmtKrwSpaced(incoming.summary.totalAmt), "", "", "", ""],
+  ];
+  const incomingSheet = dashboardBuildWorkbookSheet(
+    "웅툴 - 입고",
+    [8, 16, 20, 10, 10, 14, 12, 12, 20],
+    ["번호", "서류번호", "거래처", "수량", "BOX", "금액", "부피", "배차", "특이사항"],
+    incoming.rows,
+    incomingSummary,
+  );
+  XLSX.utils.book_append_sheet(workbook, incomingSheet.sheet, incomingSheet.workbookSheetName);
+
+  const outgoing = dashboardState.outgoing;
+  const outgoingSummary = [
+    ["요약", `${outgoing.summary.count}건`, `${outgoing.summary.pltTotal} PLT`, `${outgoing.summary.boxTotal} BOX`, outgoing.summary.amtStr, "", "", "", ""],
+  ];
+  const outgoingSheet = dashboardBuildWorkbookSheet(
+    "웅툴 - 출고",
+    [8, 16, 16, 18, 12, 10, 14, 16, 20],
+    ["번호", "인보이스", "영업사원", "거래처", "Item", "수량", "금액($)", "배송사", "특이사항"],
+    outgoing.rows,
+    outgoingSummary,
+  );
+  XLSX.utils.book_append_sheet(workbook, outgoingSheet.sheet, outgoingSheet.workbookSheetName);
+
+  const materials = dashboardState.materials;
+  const materialRows = [
+    ...materials.boxItems.map((item) => ["박스 재고", item.name, item.qty]),
+    ...materials.packItems.map((item) => ["포장용품", item.name, item.qty]),
+  ];
+  const materialsSheet = dashboardBuildWorkbookSheet(
+    "웅툴 - 자재현황",
+    [14, 22, 14],
+    ["구분", "자재명", "수량"],
+    materialRows,
+  );
+  XLSX.utils.book_append_sheet(workbook, materialsSheet.sheet, materialsSheet.workbookSheetName);
+
+  return workbook;
+}
+
+async function downloadDashboardExcel() {
+  if (typeof XLSX === "undefined") {
+    return;
+  }
+  const button = dashboardDom.excelButton;
+  if (!button) return;
+  try {
+    button.disabled = true;
+    button.textContent = "저장중";
+    const workbook = buildDashboardWorkbook();
+    const output = XLSX.write(workbook, { type: "array", bookType: "xlsx", cellStyles: true, compression: true });
+    downloadFile(output, `${dashboardFileBase()}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  } catch (error) {
+    setDashStatus("error", error.message || "Excel 저장 실패");
+  } finally {
+    button.disabled = false;
+    button.textContent = "엑셀";
+  }
+}
+
+function fitCanvasText(ctx, text, maxWidth) {
+  const raw = String(text ?? "");
+  if (ctx.measureText(raw).width <= maxWidth) return raw;
+  const ellipsis = "…";
+  let current = raw;
+  while (current.length > 0 && ctx.measureText(`${current}${ellipsis}`).width > maxWidth) {
+    current = current.slice(0, -1);
+  }
+  return current ? `${current}${ellipsis}` : ellipsis;
+}
+
+function drawDashboardRow(ctx, x, y, widths, values, options = {}) {
+  const height = options.height || 30;
+  const fill = options.fill || "#ffffff";
+  const textColor = options.textColor || "#222222";
+  const borderColor = options.borderColor || "#d8d5ce";
+  const font = options.font || "500 17px 'Malgun Gothic', sans-serif";
+  const align = options.align || [];
+  ctx.save();
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = borderColor;
+  ctx.lineWidth = 1;
+  ctx.fillRect(x, y, widths.reduce((sum, width) => sum + width, 0), height);
+  let offset = x;
+  widths.forEach((width, index) => {
+    ctx.strokeRect(offset, y, width, height);
+    ctx.font = font;
+    ctx.fillStyle = textColor;
+    ctx.textBaseline = "middle";
+    const pad = 10;
+    const text = fitCanvasText(ctx, values[index] ?? "", width - pad * 2);
+    const alignment = align[index] || "left";
+    let drawX = offset + pad;
+    if (alignment === "center") {
+      ctx.textAlign = "center";
+      drawX = offset + width / 2;
+    } else if (alignment === "right") {
+      ctx.textAlign = "right";
+      drawX = offset + width - pad;
+    } else {
+      ctx.textAlign = "left";
+    }
+    ctx.fillText(text, drawX, y + height / 2 + 1);
+    offset += width;
+  });
+  ctx.restore();
+}
+
+function buildDashboardSectionCanvases(title, summaryLines, headers, rows, widths) {
+  const pages = [];
+  const pageWidth = 1684;
+  const pageHeight = 1190;
+  const margin = 44;
+  const tableWidth = widths.reduce((sum, width) => sum + width, 0);
+  const rowsPerPage = 24;
+  const chunks = [];
+  for (let index = 0; index < rows.length; index += rowsPerPage) {
+    chunks.push(rows.slice(index, index + rowsPerPage));
+  }
+  if (!chunks.length) chunks.push([]);
+
+  chunks.forEach((chunk, chunkIndex) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = pageWidth;
+    canvas.height = pageHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, pageWidth, pageHeight);
+
+    ctx.fillStyle = "#171717";
+    ctx.font = "700 34px 'Malgun Gothic', sans-serif";
+    ctx.fillText(title, margin, 62);
+
+    ctx.fillStyle = "#6b665f";
+    ctx.font = "500 18px 'Malgun Gothic', sans-serif";
+    ctx.fillText(`생성일자 : ${seoulDateString()}`, margin, 92);
+
+    let y = 120;
+    summaryLines.forEach((line) => {
+      ctx.fillStyle = "#f8f7f3";
+      ctx.strokeStyle = "#ddd9d1";
+      ctx.lineWidth = 1;
+      ctx.fillRect(margin, y, tableWidth, 42);
+      ctx.strokeRect(margin, y, tableWidth, 42);
+      ctx.fillStyle = "#44413b";
+      ctx.font = "600 18px 'Malgun Gothic', sans-serif";
+      ctx.fillText(line, margin + 14, y + 27);
+      y += 48;
+    });
+
+    y += 4;
+    drawDashboardRow(ctx, margin, y, widths, headers, {
+      height: 42,
+      fill: "#edeae4",
+      font: "700 18px 'Malgun Gothic', sans-serif",
+      textColor: "#36332e",
+      align: headers.map((_, index) => (index === headers.length - 1 ? "left" : index === 3 || index === 4 || index === 5 ? "center" : "left")),
+    });
+    y += 42;
+
+    chunk.forEach((row, rowIndex) => {
+      drawDashboardRow(ctx, margin, y, widths, row, {
+        height: 38,
+        fill: rowIndex % 2 ? "#fbfaf7" : "#ffffff",
+        font: "500 16px 'Malgun Gothic', sans-serif",
+        textColor: "#222222",
+        align: row.map((_, index) => (index === 0 || index === 3 || index === 4 ? "center" : index === 5 ? "right" : "left")),
+      });
+      y += 38;
+    });
+
+    ctx.fillStyle = "#8b8780";
+    ctx.font = "600 16px 'Malgun Gothic', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("웅툴 - 업무를 가볍고 빠르게", margin, pageHeight - 20);
+    ctx.textAlign = "right";
+    ctx.fillText(`${chunkIndex + 1} / ${chunks.length}`, pageWidth - margin, pageHeight - 20);
+
+    pages.push(canvas);
+  });
+
+  return pages;
+}
+
+async function downloadDashboardPdf() {
+  const button = dashboardDom.pdfButton;
+  if (!button) return;
+  try {
+    button.disabled = true;
+    button.textContent = "저장중";
+    dashboardExportReady();
+
+    const incomingPages = buildDashboardSectionCanvases(
+      "입고",
+      [
+        `총 입고 건수 : ${dashboardState.incoming.summary.count}건`,
+        `총 입고 PLT : ${dashboardState.incoming.summary.pltTotal} / 총 입고 BOX : ${dashboardState.incoming.summary.boxTotal}`,
+        `총 입고 금액 : ${fmtKrwSpaced(dashboardState.incoming.summary.totalAmt)}`,
+      ],
+      ["번호", "서류번호", "거래처", "수량", "BOX", "금액", "부피", "배차", "특이사항"],
+      dashboardState.incoming.rows,
+      [80, 160, 220, 90, 90, 140, 130, 120, 480],
+    );
+
+    const outgoingPages = buildDashboardSectionCanvases(
+      "출고",
+      [
+        `총 출고 건수 : ${dashboardState.outgoing.summary.count}건`,
+        `총 출고 PLT : ${dashboardState.outgoing.summary.pltTotal} / 총 출고 BOX : ${dashboardState.outgoing.summary.boxTotal}`,
+        `총 출고 금액 : ${dashboardState.outgoing.summary.amtStr}`,
+      ],
+      ["번호", "인보이스", "영업사원", "거래처", "Item", "수량", "금액($)", "배송사", "특이사항"],
+      dashboardState.outgoing.rows,
+      [80, 160, 170, 190, 120, 90, 140, 160, 480],
+    );
+
+    const materialRows = [
+      ...dashboardState.materials.boxItems.map((item) => ["박스 재고", item.name, item.qty]),
+      ...dashboardState.materials.packItems.map((item) => ["포장용품", item.name, item.qty]),
+    ];
+    const materialPages = buildDashboardSectionCanvases(
+      "자재현황",
+      ["박스 재고 / 포장용품"],
+      ["구분", "자재명", "수량"],
+      materialRows,
+      [220, 780, 180],
+    );
+
+    const pdf = await PDFDocument.create();
+    const pageWidth = 841.8898;
+    const pageHeight = 595.2756;
+
+    for (const canvas of [...incomingPages, ...outgoingPages, ...materialPages]) {
+      const image = await pdf.embedPng(canvas.toDataURL("image/png"));
+      const page = pdf.addPage([pageWidth, pageHeight]);
+      page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
+    }
+
+    const output = await pdf.save({ useObjectStreams: true });
+    downloadPdf(output, dashboardFileBase());
+  } catch (error) {
+    setDashStatus("error", error.message || "PDF 저장 실패");
+  } finally {
+    button.disabled = false;
+    button.textContent = "PDF";
   }
 }
 
@@ -3317,6 +3726,15 @@ document.querySelectorAll(".dash-tab").forEach((tab) => {
     });
   });
 });
+
+if (dashboardDom.excelButton) {
+  dashboardDom.excelButton.addEventListener("click", downloadDashboardExcel);
+}
+
+if (dashboardDom.pdfButton) {
+  dashboardDom.pdfButton.addEventListener("click", downloadDashboardPdf);
+}
+
 brandHome.addEventListener("click", (event) => {
   event.preventDefault();
   showHome();

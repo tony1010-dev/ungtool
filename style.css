@@ -855,6 +855,60 @@ html[data-theme="dark"] .unit-button.is-active {
   font-size: 14px;
 }
 
+.dashboard-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dashboard-export-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dashboard-export-button {
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.dashboard-export-button svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.dashboard-export-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .06);
+}
+
+.dashboard-export-button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
 .local-badge {
   display: flex;
   align-items: center;
@@ -2421,6 +2475,10 @@ html[data-theme="dark"] .license-note {
     flex-direction: column;
   }
 
+  .dashboard-header-right {
+    align-items: flex-start;
+  }
+
   .license-download-card {
     grid-template-columns: auto 1fr;
     padding: 18px;
@@ -2700,6 +2758,13 @@ html[data-theme="dark"] .license-note {
 html[data-theme="dark"] .dash-stat { background: var(--surface); }
 html[data-theme="dark"] .dash-table th { background: var(--surface); }
 html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surface); }
+html[data-theme="dark"] .dashboard-export-button {
+  background: color-mix(in srgb, var(--surface) 90%, #111 10%);
+  border-color: var(--border);
+}
+html[data-theme="dark"] .dashboard-export-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
 
 /* ── Carrier badge ─────────────────────────────────────────── */
 .carrier-badge {
