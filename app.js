@@ -1315,9 +1315,9 @@ function buildPickingWorkbook(data = pickingData) {
   sheet["!cols"] = [
     { wch: portrait ? 4 : 5 },
     { wch: portrait ? 18 : 23 },
-    { wch: portrait ? 40 : 54 },
+    { wch: portrait ? 38 : 54 },
     { wch: portrait ? 15 : 19 },
-    { wch: portrait ? 15 : 19 },
+    { wch: portrait ? 18 : 19 },
     { wch: portrait ? 7 : 9 },
     { wch: portrait ? 13 : 16 },
     { wch: portrait ? 11 : 15 },
@@ -1497,7 +1497,7 @@ function buildPickingPdfCanvases(data = pickingData) {
   const outputType = data.outputType || "기본 출력";
   const documentTitle =
     outputType === "로케이션 정리"
-      ? "PACKING LIST · 로케이션 정리"
+      ? "PICKING LIST"
       : "PACKING LIST";
   const width = portrait ? 1131 : 1600;
   const height = portrait ? 1600 : 1131;
@@ -1613,9 +1613,9 @@ function buildPickingPdfCanvases(data = pickingData) {
     ? [
         ["NO", 45],
         ["SKU", 160],
-        ["DESCRIPTION", 366],
+        ["DESCRIPTION", 346],
         ["BRAND", 90],
-        ["BARCODE", 125],
+        ["BARCODE", 145],
         ["QTY", 55],
         ["LOCATION", 120],
         ["PACKING", 70],
