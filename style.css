@@ -2793,7 +2793,7 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
 
 .carrier-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
   gap: 10px;
 }
 
@@ -2806,7 +2806,7 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
 }
 
 .carrier-card-header {
-  padding: 12px;
+  padding: 10px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2823,7 +2823,7 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 6px 10px;
+  padding: 10px 6px 9px;
   gap: 3px;
 }
 
@@ -2857,7 +2857,7 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
 /* ── Materials item grid ─────────────────────────────────────── */
 .mat-item-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
   gap: 12px;
   padding: 14px;
 }
@@ -2878,12 +2878,16 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
   height: 56px;
   flex-shrink: 0;
   color: var(--accent);
+  padding: 10px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(248,248,248,.75));
+  box-shadow: 0 10px 24px rgba(0,0,0,.05);
 }
 
-.mat-visual-icon.box { color: #b45309; }
-.mat-visual-icon.air { color: #0f766e; }
-.mat-visual-icon.tape { color: #7c3aed; }
-.mat-visual-icon.wrap { color: #2563eb; }
+.mat-visual-icon.box { color: #f59e0b; }
+.mat-visual-icon.air { color: #0ea5e9; }
+.mat-visual-icon.tape { color: #f97316; }
+.mat-visual-icon.wrap { color: #10b981; }
 
 .mat-item-meta {
   min-width: 0;
@@ -3252,6 +3256,15 @@ html[data-theme="dark"] .loc-row.loc-unknown {
   letter-spacing: -.2px;
   white-space: nowrap;
 }
+
+html[data-theme="dark"] .mat-visual-icon {
+  background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+}
+
+html[data-theme="dark"] .mat-visual-icon.box { color: #fbbf24; }
+html[data-theme="dark"] .mat-visual-icon.air { color: #38bdf8; }
+html[data-theme="dark"] .mat-visual-icon.tape { color: #fb923c; }
+html[data-theme="dark"] .mat-visual-icon.wrap { color: #34d399; }
 
 .fedex-accent {
   color: #ff7a00;

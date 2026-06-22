@@ -2903,6 +2903,16 @@ function dashCell(cells, idx) {
   return String(gvizCellValue(cells[idx] ?? null) ?? "").trim();
 }
 
+function normalizeCarrierName(text) {
+  const raw = String(text ?? "").replace(/\s+/g, "").toLowerCase();
+  if (raw === "fedex코어" || raw === "fedexcore") return "FedEx 코어";
+  if (raw === "fedexpickup" || raw === "fedex픽업") return "FedEx 픽업";
+  if (raw === "ups코어" || raw === "upscore") return "UPS 코어";
+  if (raw === "upspickup" || raw === "ups픽업") return "UPS 픽업";
+  if (raw === "dhl픽업" || raw === "dhlpickup") return "DHL 픽업";
+  return text;
+}
+
 const MAT_UNITS = { "뽕뽕이": "봉지", "테이프": "BOX", "투명랩": "BOX" };
 
 function fmtMatQty(name, raw) {
@@ -2971,10 +2981,9 @@ function renderIncoming(table, totalsTable) {
   }
 
   document.querySelector("#dash-in-summary").innerHTML = `
-    <div class="dash-stat stat-blue">${ICON_DOC}<span>총 입고 건수</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>총 PLT</span><strong>${pltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>총 BOX</span><strong>${boxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 입고 금액</span><strong>${fmtKrwSpaced(totalAmt)}</strong></div>
+    <div class="dash-stat stat-blue">${ICON_DOC}<span>입고</span><strong>${dataRows.length}건</strong></div>
+    <div class="dash-stat stat-amber">${ICON_PLT}<span>입고</span><strong>${pltTotal} PLT</strong></div>
+    <div class="dash-stat stat-orange">${ICON_BOX}<span>입고</span><strong>${boxTotal} BOX</strong></div>
   `;
 
   const chartWrap = document.querySelector("#dash-in-chart");
@@ -3032,10 +3041,9 @@ function renderOutgoing(table, matRows, totalsTable) {
   }
 
   document.querySelector("#dash-out-summary").innerHTML = `
-    <div class="dash-stat stat-blue">${ICON_DOC}<span>총 출고 건수</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고 PLT</span><strong>${pltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고 BOX</span><strong>${boxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 출고 금액</span><strong>${fmtKrwSpaced(amtStr)}</strong></div>
+    <div class="dash-stat stat-blue">${ICON_DOC}<span>출고</span><strong>${dataRows.length}건</strong></div>
+    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong>${pltTotal} PLT</strong></div>
+    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong>${boxTotal} BOX</strong></div>
   `;
 
   // 배송사별 카드 — 고정 8개 항목, 항상 표시 (민호탭 rows[6-8] 기준)
@@ -3073,7 +3081,7 @@ function renderOutgoing(table, matRows, totalsTable) {
       const isEmpty = c.invoice === 0 && c.box === 0;
       return `<div class="carrier-card${isEmpty ? " carrier-card-empty" : ""}">
         <div class="carrier-card-header" style="background:${col.bg}">
-          <span class="carrier-badge carrier-badge-card" style="background:rgba(255,255,255,.15);color:${col.text};border:1px solid rgba(255,255,255,.25)">${carrierDisplayHtml(c.name)}</span>
+          <span class="carrier-badge carrier-badge-card" style="background:rgba(255,255,255,.15);color:${col.text};border:1px solid rgba(255,255,255,.25)">${carrierDisplayHtml(normalizeCarrierName(c.name))}</span>
         </div>
         <div class="carrier-card-body">
           <div class="carrier-stat">
@@ -3090,10 +3098,6 @@ function renderOutgoing(table, matRows, totalsTable) {
 
     chartWrap.innerHTML = `
       <p class="chart-title">배송사별 출고 현황</p>
-      <div class="carrier-summary-row">
-        <span>총 인보이스 <strong>${totalInv}건</strong></span>
-        <span>총 BOX <strong>${totalBox}</strong></span>
-      </div>
       <div class="carrier-cards-grid">${cards}</div>`;
   }
 }
