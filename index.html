@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="light" data-theme-mode="system">
+<html lang="ko" data-theme="light" data-theme-mode="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +10,7 @@
     />
     <script>
       (() => {
-        const saved = localStorage.getItem("woongtoolTheme") || "system";
+        const saved = localStorage.getItem("woongtoolTheme") || "light";
         const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         document.documentElement.dataset.themeMode = saved;
         document.documentElement.dataset.theme = saved === "system" ? (dark ? "dark" : "light") : saved;
@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=9" />
+    <link rel="stylesheet" href="style.css?v=10" />
   </head>
   <body>
     <header class="site-header">
@@ -34,30 +34,34 @@
       <nav class="tool-tabs header-tabs" aria-label="도구 선택">
         <button class="tool-tab" type="button" data-tool="label">
           <span class="tab-number">01</span>
-          <span><strong>Label 출력</strong><small>15×10cm</small></span>
+          <span><strong>Label Print</strong><small>15×10cm 라벨 출력</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="zip">
           <span class="tab-number">02</span>
-          <span><strong>PDF 병합</strong><small>ZIP 속 PDF · 여러 PDF 병합</small></span>
+          <span><strong>PDF Merge</strong><small>ZIP · 여러 PDF 병합</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="ups">
           <span class="tab-number">03</span>
-          <span><strong>UPS 출력</strong><small>라벨 사이즈 조정</small></span>
+          <span><strong>UPS Print</strong><small>라벨 사이즈 조정</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="picking">
           <span class="tab-number">04</span>
-          <span><strong>피킹리스트 출력</strong><small>SKU Location 자동 입력</small></span>
+          <span><strong>Picking List</strong><small>SKU · 로케이션 자동 입력</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="sync">
           <span class="tab-number">05</span>
-          <span><strong>로케이션 동기화</strong><small>재고·DB 비교</small></span>
+          <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="license">
+          <span class="tab-number">06</span>
+          <span><strong>면허다운</strong><small>DHL 면허 다운</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="business">
-          <span class="tab-number">06</span>
-          <span><strong>웅툴 AI</strong><small>간단한 질문과 업무 도움</small></span>
+          <span class="tab-number">07</span>
+          <span><strong>UNGTOOL AI</strong><small>간단한 질문과 업무 도움</small></span>
         </button>
         <button class="tool-tab admin-tab" type="button" data-tool="admin">
-          <span class="tab-number">07</span>
+          <span class="tab-number">08</span>
           <span><strong>Admin</strong><small>관리</small></span>
         </button>
       </nav>
@@ -97,12 +101,18 @@
           </svg>
           <div>
             <h2 id="home-notice-title">웅툴 공지</h2>
-            <div id="home-notice-text">2026.06.19 | Genesis Release<br />
-Label 출력: 업체명 · Invoice No. · Box Qty PDF 자동 생성<br />
-PDF 병합: ZIP 안의 PDF 또는 여러 PDF 자동 정렬·병합<br />
-UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
-피킹리스트 출력: SKU · Location 매핑 Excel / PDF 생성<br />
-로케이션 동기화: 재고 데이터와 DB 비교로 누락 · 미등록 · 재고없음 검증</div>
+            <div id="home-notice-text">2026.06.21 | Feature Update<br />
+Label Print: 폰트 크기 조절기능 추가<br />
+PDF Merge: 기능통합<br />
+Picking List: 기본 출력 · 로케이션 정렬순 출력 기능 추가<br />
+UNGTOOL AI: Qwen3 32B 기반 AI 기능 추가<br />
+화면 개선: 상단 메뉴 글자 크기 확대<br /><br />
+2026.06.19 | Genesis Release<br />
+Label Print: 업체명 · Invoice No. · Box Qty PDF 자동 생성<br />
+PDF Merge (ZIP): ZIP 내 PDF 자동 병합<br />
+UPS Print: A4 UPS Label → 10×15cm Thermal Label 변환<br />
+Picking List: SKU · Location 매핑 Excel / PDF 생성<br />
+Location Sync: 재고 데이터와 DB 비교 검증</div>
           </div>
         </div>
         <p>상단 메뉴에서 필요한 도구를 선택해 주세요.</p>
@@ -396,37 +406,11 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
       </section>
 
       <section class="tool-card tool-panel" id="picking-tool" aria-labelledby="picking-title" hidden>
-        <div class="password-gate" id="picking-password-gate">
-          <div class="lock-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
-              <path d="M12 14v3" />
-            </svg>
-          </div>
-          <h2>피킹리스트 전용 메뉴</h2>
-          <p>Google DB를 사용하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
-          <form class="password-form" id="picking-password-form">
-            <input
-              id="picking-password"
-              type="password"
-              inputmode="numeric"
-              autocomplete="current-password"
-              placeholder="비밀번호"
-              maxlength="20"
-              aria-label="피킹리스트 비밀번호"
-            />
-            <button type="submit">확인</button>
-          </form>
-          <div class="password-error" id="picking-password-error" role="alert" hidden>
-            비밀번호가 올바르지 않습니다.
-          </div>
-        </div>
-
-        <div id="picking-content" hidden>
+        <div id="picking-content">
         <div class="tool-heading">
           <div>
             <h2 id="picking-title">피킹리스트 출력</h2>
-            <p>인보이스 XLS의 SKU를 DB와 매칭해 A4 출력용 파일로 정리합니다.</p>
+            <p>판매 → Invoice → 해당 Invoice 접속 → 상단 Print → Invoice (SKU) → 엑셀파일 업로드</p>
           </div>
           <span class="sheet-badge" id="db-status">
             <span class="status-dot"></span>
@@ -476,33 +460,13 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
             <span>파일명</span>
           </div>
 
-          <div class="orientation-section">
-            <span class="output-label">출력 방향</span>
-            <div class="orientation-options" role="radiogroup" aria-label="피킹리스트 출력 방향">
-              <button class="orientation-option is-active" type="button" data-orientation="landscape" aria-pressed="true">
-                <svg class="paper-icon landscape-paper" viewBox="0 0 36 26" aria-hidden="true">
-                  <path d="M3 2h23l7 7v15H3V2Z" />
-                  <path d="M26 2v7h7M8 14h20M8 18h15" />
-                </svg>
-                <span><strong>가로형</strong><small>전체 항목을 한눈에</small></span>
-              </button>
-              <button class="orientation-option" type="button" data-orientation="portrait" aria-pressed="false">
-                <svg class="paper-icon portrait-paper" viewBox="0 0 26 36" aria-hidden="true">
-                  <path d="M2 2h15l7 7v25H2V2Z" />
-                  <path d="M17 2v7h7M7 17h12M7 22h12M7 27h8" />
-                </svg>
-                <span><strong>세로형</strong><small>상품명 중심으로 크게</small></span>
-              </button>
-            </div>
-          </div>
-
           <div class="download-actions picking-download-actions">
             <button class="merge-button picking-download-button" id="picking-excel-button" type="button">
               <span>Excel 받기</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
             <button class="merge-button picking-download-button" id="picking-location-excel-button" type="button">
-              <span>로케이션 정리 Excel</span>
+              <span>로케이션 정리 Excel 받기</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
             <button class="merge-button pdf-download-button" id="picking-pdf-button" type="button">
@@ -510,7 +474,7 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
             <button class="merge-button pdf-download-button" id="picking-location-pdf-button" type="button">
-              <span>로케이션 정리 PDF</span>
+              <span>로케이션 정리 PDF 받기</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
           </div>
@@ -521,23 +485,7 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
       </section>
 
       <section class="tool-card tool-panel" id="sync-tool" aria-labelledby="sync-title" hidden>
-        <div class="password-gate" id="sync-password-gate">
-          <div class="lock-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
-              <path d="M12 14v3" />
-            </svg>
-          </div>
-          <h2>로케이션 동기화 전용 메뉴</h2>
-          <p>Google DB와 재고를 비교하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
-          <form class="password-form" id="sync-password-form">
-            <input id="sync-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="로케이션 동기화 비밀번호" />
-            <button type="submit">확인</button>
-          </form>
-          <div class="password-error" id="sync-password-error" role="alert" hidden>비밀번호가 올바르지 않습니다.</div>
-        </div>
-
-        <div id="sync-content" hidden>
+        <div id="sync-content">
           <div class="tool-heading">
             <div>
               <h2 id="sync-title">로케이션 동기화</h2>
@@ -586,6 +534,32 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
         </div>
       </section>
 
+      <section class="tool-card tool-panel" id="license-tool" aria-labelledby="license-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="license-title">면허다운</h2>
+            <p>DHL 면허 다운</p>
+          </div>
+          <span class="sheet-badge" id="license-sheet-status"><span class="status-dot"></span>면허 탭 연결 대기</span>
+        </div>
+
+        <div class="license-download-card">
+          <div class="license-file-icon" aria-hidden="true">XLS</div>
+          <div class="license-download-copy">
+            <strong>실리콘투 음반팀 면허 파일</strong>
+            <span id="license-summary">구글 시트의 면허 탭을 불러와 오늘 날짜의 Excel 파일로 저장합니다.</span>
+          </div>
+          <button class="merge-button picking-download-button" id="license-download-button" type="button">
+            <span>면허 Excel 받기</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+          </button>
+        </div>
+        <div class="license-note">
+          배터리 포함 내역이 있으면 해당 행을 노란색으로 표시하고 파일명 끝에 <strong>_배터리포함</strong>을 자동으로 붙입니다.
+        </div>
+        <div class="message" id="license-message" role="status" aria-live="polite" hidden></div>
+      </section>
+
       <section class="tool-card tool-panel" id="business-tool" aria-labelledby="business-title" hidden>
         <div class="tool-heading">
           <div>
@@ -597,7 +571,7 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
               <path d="M4 4.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
               <path d="M6 8h8M6 11h5" />
             </svg>
-            Groq AI
+            UNGTOOL AI
           </span>
         </div>
 
@@ -659,6 +633,6 @@ UPS 출력: A4 UPS Label → 10×15cm Thermal Label 변환<br />
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=33"></script>
   </body>
 </html>
