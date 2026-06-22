@@ -1736,7 +1736,7 @@ function buildPickingWorkbook(data = pickingData) {
 
   const sheet = XLSX.utils.aoa_to_sheet(rows);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, sheet, "Picking List");
+  XLSX.utils.book_append_sheet(workbook, sheet, "List Print");
 
   sheet["!merges"] = [
     XLSX.utils.decode_range("A1:F2"),
