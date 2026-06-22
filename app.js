@@ -2712,6 +2712,16 @@ function carrierBadgeHtml(name) {
   return `<span class="carrier-badge" style="background:${col.bg};color:${col.text}">${label}</span>`;
 }
 
+function carrierDisplayHtml(name) {
+  const text = String(name || "");
+  const match = text.match(/(fed)\s*ex(.*)/i) || text.match(/(fedex)(.*)/i) || text.match(/(페덱스)(.*)/i);
+  if (match) {
+    const rest = match[2] || "";
+    return `Fed<span class="fedex-accent">Ex</span>${rest}`;
+  }
+  return text;
+}
+
 const ICON_BOX = `<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
   <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/>
   <path d="M12 3v18"/>
@@ -2983,7 +2993,7 @@ function renderOutgoing(table, matRows, totalsTable) {
       const isEmpty = c.invoice === 0 && c.box === 0;
       return `<div class="carrier-card${isEmpty ? " carrier-card-empty" : ""}">
         <div class="carrier-card-header" style="background:${col.bg}">
-          <span class="carrier-badge carrier-badge-card" style="background:rgba(255,255,255,.15);color:${col.text};border:1px solid rgba(255,255,255,.25)">${c.name}</span>
+          <span class="carrier-badge carrier-badge-card" style="background:rgba(255,255,255,.15);color:${col.text};border:1px solid rgba(255,255,255,.25)">${carrierDisplayHtml(c.name)}</span>
         </div>
         <div class="carrier-card-body">
           <div class="carrier-stat">

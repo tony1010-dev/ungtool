@@ -3118,3 +3118,8 @@ html[data-theme="dark"] .loc-row.loc-unknown {
   letter-spacing: -.2px;
   white-space: nowrap;
 }
+
+.fedex-accent {
+  color: #ff7a00;
+  font-weight: 900;
+}
