@@ -2984,6 +2984,7 @@ function renderIncoming(table, totalsTable) {
     <div class="dash-stat stat-blue">${ICON_DOC}<span>입고</span><strong>${dataRows.length}건</strong></div>
     <div class="dash-stat stat-amber">${ICON_PLT}<span>입고</span><strong>${pltTotal} PLT</strong></div>
     <div class="dash-stat stat-orange">${ICON_BOX}<span>입고</span><strong>${boxTotal} BOX</strong></div>
+    <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
   const chartWrap = document.querySelector("#dash-in-chart");
@@ -3044,6 +3045,7 @@ function renderOutgoing(table, matRows, totalsTable) {
     <div class="dash-stat stat-blue">${ICON_DOC}<span>출고</span><strong>${dataRows.length}건</strong></div>
     <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong>${pltTotal} PLT</strong></div>
     <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong>${boxTotal} BOX</strong></div>
+    <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(amtStr)}</strong></div>
   `;
 
   // 배송사별 카드 — 고정 8개 항목, 항상 표시 (민호탭 rows[6-8] 기준)
