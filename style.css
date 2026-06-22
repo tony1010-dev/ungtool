@@ -38,11 +38,13 @@ button {
 
 .site-header {
   width: min(1440px, calc(100% - 32px));
-  height: 82px;
+  min-height: 82px;
+  padding: 14px 0;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   border-bottom: 1px solid rgba(23, 23, 23, 0.12);
 }
 
@@ -334,6 +336,59 @@ main {
   border: 1px solid var(--line);
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.58);
+}
+
+.header-metrics {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: 10px;
+}
+
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 6px 18px rgba(18, 18, 18, 0.04);
+  min-height: 48px;
+}
+
+.metric-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #fff6ee, #ffe2c9);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.metric-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.1;
+}
+
+.metric-text strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.metric-text small {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .theme-button {
@@ -2087,6 +2142,24 @@ html[data-theme="dark"] .select-button,
 html[data-theme="dark"] .password-form button {
   color: #171717;
   background: #f3f1ec;
+}
+
+html[data-theme="dark"] .metric-pill {
+  background: rgba(34, 33, 31, 0.95);
+  border-color: #3f3b37;
+}
+
+html[data-theme="dark"] .metric-icon {
+  background: linear-gradient(145deg, #3a2314, #5a331a);
+  color: #ffb27f;
+}
+
+html[data-theme="dark"] .metric-text strong {
+  color: #f3f1ec;
+}
+
+html[data-theme="dark"] .metric-text small {
+  color: #c7c0b8;
 }
 
 html[data-theme="dark"] .home-notice-card {

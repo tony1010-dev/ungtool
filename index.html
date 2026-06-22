@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=14" />
+    <link rel="stylesheet" href="style.css?v=15" />
   </head>
   <body>
     <header class="site-header">
@@ -87,6 +87,22 @@
             <path d="M8 21h8M12 17v4" />
           </svg>
         </button>
+      </div>
+      <div class="header-metrics" aria-label="현재 정보">
+        <div class="metric-pill" id="weather-pill">
+          <span class="metric-icon" aria-hidden="true">⛅</span>
+          <span class="metric-text">
+            <strong>경기도 광주시</strong>
+            <small id="weather-text">날씨 불러오는 중</small>
+          </span>
+        </div>
+        <div class="metric-pill" id="usd-pill">
+          <span class="metric-icon" aria-hidden="true">$</span>
+          <span class="metric-text">
+            <strong>USD 환율</strong>
+            <small id="usd-text">불러오는 중</small>
+          </span>
+        </div>
       </div>
     </header>
 
@@ -676,6 +692,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=38"></script>
+  <script src="app.js?v=39"></script>
   </body>
 </html>

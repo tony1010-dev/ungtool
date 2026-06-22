@@ -4,6 +4,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
 const themeButtons = document.querySelectorAll(".theme-button");
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+const weatherText = document.querySelector("#weather-text");
+const weatherPill = document.querySelector("#weather-pill");
+const usdText = document.querySelector("#usd-text");
+const usdPill = document.querySelector("#usd-pill");
 
 function applyTheme(mode, save = true) {
   const resolved = mode === "system" ? (systemTheme.matches ? "dark" : "light") : mode;
@@ -29,6 +33,60 @@ systemTheme.addEventListener("change", () => {
 });
 
 applyTheme(document.documentElement.dataset.themeMode || "light", false);
+
+function weatherIconForCode(code) {
+  if (code === 0) return "☀️";
+  if ([1, 2].includes(code)) return "🌤️";
+  if (code === 3) return "☁️";
+  if ([45, 48].includes(code)) return "🌫️";
+  if ([51, 53, 55, 56, 57].includes(code)) return "🌦️";
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "🌧️";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "❄️";
+  if ([95, 96, 99].includes(code)) return "⛈️";
+  return "⛅";
+}
+
+async function loadHeaderMetrics() {
+  if (weatherText && weatherPill) {
+    try {
+      const weatherUrl = new URL("https://api.open-meteo.com/v1/forecast");
+      weatherUrl.searchParams.set("latitude", "37.41");
+      weatherUrl.searchParams.set("longitude", "127.26");
+      weatherUrl.searchParams.set("current", "temperature_2m,weather_code");
+      weatherUrl.searchParams.set("timezone", "Asia/Seoul");
+      const weatherResponse = await fetch(weatherUrl);
+      if (!weatherResponse.ok) throw new Error("weather");
+      const weatherData = await weatherResponse.json();
+      const current = weatherData.current || {};
+      const icon = weatherIconForCode(Number(current.weather_code));
+      const temp = Number(current.temperature_2m);
+      weatherPill.querySelector(".metric-icon").textContent = icon;
+      weatherText.textContent = Number.isFinite(temp) ? `${current.temperature_2m}°C` : "날씨 정보";
+      weatherPill.title = "경기도 광주시 현재 날씨";
+    } catch {
+      weatherPill.querySelector(".metric-icon").textContent = "⛅";
+      weatherText.textContent = "날씨 확인 불가";
+    }
+  }
+
+  if (usdText && usdPill) {
+    try {
+      const rateResponse = await fetch("https://open.er-api.com/v6/latest/USD");
+      if (!rateResponse.ok) throw new Error("rate");
+      const rateData = await rateResponse.json();
+      const krw = Number(rateData?.rates?.KRW);
+      const formatted = Number.isFinite(krw)
+        ? new Intl.NumberFormat("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(krw)
+        : null;
+      usdText.textContent = formatted ? `1 USD = ${formatted} KRW` : "환율 정보";
+      usdPill.title = "미국 달러 대비 원화 환율";
+    } catch {
+      usdText.textContent = "환율 확인 불가";
+    }
+  }
+}
+
+loadHeaderMetrics();
 
 const dom = {
   dropZone: document.querySelector("#drop-zone"),
