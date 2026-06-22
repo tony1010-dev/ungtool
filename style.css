@@ -2267,3 +2267,615 @@ html[data-theme="dark"] .license-note {
     width: calc(100% - 32px);
   }
 }
+
+/* ── Dashboard ─────────────────────────────────────────────── */
+.dash-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+
+.dash-tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: 600 14px/1 var(--font);
+  color: var(--text-muted);
+  padding: 10px 18px 12px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+}
+
+.dash-tab:hover { color: var(--text); }
+
+.dash-tab.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.dash-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dash-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  min-width: 130px;
+  border-left: 4px solid var(--stat-color, var(--border));
+}
+
+.dash-stat.stat-blue   { --stat-color: #3b82f6; }
+.dash-stat.stat-blue   .stat-icon { color: #3b82f6; opacity: 1; }
+.dash-stat.stat-blue   strong { color: #3b82f6; }
+
+.dash-stat.stat-amber  { --stat-color: #f59e0b; }
+.dash-stat.stat-amber  .stat-icon { color: #f59e0b; opacity: 1; }
+.dash-stat.stat-amber  strong { color: #d97706; }
+
+.dash-stat.stat-orange { --stat-color: #f97316; }
+.dash-stat.stat-orange .stat-icon { color: #f97316; opacity: 1; }
+.dash-stat.stat-orange strong { color: #ea580c; }
+
+.dash-stat.stat-green  { --stat-color: #22c55e; }
+.dash-stat.stat-green  .stat-icon { color: #22c55e; opacity: 1; }
+.dash-stat.stat-green  strong { color: #16a34a; }
+
+.stat-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: .7;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.money-icon {
+  width: auto;
+  height: auto;
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.dash-stat.is-accent .stat-icon { color: var(--accent); opacity: 1; }
+
+.dash-stat > :last-child,
+.dash-stat > :nth-last-child(2) { display: flex; flex-direction: column; gap: 2px; }
+
+.dash-stat span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dash-stat strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.dash-stat.is-accent strong { color: var(--accent); }
+
+.dash-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+}
+
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.dash-table thead tr {
+  background: var(--surface);
+}
+
+.dash-table th {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 11px;
+  text-align: left;
+  padding: 10px 14px;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--border);
+  border-right: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.dash-table th:last-child { border-right: none; }
+
+.dash-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.dash-table td:last-child { border-right: none; }
+
+.dash-table tbody tr:last-child td { border-bottom: none; }
+
+.dash-table tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--surface) 60%, transparent); }
+
+.dash-table tbody tr:hover td { background: color-mix(in srgb, var(--accent) 8%, transparent) !important; }
+
+.dash-table .num-cell { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.dash-table .tag-cell {
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.dash-table .amount-cell {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-materials-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.dash-materials-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.dash-materials-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+}
+
+html[data-theme="dark"] .dash-stat { background: var(--surface); }
+html[data-theme="dark"] .dash-table th { background: var(--surface); }
+html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surface); }
+
+/* ── Carrier badge ─────────────────────────────────────────── */
+.carrier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 2px 5px;
+  letter-spacing: -.2px;
+  vertical-align: middle;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.carrier-name-text {
+  font-size: 12px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* ── Dashboard Charts ───────────────────────────────────────── */
+.dash-chart-wrap { margin-bottom: 20px; }
+
+.chart-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* ── Vendor cards (입고 거래처별) ─────────────────────────────── */
+.vendor-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.vendor-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  overflow: hidden;
+}
+
+.vendor-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  opacity: .12;
+  pointer-events: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.vendor-name {
+  position: relative;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vendor-val {
+  position: relative;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ── Carrier cards (출고 배송사별) ───────────────────────────── */
+.carrier-summary-row {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.carrier-summary-row strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.carrier-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.carrier-card {
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--border);
+}
+
+.carrier-card-header {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carrier-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface);
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+
+.carrier-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 6px 10px;
+  gap: 3px;
+}
+
+.carrier-stat + .carrier-stat {
+  border-left: 1px solid var(--border);
+}
+
+.cstat-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cstat-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+.cstat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Materials item grid ─────────────────────────────────────── */
+.mat-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+
+.mat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.mat-item .stat-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--text-muted);
+  opacity: .6;
+}
+
+.mat-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.mat-icon-badge.is-box {
+  color: #d97706;
+  background: #fff8e7;
+  border-color: #f3d8a0;
+}
+
+.mat-item-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.mat-item-qty {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dash-mat-chart { padding: 16px 16px 0; }
+
+/* ── Location Sync split layout ─────────────────────────────── */
+.sync-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 700px) {
+  .sync-split { grid-template-columns: 1fr; }
+}
+
+.sync-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 양쪽 패널 공통: spacer가 남은 공간 채우고 버튼은 하단 고정 */
+.loc-pane .loc-check-textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+.loc-pane-spacer,
+.sync-pane-spacer {
+  flex: 1;
+  min-height: 8px;
+}
+
+.sync-pane-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent);
+  width: fit-content;
+}
+
+.sync-pane-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Location checker ────────────────────────────────────────── */
+.loc-check-textarea {
+  width: 100%;
+  min-height: 180px;
+  font-family: var(--mono, monospace);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.loc-check-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.loc-check-summary {
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 0 6px;
+}
+
+/* ── Location filter buttons ─────────────────────────────────── */
+.loc-filter-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 4px 0 8px;
+}
+
+.loc-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.loc-filter-btn span {
+  font-size: 11px;
+  background: var(--border);
+  color: var(--text-muted);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-weight: 700;
+}
+
+.loc-filter-btn.active,
+.loc-filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.loc-filter-btn.active span {
+  background: var(--accent);
+  color: #fff;
+}
+
+.loc-filter-btn.loc-filter-match.active  { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+.loc-filter-btn.loc-filter-match.active span { background: #16a34a; }
+
+.loc-filter-btn.loc-filter-mismatch.active { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
+.loc-filter-btn.loc-filter-mismatch.active span { background: #dc2626; }
+
+.loc-filter-btn.loc-filter-unknown.active  { border-color: #6b7280; color: #6b7280; background: var(--surface); }
+.loc-filter-btn.loc-filter-unknown.active span { background: #6b7280; }
+
+.loc-check-error {
+  color: var(--danger, #ef4444);
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.loc-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.loc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--mono, monospace);
+  border: 1.5px solid var(--border);
+}
+
+.loc-row.loc-match    { background: #f0fdf4; border-color: #86efac; }
+.loc-row.loc-mismatch { background: #fef2f2; border-color: #fca5a5; }
+.loc-row.loc-unknown  { background: var(--surface); }
+
+html[data-theme="dark"] .loc-row.loc-match    { background: #052e16; border-color: #166534; }
+html[data-theme="dark"] .loc-row.loc-mismatch { background: #450a0a; border-color: #991b1b; }
+
+.loc-bc     { font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loc-arrow  { color: var(--text-muted); flex-shrink: 0; }
+.loc-target { font-weight: 700; flex-shrink: 0; }
+.loc-actual { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+
+.loc-status-pill {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  line-height: 1.4;
+}
+
+.loc-icon {
+  font-size: 16px;
+  font-weight: 900;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.loc-match    { color: #16a34a; }
+.loc-mismatch { color: #dc2626; }
+.loc-unknown  { color: var(--text-muted); }
+
+.carrier-card-empty { opacity: .45; }
+
+.carrier-badge-card {
+  font-size: 14px !important;
+  padding: 5px 10px !important;
+  border-radius: 6px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.2px;
+  white-space: nowrap;
+}
