@@ -582,6 +582,51 @@ main {
   gap: 10px;
 }
 
+.label-unit-switch {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.unit-button {
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbfaf7;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.unit-button:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.unit-button.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--white);
+}
+
+html[data-theme="dark"] .unit-button {
+  background: #211f1d;
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .unit-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+html[data-theme="dark"] .unit-button.is-active {
+  background: #f3f1ec;
+  color: #171717;
+  border-color: #f3f1ec;
+}
+
 .label-preview-wrap {
   padding: 15px;
   border: 1px solid var(--line);
@@ -2745,11 +2790,11 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
   min-height: 286px;
   max-height: 470px;
   overflow: hidden;
-  border: 1.5px solid var(--line);
-  border-radius: 16px 22px 16px 22px;
+  border: 1.5px dashed #cac7bf;
+  border-radius: 18px;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
-    repeating-linear-gradient(-45deg, #faf8f4, #faf8f4 8px, #f3eee7 8px, #f3eee7 16px);
+    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)),
+    repeating-linear-gradient(-45deg, #f8f7f3, #f8f7f3 8px, #f4f2ed 8px, #f4f2ed 16px);
   padding: 14px;
 }
 
@@ -2761,9 +2806,11 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
 
 .loc-input-frame {
   padding: 2px;
-  border: 1.5px solid var(--line);
-  border-radius: 22px 16px 22px 16px;
-  background: var(--white);
+  border: 1.5px dashed #cac7bf;
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)),
+    repeating-linear-gradient(-45deg, #f8f7f3, #f8f7f3 8px, #f4f2ed 8px, #f4f2ed 16px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
@@ -2914,8 +2961,10 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
 .loc-unknown  { color: var(--muted); }
 
 html[data-theme="dark"] .loc-input-frame {
-  border-color: #4a463f;
-  background: #211f1d;
+  border-color: #55514b;
+  background:
+    linear-gradient(rgba(31, 30, 28, 0.86), rgba(31, 30, 28, 0.86)),
+    repeating-linear-gradient(-45deg, #242321, #242321 8px, #1d1c1a 8px, #1d1c1a 16px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -2924,10 +2973,10 @@ html[data-theme="dark"] .loc-check-textarea {
 }
 
 html[data-theme="dark"] #loc-check-results {
-  border-color: #4a463f;
+  border-color: #55514b;
   background:
-    linear-gradient(rgba(33, 31, 29, 0.92), rgba(33, 31, 29, 0.92)),
-    repeating-linear-gradient(-45deg, #1f1e1c, #1f1e1c 8px, #191816 8px, #191816 16px);
+    linear-gradient(rgba(31, 30, 28, 0.86), rgba(31, 30, 28, 0.86)),
+    repeating-linear-gradient(-45deg, #242321, #242321 8px, #1d1c1a 8px, #1d1c1a 16px);
 }
 
 html[data-theme="dark"] .loc-filter-btn {

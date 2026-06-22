@@ -106,9 +106,12 @@
           <div>
             <h2 id="home-notice-title">웅툴 공지</h2>
             <div id="home-notice-text">2026.06.22 | Feature Update<br />
-1. Location Sync: added<br />
-2. Dashboard: added<br />
-3. Export Permit: DHL permit update<br /><br />
+Label Print: BOX / PLT 전환 버튼 추가<br />
+PDF Merge: 설명 문구 정리<br />
+UPS Print: 설명 문구 정리<br />
+Export Permit: DHL 면허 다운로드 문구 변경<br />
+Location Sync: 박스 영역 테두리 통일<br />
+업로드 영역: or 표기 통일<br /><br />
 2026.06.21 | Feature Update<br />
 Label Print: 폰트 크기 조절기능 추가<br />
 PDF Merge: 기능통합<br />
@@ -130,7 +133,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         <div class="tool-heading">
           <div>
             <h2 id="label-title">Label Print</h2>
-            <p>라벨 내용을 수정하고 15×10cm PDF로 저장합니다.</p>
+            <p>라벨 내용을 수정하고 15×10cm PDF로 저장</p>
           </div>
           <span class="local-badge">
             <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -228,6 +231,10 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
                 <span>인보이스 번호</span>
                 <input id="label-invoice" type="text" value="IN00443990" maxlength="40" />
               </label>
+              <div class="label-unit-switch" role="group" aria-label="박스 단위 선택">
+                <button class="unit-button is-active" type="button" data-unit="BOX">BOX</button>
+                <button class="unit-button" type="button" data-unit="PLT">PLT</button>
+              </div>
               <div class="label-field-row">
                 <label>
                   <span>박스 수량</span>
@@ -254,7 +261,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         <div class="tool-heading">
           <div>
             <h2 id="tool-title">PDF Merge</h2>
-            <p>ZIP 안의 PDF 또는 여러 PDF를 파일명 순서대로 정렬해 병합합니다.</p>
+            <p>ZIP 파일안에 PDF 또는 여러 PDF를 파일명 순서대로 정렬해 병합합니다.</p>
           </div>
           <span class="local-badge">
             <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -273,7 +280,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             </svg>
           </div>
           <strong>Drop ZIP / PDF</strong>
-          <span>또는</span>
+          <span>or</span>
           <button class="select-button" id="select-button" type="button">Choose</button>
           <small>ZIP / PDF</small>
         </div>
@@ -321,7 +328,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         <div class="tool-heading">
           <div>
             <h2 id="ups-title">UPS Print</h2>
-            <p>A4·Letter PDF에서 배송 라벨만 골라 10×15cm로 변환합니다.</p>
+            <p>PDF에서 배송 라벨만 골라 10×15cm로 변환합니다.</p>
           </div>
           <span class="local-badge">
             <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -340,7 +347,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             </svg>
           </div>
           <strong>Drop PDF</strong>
-          <span>또는</span>
+          <span>or</span>
           <button class="select-button" id="ups-select-button" type="button">Choose</button>
           <small>A4 / Letter</small>
         </div>
@@ -408,7 +415,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             </svg>
           </div>
           <strong>Drop XLS / XLSX</strong>
-          <span>또는</span>
+          <span>or</span>
           <button class="select-button" id="picking-select-button" type="button">Choose</button>
           <small>SKU match</small>
         </div>
@@ -478,7 +485,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
                 <svg viewBox="0 0 28 28"><path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" /></svg>
               </div>
               <strong>Drop XLS / XLSX</strong>
-              <span>또는</span>
+              <span>or</span>
               <button class="select-button" id="sync-select-button" type="button">Choose</button>
               <small>Default file</small>
             </div>
@@ -532,7 +539,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         <div class="tool-heading">
           <div>
             <h2 id="license-title">Export Permit</h2>
-            <p>DHL permit download</p>
+            <p>DHL 면허 다운로드</p>
           </div>
           <span class="sheet-badge" id="license-sheet-status"><span class="status-dot"></span>면허 탭 연결 대기</span>
         </div>

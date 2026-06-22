@@ -113,6 +113,7 @@ const labelDom = {
   invoice: document.querySelector("#label-invoice"),
   boxCount: document.querySelector("#label-box-count"),
   copyCount: document.querySelector("#label-copy-count"),
+  unitButtons: document.querySelectorAll(".unit-button"),
   outputName: document.querySelector("#label-output-name"),
   previewCompany: document.querySelector("#label-preview-company"),
   previewInvoice: document.querySelector("#label-preview-invoice"),
@@ -121,20 +122,33 @@ const labelDom = {
   message: document.querySelector("#label-message"),
 };
 
+let labelUnit = "BOX";
+
 function labelValues() {
   return {
     company: labelDom.company.value.trim() || "House of Kpop Pte Ltd",
     invoice: labelDom.invoice.value.trim().replace(/^#\s*/, "") || "IN00443990",
     boxes: Math.max(1, Number(labelDom.boxCount.value) || 1),
     copies: Math.min(200, Math.max(1, Number(labelDom.copyCount.value) || 1)),
+    unit: labelUnit,
   };
+}
+
+function setLabelUnit(unit) {
+  labelUnit = unit === "PLT" ? "PLT" : "BOX";
+  labelDom.unitButtons.forEach((button) => {
+    const active = button.dataset.unit === labelUnit;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  updateLabelPreview();
 }
 
 function updateLabelPreview() {
   const values = labelValues();
   labelDom.previewCompany.textContent = values.company;
   labelDom.previewInvoice.textContent = `# ${values.invoice}`;
-  labelDom.previewBox.textContent = `${values.boxes} BOX`;
+  labelDom.previewBox.textContent = `${values.boxes} ${values.unit}`;
 }
 
 function showLabelMessage(text, isError = false) {
@@ -173,7 +187,7 @@ function createLabelCanvas(values) {
   ctx.font = `700 ${invoiceSize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
   ctx.fillText(invoiceText, 750, 515);
 
-  const boxText = `${values.boxes} BOX`;
+  const boxText = `${values.boxes} ${values.unit}`;
   const boxSize = fitCanvasFont(ctx, boxText, 1400, 200, 82);
   ctx.font = `700 ${boxSize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
   ctx.fillText(boxText, 750, 755);
@@ -211,6 +225,10 @@ async function downloadLabelPdf() {
 [labelDom.company, labelDom.invoice, labelDom.boxCount].forEach((input) => {
   input.addEventListener("input", updateLabelPreview);
 });
+labelDom.unitButtons.forEach((button) => {
+  button.addEventListener("click", () => setLabelUnit(button.dataset.unit));
+});
+setLabelUnit("BOX");
 labelDom.downloadButton.addEventListener("click", downloadLabelPdf);
 
 const customLabelDom = {
@@ -2304,7 +2322,7 @@ function parseStockWorkbook(buffer) {
 async function inspectSyncFile(file) {
   showSyncMessage("");
   if (!file || !/\.(xls|xlsx)$/i.test(file.name)) {
-    showSyncMessage("XLS 또는 XLSX 형식의 재고파일을 선택해 주세요.", true);
+    showSyncMessage("Choose XLS/XLSX.", true);
     return;
   }
   syncDom.selectButton.disabled = true;
