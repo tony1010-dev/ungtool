@@ -1475,30 +1475,54 @@ function getLocationSortedPickingData() {
   return { ...pickingData, items, outputType: "로케이션 정리" };
 }
 
+function pickingDocumentTitle(data) {
+  return data.outputType === "로케이션 정리" ? "피킹리스트" : "패킹리스트";
+}
+
+function formatPickingCount(value) {
+  return new Intl.NumberFormat("ko-KR").format(Number(value) || 0);
+}
+
 function buildPickingWorkbook(data = pickingData) {
-  const portrait = pickingOrientation === "portrait";
-  const outputType = data.outputType || "기본 출력";
+  const documentTitle = pickingDocumentTitle(data);
   const referenceParts = [];
   if (data.salesPerson) referenceParts.push(`영업사원 : ${data.salesPerson}`);
   if (data.shippingCarrier) referenceParts.push(`배송사 : ${data.shippingCarrier}`);
   const referenceLine = referenceParts.join("   |   ");
-  const referenceRows = referenceLine
-    ? [[referenceLine, "", "", "", "", "", "", ""]]
-    : [];
-  const shipRow = 3 + referenceRows.length;
-  const remarkRow = shipRow + 1;
-  const spacerRow = remarkRow + 1;
+  const printedAt = new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date());
+  const referenceRows = referenceLine ? [[referenceLine, "", "", "", "", "", "", ""]] : [];
+  const referenceRow = 4;
+  const remarkRow = referenceRow + referenceRows.length;
+  const workerRow = remarkRow + 1;
+  const spacerRow = workerRow + 1;
   const headerRow = spacerRow + 1;
   const firstItemRow = headerRow + 1;
   const rows = [
-    [`PICKING LIST · ${outputType}`, "", "", "", "", "", "", ""],
+    [`■ ${documentTitle}`, "", "", "", "", "", printedAt, ""],
     ["", "", "", "", "", "", "", ""],
-    ["INVOICE", data.invoiceNo, "DATE", data.date, "CUSTOMER", data.customer, "TOTAL QTY", data.totalQuantity],
+    ["INVOICE", "", "DATE", "", "CUSTOMER", "", "TOTAL", ""],
+    [
+      data.invoiceNo,
+      "",
+      data.date || "-",
+      "",
+      data.customer || "-",
+      "",
+      `${data.items.length} SKU / ${formatPickingCount(data.totalQuantity)} EA`,
+      "",
+    ],
     ...referenceRows,
-    ["SHIP TO", data.shipTo, "", "", "", "", "", ""],
-    ["특이사항", data.remark, "", "", "", "", "", ""],
+    ["특이사항", data.remark || "특이사항 없음", "", "", "", "", "", ""],
+    ["특전 :", "", "검수 :", "", "피킹 :", "", "패킹 :", ""],
     ["", "", "", "", "", "", "", ""],
-    ["NO", "SKU", "DESCRIPTION", "BRAND", "BARCODE", "QTY", "LOCATION", "PACKING"],
+    ["NO", "SKU", "DESCRIPTION", "BRAND", "BARCODE", "QTY", "LOC", "PACKING"],
     ...data.items.map((item) => [
       item.index,
       item.sku,
@@ -1509,7 +1533,8 @@ function buildPickingWorkbook(data = pickingData) {
       item.location,
       "",
     ]),
-    ["", "", "TOTAL", "", "", data.totalQuantity, "", ""],
+    ["", "", "TOTAL", "", "", `${data.items.length} SKU / ${formatPickingCount(data.totalQuantity)} EA`, "", ""],
+    ["웅툴 - 업무를 가볍고 빠르게", "", "", "", "", "", "", ""],
   ];
 
   const sheet = XLSX.utils.aoa_to_sheet(rows);
@@ -1517,39 +1542,56 @@ function buildPickingWorkbook(data = pickingData) {
   XLSX.utils.book_append_sheet(workbook, sheet, "Picking List");
 
   sheet["!merges"] = [
-    XLSX.utils.decode_range("A1:H2"),
-    ...(referenceLine ? [XLSX.utils.decode_range("A4:H4")] : []),
-    XLSX.utils.decode_range(`B${shipRow + 1}:H${shipRow + 1}`),
+    XLSX.utils.decode_range("A1:F2"),
+    XLSX.utils.decode_range("G1:H2"),
+    XLSX.utils.decode_range("A3:B3"),
+    XLSX.utils.decode_range("C3:D3"),
+    XLSX.utils.decode_range("E3:F3"),
+    XLSX.utils.decode_range("G3:H3"),
+    XLSX.utils.decode_range("A4:B4"),
+    XLSX.utils.decode_range("C4:D4"),
+    XLSX.utils.decode_range("E4:F4"),
+    XLSX.utils.decode_range("G4:H4"),
+    ...(referenceLine ? [XLSX.utils.decode_range(`A${referenceRow + 1}:H${referenceRow + 1}`)] : []),
     XLSX.utils.decode_range(`B${remarkRow + 1}:H${remarkRow + 1}`),
+    XLSX.utils.decode_range(`C${data.items.length + firstItemRow + 1}:E${data.items.length + firstItemRow + 1}`),
+    XLSX.utils.decode_range(`F${data.items.length + firstItemRow + 1}:H${data.items.length + firstItemRow + 1}`),
+    XLSX.utils.decode_range(`A${data.items.length + firstItemRow + 2}:H${data.items.length + firstItemRow + 2}`),
   ];
   sheet["!cols"] = [
-    { wch: portrait ? 4 : 5 },
-    { wch: portrait ? 18 : 23 },
-    { wch: portrait ? 38 : 54 },
-    { wch: portrait ? 15 : 19 },
-    { wch: portrait ? 18 : 19 },
-    { wch: portrait ? 7 : 9 },
-    { wch: portrait ? 13 : 16 },
-    { wch: portrait ? 11 : 15 },
+    { wch: 4 },
+    { wch: 24 },
+    { wch: 27 },
+    { wch: 21 },
+    { wch: 17 },
+    { wch: 7 },
+    { wch: 8 },
+    { wch: 10 },
   ];
 
   const remarkLines = Math.max(
-    data.remark.split(/\r?\n/).length,
-    Math.ceil(data.remark.length / 105),
+    (data.remark || "").split(/\r?\n/).length,
+    Math.ceil((data.remark || "").length / 100),
   );
   sheet["!rows"] = [
-    { hpt: 30 },
-    { hpt: 18 },
     { hpt: 27 },
+    { hpt: 18 },
+    { hpt: 20 },
+    { hpt: 34 },
     ...(referenceLine ? [{ hpt: 34 }] : []),
-    { hpt: Math.max(34, 16 * data.shipTo.split(/\r?\n/).length + 8) },
-    { hpt: Math.max(46, remarkLines * 16 + 12) },
+    { hpt: Math.max(42, remarkLines * 16 + 12) },
+    { hpt: 38 },
     { hpt: 8 },
     { hpt: 30 },
     ...data.items.map((item) => ({
-      hpt: Math.max(34, Math.ceil(item.description.length / (portrait ? 30 : 42)) * 16 + 10),
+      hpt: Math.max(
+        34,
+        Math.ceil(item.description.length / 30) * 14 + 8,
+        Math.ceil(item.brand.length / 18) * 14 + 8,
+      ),
     })),
     { hpt: 28 },
+    { hpt: 20 },
   ];
 
   const thinBorder = {
@@ -1572,18 +1614,16 @@ function buildPickingWorkbook(data = pickingData) {
 
   sheet.A1.s = {
     fill: { fgColor: { rgb: "171717" } },
-    font: { name: "맑은 고딕", sz: 22, bold: true, color: { rgb: "FFFFFF" } },
+    font: { name: "맑은 고딕", sz: 20, bold: true, color: { rgb: "FFFFFF" } },
     alignment: { horizontal: "left", vertical: "center" },
   };
+  sheet.G1.s = {
+    fill: { fgColor: { rgb: "171717" } },
+    font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "D8D5CE" } },
+    alignment: { horizontal: "right", vertical: "center" },
+  };
 
-  for (const address of [
-    "A3",
-    "C3",
-    "E3",
-    "G3",
-    `A${shipRow + 1}`,
-    `A${remarkRow + 1}`,
-  ]) {
+  for (const address of ["A3", "C3", "E3", "G3"]) {
     sheet[address].s = {
       fill: { fgColor: { rgb: "EEEAE3" } },
       font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "55514B" } },
@@ -1592,32 +1632,43 @@ function buildPickingWorkbook(data = pickingData) {
     };
   }
 
-  for (const address of [
-    "B3",
-    "D3",
-    "F3",
-    "H3",
-    `B${shipRow + 1}`,
-    `B${remarkRow + 1}`,
-  ]) {
+  for (const address of ["A4", "C4", "E4", "G4"]) {
     sheet[address].s = {
-      fill: { fgColor: { rgb: address === `B${remarkRow + 1}` ? "FFF5F0" : "FFFFFF" } },
-      font: {
-        name: "맑은 고딕",
-        sz: address === `B${remarkRow + 1}` ? 10 : 9,
-        bold: address === `B${remarkRow + 1}`,
-        color: { rgb: address === `B${remarkRow + 1}` ? "9D3B25" : "222222" },
-      },
-      alignment: { vertical: "center", wrapText: true },
+      fill: { fgColor: { rgb: "F8F7F3" } },
+      font: { name: "맑은 고딕", sz: 10, bold: true, color: { rgb: "222222" } },
+      alignment: { horizontal: "left", vertical: "center", wrapText: true },
       border: thinBorder,
     };
   }
 
   if (referenceLine) {
-    sheet.A4.s = {
+    sheet[`A${referenceRow + 1}`].s = {
       fill: { fgColor: { rgb: "FFF8F4" } },
       font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "33312E" } },
       alignment: { horizontal: "left", vertical: "center", wrapText: false },
+      border: thinBorder,
+    };
+  }
+
+  sheet[`A${remarkRow + 1}`].s = {
+    fill: { fgColor: { rgb: "FFF2EC" } },
+    font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "B84629" } },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: thinBorder,
+  };
+  sheet[`B${remarkRow + 1}`].s = {
+    fill: { fgColor: { rgb: "FFF9F6" } },
+    font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "33312E" } },
+    alignment: { horizontal: "left", vertical: "center", wrapText: true },
+    border: thinBorder,
+  };
+
+  for (let col = 0; col < 8; col += 1) {
+    const cell = sheet[XLSX.utils.encode_cell({ r: workerRow, c: col })];
+    cell.s = {
+      fill: { fgColor: { rgb: col % 2 === 0 ? "EEEAE3" : "FFFFFF" } },
+      font: { name: "맑은 고딕", sz: 10, bold: col % 2 === 0, color: { rgb: "33312E" } },
+      alignment: { horizontal: col % 2 === 0 ? "center" : "left", vertical: "center" },
       border: thinBorder,
     };
   }
@@ -1636,18 +1687,26 @@ function buildPickingWorkbook(data = pickingData) {
     const row = index + firstItemRow;
     for (let col = 0; col < 8; col += 1) {
       const cell = sheet[XLSX.utils.encode_cell({ r: row, c: col })];
+      if (col === 1 || col === 4) {
+        cell.t = "s";
+        cell.v = String(col === 1 ? item.sku : item.barcode);
+        cell.z = "@";
+      } else if (col === 5) {
+        cell.z = "#,##0";
+      }
       cell.s = {
         fill: { fgColor: { rgb: index % 2 ? "FAF9F6" : "FFFFFF" } },
         font: {
           name: "맑은 고딕",
-          sz: col === 6 ? 11 : 9,
+          sz: col === 6 ? 9 : col === 1 ? 8 : 9,
           bold: col === 2 || col === 6,
           color: { rgb: col === 6 ? (item.location ? "D6532F" : "C62828") : "222222" },
         },
         alignment: {
           horizontal: [0, 5, 6, 7].includes(col) ? "center" : "left",
           vertical: "center",
-          wrapText: true,
+          wrapText: ![1, 4].includes(col),
+          shrinkToFit: [1, 4].includes(col),
         },
         border: thinBorder,
       };
@@ -1664,6 +1723,11 @@ function buildPickingWorkbook(data = pickingData) {
       border: thinBorder,
     };
   }
+  const footerRow = totalRow + 1;
+  sheet[XLSX.utils.encode_cell({ r: footerRow, c: 0 })].s = {
+    font: { name: "맑은 고딕", sz: 8, color: { rgb: "8B8780" } },
+    alignment: { horizontal: "left", vertical: "center" },
+  };
 
   sheet["!autofilter"] = {
     ref: `A${headerRow + 1}:H${headerRow + 1 + data.items.length}`,
@@ -1672,7 +1736,7 @@ function buildPickingWorkbook(data = pickingData) {
   sheet["!margins"] = { left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1 };
   sheet["!pageSetup"] = {
     paperSize: 9,
-    orientation: portrait ? "portrait" : "landscape",
+    orientation: "portrait",
     fitToWidth: 1,
     fitToHeight: 0,
   };
@@ -1704,11 +1768,7 @@ function wrapCanvasText(ctx, text, maxWidth) {
 
 function buildPickingPdfCanvases(data = pickingData) {
   const portrait = pickingOrientation === "portrait";
-  const outputType = data.outputType || "기본 출력";
-  const documentTitle =
-    outputType === "로케이션 정리"
-      ? "PICKING LIST"
-      : "PACKING LIST";
+  const documentTitle = pickingDocumentTitle(data);
   const width = portrait ? 1131 : 1600;
   const height = portrait ? 1600 : 1131;
   const margin = 50;
@@ -1735,8 +1795,17 @@ function buildPickingPdfCanvases(data = pickingData) {
     ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = "#171717";
     ctx.fillRect(0, 0, width, 18);
+    ctx.strokeStyle = "#f26b3a";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(margin, 42, 28, 28);
+    ctx.beginPath();
+    ctx.moveTo(margin + 7, 56);
+    ctx.lineTo(margin + 12, 62);
+    ctx.lineTo(margin + 22, 49);
+    ctx.stroke();
     ctx.font = "800 34px 'Malgun Gothic', sans-serif";
-    ctx.fillText(documentTitle, margin, 70);
+    ctx.fillStyle = "#171717";
+    ctx.fillText(documentTitle, margin + 42, 70);
     ctx.font = "600 17px 'Malgun Gothic', sans-serif";
     ctx.fillStyle = "#77736d";
     ctx.textAlign = "right";
@@ -1751,7 +1820,7 @@ function buildPickingPdfCanvases(data = pickingData) {
       ["INVOICE", data.invoiceNo],
       ["DATE", data.date || "-"],
       ["CUSTOMER", data.customer || "-"],
-      ["TOTAL", `${data.items.length} SKU / ${data.totalQuantity} EA`],
+      ["TOTAL", `${data.items.length} SKU / ${formatPickingCount(data.totalQuantity)} EA`],
     ];
     const boxWidth = (width - margin * 2 - 24) / 4;
     boxes.forEach(([label, value], index) => {
@@ -1819,16 +1888,45 @@ function buildPickingPdfCanvases(data = pickingData) {
     y += 18;
   }
 
+  function drawWorkerFields() {
+    const fields = ["특전 :", "검수 :", "피킹 :", "패킹 :"];
+    const gap = 8;
+    const fieldWidth = (width - margin * 2 - gap * 3) / 4;
+    const rowHeight = 56;
+    if (y + rowHeight > height - bottom) newPage("작업자 정보");
+
+    fields.forEach((label, index) => {
+      const x = margin + index * (fieldWidth + gap);
+      ctx.fillStyle = "#f3f1ec";
+      ctx.fillRect(x, y, 72, rowHeight);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(x + 72, y, fieldWidth - 72, rowHeight);
+      ctx.strokeStyle = "#d9d5ce";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, fieldWidth, rowHeight);
+      ctx.beginPath();
+      ctx.moveTo(x + 72, y);
+      ctx.lineTo(x + 72, y + rowHeight);
+      ctx.stroke();
+      ctx.fillStyle = "#33312e";
+      ctx.font = "800 16px 'Malgun Gothic', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(label, x + 36, y + 35);
+    });
+    ctx.textAlign = "left";
+    y += rowHeight + 18;
+  }
+
   const columns = portrait
     ? [
         ["NO", 45],
-        ["SKU", 160],
-        ["DESCRIPTION", 346],
-        ["BRAND", 90],
+        ["SKU", 210],
+        ["DESCRIPTION", 270],
+        ["BRAND", 145],
         ["BARCODE", 145],
         ["QTY", 55],
-        ["LOCATION", 120],
-        ["PACKING", 70],
+        ["LOC", 80],
+        ["PACKING", 81],
       ]
     : [
         ["NO", 55],
@@ -1873,7 +1971,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         "",
       ];
       const wrapped = values.map((value, index) =>
-        wrapCanvasText(ctx, value, columns[index][1] - 16),
+        index === 1 ? [String(value)] : wrapCanvasText(ctx, value, columns[index][1] - 16),
       );
       const rowHeight = Math.max(58, Math.max(...wrapped.map((lines) => lines.length)) * 22 + 18);
 
@@ -1892,15 +1990,21 @@ function buildPickingPdfCanvases(data = pickingData) {
         ctx.strokeRect(x, y, colWidth, rowHeight);
         ctx.fillStyle =
           colIndex === 6 ? (item.location ? "#d6532f" : "#c62828") : "#222222";
-        ctx.font =
-          colIndex === 6
-            ? "800 20px 'Malgun Gothic', sans-serif"
-            : colIndex === 2
-              ? "700 17px 'Malgun Gothic', sans-serif"
-              : "500 16px 'Malgun Gothic', sans-serif";
+        let fontSize = colIndex === 6 ? 16 : colIndex === 2 ? 16 : colIndex === 1 ? 14 : 15;
+        const fontWeight = colIndex === 6 || colIndex === 2 ? 700 : 500;
+        if (colIndex === 1) {
+          ctx.font = `${fontWeight} ${fontSize}px 'Malgun Gothic', sans-serif`;
+          while (fontSize > 8 && ctx.measureText(String(value)).width > colWidth - 16) {
+            fontSize -= 1;
+            ctx.font = `${fontWeight} ${fontSize}px 'Malgun Gothic', sans-serif`;
+          }
+        } else {
+          ctx.font = `${fontWeight} ${fontSize}px 'Malgun Gothic', sans-serif`;
+        }
         const centered = [0, 5, 6, 7].includes(colIndex);
         ctx.textAlign = centered ? "center" : "left";
-        const lines = wrapCanvasText(ctx, value, colWidth - 16);
+        const lines =
+          colIndex === 1 ? [String(value)] : wrapCanvasText(ctx, value, colWidth - 16);
         const startY = y + Math.max(22, (rowHeight - lines.length * 22) / 2 + 17);
         lines.forEach((line, lineIndex) => {
           ctx.fillText(
@@ -1914,12 +2018,33 @@ function buildPickingPdfCanvases(data = pickingData) {
       ctx.textAlign = "left";
       y += rowHeight;
     });
+
+    const totalHeight = 48;
+    if (y + totalHeight > height - bottom) {
+      newPage("합계");
+      drawTableHeader();
+    }
+    ctx.fillStyle = "#edeae4";
+    ctx.fillRect(margin, y, columns.reduce((sum, column) => sum + column[1], 0), totalHeight);
+    ctx.strokeStyle = "#d9d5ce";
+    ctx.strokeRect(margin, y, columns.reduce((sum, column) => sum + column[1], 0), totalHeight);
+    ctx.fillStyle = "#222222";
+    ctx.font = "800 17px 'Malgun Gothic', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(
+      `TOTAL  ${data.items.length} SKU / ${formatPickingCount(data.totalQuantity)} EA`,
+      width - margin - 14,
+      y + 31,
+    );
+    ctx.textAlign = "left";
+    y += totalHeight;
   }
 
   newPage();
   drawSummary();
   drawReferencePairs();
   drawRemark();
+  drawWorkerFields();
   drawItems();
 
   pages.forEach((canvas, index) => {
@@ -1927,7 +2052,7 @@ function buildPickingPdfCanvases(data = pickingData) {
     footer.fillStyle = "#8b8780";
     footer.font = "500 12px 'Malgun Gothic', sans-serif";
     footer.textAlign = "left";
-    footer.fillText("웅툴 - 피킹리스트", margin, height - 22);
+    footer.fillText("웅툴 - 업무를 가볍고 빠르게", margin, height - 22);
     footer.textAlign = "right";
     footer.fillText(`${index + 1} / ${pages.length}`, width - margin, height - 22);
   });
