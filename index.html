@@ -498,7 +498,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
           <!-- Left: 재고비교 -->
           <div class="sync-pane" id="sync-content">
             <h3 class="sync-pane-title">재고비교</h3>
-            <p class="sync-pane-desc">재고 Manage / CSMS &amp; WMS 재고조회 / Down (Default) / 엑셀파일 업로드</p>
+            <p class="sync-pane-desc">재고 Manage → CSMS &amp; WMS 재고조회 → Down (Default) → 엑셀파일 업로드</p>
 
             <div class="drop-zone" id="sync-drop-zone">
               <input id="sync-input" type="file" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
@@ -545,7 +545,9 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             <h3 class="sync-pane-title">로케이션 파악</h3>
             <p class="sync-pane-desc">바코드 목록을 붙여넣고 마지막 줄에 로케이션 코드를 입력하세요.</p>
 
-            <textarea id="loc-check-input" class="loc-check-textarea" placeholder="8809973501185&#10;8804775367045&#10;8809810217712&#10;D-01"></textarea>
+            <div class="loc-input-frame">
+              <textarea id="loc-check-input" class="loc-check-textarea" placeholder="8809973501185&#10;8804775367045&#10;8809810217712&#10;D-01"></textarea>
+            </div>
 
             <button class="merge-button" id="loc-check-button" type="button">
               <span>로케이션 확인</span>
@@ -569,7 +571,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         <div class="license-download-card">
           <div class="license-file-icon" aria-hidden="true">XLS</div>
           <div class="license-download-copy">
-            <strong>실리콘투 음반팀 면허 파일</strong>
+            <strong>음반팀 면허 파일</strong>
             <span id="license-summary">구글 시트의 면허 탭을 불러와 오늘 날짜의 Excel 파일로 저장합니다.</span>
           </div>
           <button class="merge-button picking-download-button" id="license-download-button" type="button">

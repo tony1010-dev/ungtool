@@ -2724,6 +2724,12 @@ function fmtUsd(value) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function fmtComma(value) {
+  const n = parseNumber(value);
+  if (!n && n !== 0) return "-";
+  return n.toLocaleString("ko-KR");
+}
+
 function dashCell(cells, idx) {
   return String(gvizCellValue(cells[idx] ?? null) ?? "").trim();
 }
@@ -2860,7 +2866,7 @@ function renderOutgoing(table, matRows, totalsTable) {
     <div class="dash-stat stat-blue">${ICON_DOC}<span>총 출고 건수</span><strong>${dataRows.length}건</strong></div>
     <div class="dash-stat stat-amber">${ICON_PLT}<span>출고 PLT</span><strong>${pltTotal} PLT</strong></div>
     <div class="dash-stat stat-orange">${ICON_BOX}<span>출고 BOX</span><strong>${boxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 출고 금액</span><strong>${amtStr}</strong></div>
+    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 출고 금액</span><strong>${fmtComma(amtStr)}</strong></div>
   `;
 
   // 배송사별 카드 — 고정 8개 항목, 항상 표시 (민호탭 rows[6-8] 기준)
@@ -2953,7 +2959,11 @@ function renderMaterials(matTable) {
     return;
   }
 
-  function materialBadge(name) {
+  function svgDataUri(svg) {
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+  function materialIcon(name) {
     const kind = name.includes("뽕뽕")
       ? "air"
       : name.includes("테이프")
@@ -2961,15 +2971,30 @@ function renderMaterials(matTable) {
         : name.includes("랩") || name.includes("필름")
           ? "wrap"
           : "box";
-    const label = kind === "air" ? "AIR" : kind === "tape" ? "TAPE" : kind === "wrap" ? "WRAP" : "BOX";
-    const icon = kind === "air"
-      ? "☁"
+    const svg = kind === "air"
+      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+          <path d="M20 44h22c6.6 0 12-4.7 12-10.5S42.6 23 36 23c-1.9 0-3.7.4-5.3 1.1C29 18.8 24.5 15 19 15c-6.1 0-11 4.6-11 10.4 0 4.6 3 8.4 7.2 9.9C15.8 40.6 17.6 44 20 44Z" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 50h18" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+        </svg>`
       : kind === "tape"
-        ? "◉"
+        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+            <rect x="12" y="16" width="34" height="32" rx="14" stroke="currentColor" stroke-width="3.4" />
+            <circle cx="29" cy="32" r="7" stroke="currentColor" stroke-width="3.4" />
+            <path d="M46 24h6c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4h-6" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+            <path d="M16 24h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+          </svg>`
         : kind === "wrap"
-          ? "▤"
-          : "▦";
-    return `<span class="mat-icon-badge ${kind}" aria-label="${label}"><span class="mat-icon-badge-mark">${icon}</span><span>${label}</span></span>`;
+          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+              <rect x="14" y="15" width="36" height="34" rx="8" stroke="currentColor" stroke-width="3.4" />
+              <path d="M20 23h24M20 32h24M20 41h16" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+            </svg>`
+          : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+              <path d="m12 22 20-10 20 10-20 10-20-10Z" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/>
+              <path d="M12 22v20l20 10 20-10V22" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/>
+              <path d="M32 32v20" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+            </svg>`;
+    const label = kind === "air" ? "AIR" : kind === "tape" ? "TAPE" : kind === "wrap" ? "WRAP" : "BOX";
+    return `<img class="mat-visual-icon ${kind}" alt="${label}" src="${svgDataUri(svg)}" />`;
   }
 
   if (boxItems.length) {
@@ -2978,7 +3003,7 @@ function renderMaterials(matTable) {
     card.innerHTML = `
       <h3>박스 재고</h3>
       <div class="mat-item-grid">
-        ${boxItems.map((m) => `<div class="mat-item"><span class="mat-icon-badge box" aria-label="BOX"><span class="mat-icon-badge-mark">▦</span><span>BOX</span></span><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div>`).join("")}
+        ${boxItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div></div>`).join("")}
       </div>`;
     container.append(card);
   }
@@ -2989,7 +3014,7 @@ function renderMaterials(matTable) {
     card.innerHTML = `
       <h3>포장용품</h3>
       <div class="mat-item-grid">
-        ${packItems.map((m) => `<div class="mat-item">${materialBadge(m.name)}<span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div>`).join("")}
+        ${packItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div></div>`).join("")}
       </div>`;
     container.append(card);
   }
