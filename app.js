@@ -371,7 +371,14 @@ customLabelDom.fontSize.addEventListener("input", updateCustomLabelState);
 customLabelDom.downloadButton.addEventListener("click", downloadCustomLabelPdf);
 updateCustomLabelState();
 
-const DEFAULT_HOME_NOTICE = `2026.06.21 | Feature Update
+const DEFAULT_HOME_NOTICE = `2026.06.22 | New Release
+
+• Label Print: PLT 출력 전환 지원
+• Export Permit: DHL 면허 다운로드 추가
+• Location Sync: 재고와 로케이션 비교 기능 추가
+• Dashboard: 입고 · 출고 · 자재 현황 추가
+
+2026.06.21 | Feature Update
 
 • Label Print: 폰트 크기 조절기능 추가
 • PDF Merge: 기능통합
@@ -383,23 +390,30 @@ const DEFAULT_HOME_NOTICE = `2026.06.21 | Feature Update
 
 • Label Print: 업체명 · Invoice No. · Box Qty PDF 자동 생성
 • PDF Merge (ZIP): ZIP 내 PDF 자동 병합
-• UPS Print: A4 UPS Label → 10×15cm Thermal Label 변환
+• UPS Print: 10×15cm Thermal Label 변환
 • Picking List: SKU · Location 매핑 Excel / PDF 생성
 • Location Sync: 재고 데이터와 DB 비교 검증`;
 const homePanel = document.querySelector("#home-panel");
 const homeNoticeText = document.querySelector("#home-notice-text");
+const homeNoticePrev = document.querySelector("#notice-prev");
+const homeNoticeNext = document.querySelector("#notice-next");
+const homeNoticeIndicator = document.querySelector("#notice-page-indicator");
 const brandHome = document.querySelector("#brand-home");
+const HOME_NOTICE_PAGE_SIZE = 2;
+let homeNoticePages = [];
+let homeNoticePageIndex = 0;
 
-function displayHomeNotice(notice) {
+function parseHomeNoticeSections(notice) {
   const lines = String(notice).split(/\r?\n/);
   const sections = [];
   let currentSection = null;
+  let sectionIndex = 0;
 
   lines.forEach((line) => {
     const cleanLine = line.trim();
     if (!cleanLine) return;
     if (/^\d{4}\.\d{2}\.\d{2}\s*\|/.test(cleanLine)) {
-      currentSection = { title: cleanLine, details: [] };
+      currentSection = { title: cleanLine, details: [], index: sectionIndex += 1 };
       sections.push(currentSection);
       return;
     }
@@ -410,9 +424,21 @@ function displayHomeNotice(notice) {
     currentSection.details.push(cleanLine);
   });
 
+  return sections.sort((a, b) => {
+    const aDate = a.title.match(/^(\d{4}\.\d{2}\.\d{2})/)?.[1] ?? "";
+    const bDate = b.title.match(/^(\d{4}\.\d{2}\.\d{2})/)?.[1] ?? "";
+    const aNum = Number(aDate.replace(/\./g, ""));
+    const bNum = Number(bDate.replace(/\./g, ""));
+    if (aNum !== bNum) return bNum - aNum;
+    return a.index - b.index;
+  });
+}
+
+function renderHomeNoticePage() {
+  const page = homeNoticePages[homeNoticePageIndex] || [];
   homeNoticeText.replaceChildren();
 
-  sections.forEach((section) => {
+  page.forEach((section) => {
     const sectionElement = document.createElement("section");
     sectionElement.className = "notice-history-item";
     const titleElement = document.createElement("div");
@@ -438,12 +464,33 @@ function displayHomeNotice(notice) {
     sectionElement.append(list);
     homeNoticeText.append(sectionElement);
   });
-  return notice;
+
+  const totalPages = Math.max(1, homeNoticePages.length);
+  homeNoticeIndicator.textContent = `${homeNoticePageIndex + 1} / ${totalPages}`;
+  homeNoticePrev.disabled = homeNoticePageIndex <= 0;
+  homeNoticeNext.disabled = homeNoticePageIndex >= totalPages - 1;
 }
 
 function loadHomeNotice() {
-  return displayHomeNotice(DEFAULT_HOME_NOTICE);
+  const sections = parseHomeNoticeSections(DEFAULT_HOME_NOTICE);
+  homeNoticePages = [];
+  for (let i = 0; i < sections.length; i += HOME_NOTICE_PAGE_SIZE) {
+    homeNoticePages.push(sections.slice(i, i + HOME_NOTICE_PAGE_SIZE));
+  }
+  homeNoticePageIndex = 0;
+  renderHomeNoticePage();
+  return DEFAULT_HOME_NOTICE;
 }
+
+homeNoticePrev.addEventListener("click", () => {
+  homeNoticePageIndex = Math.max(0, homeNoticePageIndex - 1);
+  renderHomeNoticePage();
+});
+
+homeNoticeNext.addEventListener("click", () => {
+  homeNoticePageIndex = Math.min(homeNoticePages.length - 1, homeNoticePageIndex + 1);
+  renderHomeNoticePage();
+});
 
 loadHomeNotice();
 
