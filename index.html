@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=15" />
+    <link rel="stylesheet" href="style.css?v=16" />
   </head>
   <body>
     <header class="site-header">
@@ -33,40 +33,39 @@
           <span>웅툴</span>
         </a>
         <nav class="tool-tabs header-tabs" aria-label="도구 선택">
-        <button class="tool-tab" type="button" data-tool="label">
-          <span class="tab-number">01</span>
-          <span><strong>Label Print</strong><small>15×10cm 라벨 출력</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="zip">
-          <span class="tab-number">02</span>
-          <span><strong>PDF Merge</strong><small>ZIP · 여러 PDF 병합</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="ups">
-          <span class="tab-number">03</span>
-          <span><strong>UPS Print</strong><small>라벨 사이즈 조정</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="picking">
-          <span class="tab-number">04</span>
-          <span><strong>Picking List</strong><small>SKU · 로케이션 자동 입력</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="license">
-          <span class="tab-number">05</span>
-          <span><strong>Export Permit</strong><small>DHL 면허</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="sync">
-          <span class="tab-number">06</span>
-          <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="business">
-          <span class="tab-number">07</span>
-          <span><strong>AI</strong><small>간단한 질문과 업무 도움</small></span>
-        </button>
-        <button class="tool-tab" type="button" data-tool="dashboard">
-          <span class="tab-number">08</span>
-          <span><strong>Dashboard</strong><small>입고 · 출고 · 자재현황</small></span>
-        </button>
-      </div>
-      <div class="header-bottom-row">
+          <button class="tool-tab" type="button" data-tool="label">
+            <span class="tab-number">01</span>
+            <span><strong>Label Print</strong><small>15×10cm 라벨 출력</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="zip">
+            <span class="tab-number">02</span>
+            <span><strong>PDF Merge</strong><small>ZIP · 여러 PDF 병합</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="ups">
+            <span class="tab-number">03</span>
+            <span><strong>UPS Print</strong><small>라벨 사이즈 조정</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="picking">
+            <span class="tab-number">04</span>
+            <span><strong>Picking List</strong><small>SKU · 로케이션 자동 입력</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="license">
+            <span class="tab-number">05</span>
+            <span><strong>Export Permit</strong><small>DHL 면허</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="sync">
+            <span class="tab-number">06</span>
+            <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="business">
+            <span class="tab-number">07</span>
+            <span><strong>AI</strong><small>간단한 질문과 업무 도움</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="dashboard">
+            <span class="tab-number">08</span>
+            <span><strong>Dashboard</strong><small>입고 · 출고 · 자재현황</small></span>
+          </button>
+        </nav>
         <div class="theme-switcher" role="group" aria-label="화면 모드">
           <button class="theme-button" type="button" data-theme-choice="light" aria-label="라이트 모드" title="라이트 모드">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -85,20 +84,6 @@
               <path d="M8 21h8M12 17v4" />
             </svg>
           </button>
-        </div>
-        <div class="header-metrics" aria-label="현재 정보">
-          <div class="metric-pill" id="weather-pill">
-            <span class="metric-icon" aria-hidden="true">⛅</span>
-            <span class="metric-text">
-              <small id="weather-text">날씨 불러오는 중</small>
-            </span>
-          </div>
-          <div class="metric-pill" id="usd-pill">
-            <span class="metric-icon" aria-hidden="true">$</span>
-            <span class="metric-text">
-              <small id="usd-text">₩1,531</small>
-            </span>
-          </div>
         </div>
       </div>
     </header>
@@ -682,7 +667,23 @@
         </span>
         <span>웅툴</span>
       </div>
-      <p>Made by Tony</p>
+      <div class="footer-right">
+        <div class="header-metrics footer-metrics" aria-label="현재 정보">
+          <div class="metric-pill" id="weather-pill">
+            <span class="metric-icon" aria-hidden="true">⛅</span>
+            <span class="metric-text">
+              <small id="weather-text">날씨 불러오는 중</small>
+            </span>
+          </div>
+          <div class="metric-pill" id="usd-pill">
+            <span class="metric-icon" aria-hidden="true">💲</span>
+            <span class="metric-text">
+              <small id="usd-text">₩1,531</small>
+            </span>
+          </div>
+        </div>
+        <p>Made by Tony</p>
+      </div>
     </footer>
 
     <script src="vendor/jszip.min.js"></script>
