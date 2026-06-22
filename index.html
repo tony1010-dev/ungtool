@@ -50,7 +50,7 @@
         </button>
         <button class="tool-tab" type="button" data-tool="license">
           <span class="tab-number">05</span>
-          <span><strong>면허다운</strong><small>DHL 면허 다운</small></span>
+          <span><strong>Export Permit</strong><small>DHL 면허</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="sync">
           <span class="tab-number">06</span>
@@ -105,7 +105,11 @@
           </svg>
           <div>
             <h2 id="home-notice-title">웅툴 공지</h2>
-            <div id="home-notice-text">2026.06.21 | Feature Update<br />
+            <div id="home-notice-text">2026.06.22 | Feature Update<br />
+1. Location Sync: added<br />
+2. Dashboard: added<br />
+3. Export Permit: DHL permit update<br /><br />
+2026.06.21 | Feature Update<br />
 Label Print: 폰트 크기 조절기능 추가<br />
 PDF Merge: 기능통합<br />
 Picking List: 기본 출력 · 로케이션 정렬순 출력 기능 추가<br />
@@ -268,10 +272,10 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
             </svg>
           </div>
-          <strong>PDF가 담긴 ZIP 또는 여러 PDF를 여기로 끌어오세요</strong>
+          <strong>Drop ZIP / PDF</strong>
           <span>또는</span>
-          <button class="select-button" id="select-button" type="button">파일 선택</button>
-          <small>ZIP·PDF 형식 · 여러 PDF 동시 선택 가능</small>
+          <button class="select-button" id="select-button" type="button">Choose</button>
+          <small>ZIP / PDF</small>
         </div>
 
         <div class="workspace" id="workspace">
@@ -335,10 +339,10 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
             </svg>
           </div>
-          <strong>UPS PDF 파일을 올려주세요</strong>
+          <strong>Drop PDF</strong>
           <span>또는</span>
-          <button class="select-button" id="ups-select-button" type="button">PDF 선택</button>
-          <small>A4·Letter 형식 · 여러 페이지 가능</small>
+          <button class="select-button" id="ups-select-button" type="button">Choose</button>
+          <small>A4 / Letter</small>
         </div>
 
         <div class="workspace" id="ups-workspace">
@@ -403,10 +407,10 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
             </svg>
           </div>
-          <strong>인보이스 엑셀파일을 올려주세요</strong>
+          <strong>Drop XLS / XLSX</strong>
           <span>또는</span>
-          <button class="select-button" id="picking-select-button" type="button">엑셀파일 선택</button>
-          <small>XLS·XLSX 형식 · SKU 기준 자동 매칭</small>
+          <button class="select-button" id="picking-select-button" type="button">Choose</button>
+          <small>SKU match</small>
         </div>
 
         <div class="workspace" id="picking-workspace">
@@ -473,14 +477,14 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               <div class="upload-icon sheet-upload-icon" aria-hidden="true">
                 <svg viewBox="0 0 28 28"><path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" /></svg>
               </div>
-              <strong>재고 엑셀파일을 올려주세요</strong>
+              <strong>Drop XLS / XLSX</strong>
               <span>또는</span>
-              <button class="select-button" id="sync-select-button" type="button">재고파일 선택</button>
-              <small>다운로드한 Default 엑셀파일을 그대로 올려주세요.</small>
+              <button class="select-button" id="sync-select-button" type="button">Choose</button>
+              <small>Default file</small>
             </div>
 
             <button class="merge-button picking-download-button" id="sync-download-button" type="button">
-              <span>동기화 결과 Excel 받기</span>
+            <span>Excel</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
             </button>
 
@@ -515,7 +519,7 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             </div>
 
             <button class="merge-button" id="loc-check-button" type="button">
-              <span>로케이션 확인</span>
+              <span>Check</span>
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M9 15A6 6 0 1 0 9 3a6 6 0 0 0 0 12zm0 0 6 6" /></svg>
             </button>
 
@@ -527,8 +531,8 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
       <section class="tool-card tool-panel" id="license-tool" aria-labelledby="license-title" hidden>
         <div class="tool-heading">
           <div>
-            <h2 id="license-title">면허다운</h2>
-            <p>DHL 면허 다운</p>
+            <h2 id="license-title">Export Permit</h2>
+            <p>DHL permit download</p>
           </div>
           <span class="sheet-badge" id="license-sheet-status"><span class="status-dot"></span>면허 탭 연결 대기</span>
         </div>
@@ -536,11 +540,11 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         <div class="license-download-card">
           <div class="license-file-icon" aria-hidden="true">XLS</div>
           <div class="license-download-copy">
-            <strong>음반팀 면허 파일</strong>
+            <strong>Permit file</strong>
             <span id="license-summary">구글 시트의 면허 탭을 불러와 오늘 날짜의 Excel 파일로 저장합니다.</span>
           </div>
           <button class="merge-button picking-download-button" id="license-download-button" type="button">
-            <span>면허 Excel 받기</span>
+            <span>Download</span>
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
           </button>
         </div>

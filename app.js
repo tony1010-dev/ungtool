@@ -498,12 +498,12 @@ async function loadMergeFiles(fileList) {
   const pdfFiles = files.filter((file) => file.name.toLowerCase().endsWith(".pdf"));
 
   if (!files.length || zipFiles.length + pdfFiles.length !== files.length) {
-    showMessage("ZIP 또는 PDF 형식의 파일만 선택해 주세요.", true);
+    showMessage("ZIP/PDF only.", true);
     return;
   }
 
   if (zipFiles.length && (zipFiles.length > 1 || pdfFiles.length)) {
-    showMessage("ZIP 파일 1개 또는 PDF 파일 여러 개 중 한 방식으로 올려주세요.", true);
+    showMessage("Use ZIP or PDFs.", true);
     return;
   }
 
@@ -567,13 +567,13 @@ async function loadMergeFiles(fileList) {
     showMessage(error.message || "파일을 열 수 없어요. 파일을 다시 확인해 주세요.", true);
   } finally {
     dom.selectButton.disabled = false;
-    dom.selectButton.textContent = "파일 선택";
+    dom.selectButton.textContent = "Choose";
   }
 }
 
 async function mergePdfs() {
   if (!mergeInputLoaded || !pdfEntries.length) {
-    showMessage("먼저 병합할 ZIP 또는 PDF 파일을 올려주세요.", true);
+    showMessage("Add files first.", true);
     return;
   }
 
@@ -746,7 +746,7 @@ async function inspectUpsPdf(file) {
   showUpsMessage("");
 
   if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
-    showUpsMessage("PDF 형식의 UPS 라벨 파일을 선택해 주세요.", true);
+    showUpsMessage("Choose PDF.", true);
     return;
   }
 
@@ -794,7 +794,7 @@ async function inspectUpsPdf(file) {
     showUpsMessage(error.message || "PDF 파일을 분석할 수 없어요.", true);
   } finally {
     upsDom.selectButton.disabled = false;
-    upsDom.selectButton.textContent = "PDF 선택";
+    upsDom.selectButton.textContent = "Choose";
   }
 }
 
@@ -1220,7 +1220,7 @@ async function downloadLicenseWorkbook() {
   }
 
   licenseDom.downloadButton.disabled = true;
-  licenseDom.downloadButton.querySelector("span").textContent = "면허 탭 확인 중…";
+  licenseDom.downloadButton.querySelector("span").textContent = "Checking…";
   showLicenseMessage("");
 
   try {
@@ -1240,7 +1240,7 @@ async function downloadLicenseWorkbook() {
     showLicenseMessage(error.message || "면허 파일을 만들지 못했습니다.", true);
   } finally {
     licenseDom.downloadButton.disabled = false;
-    licenseDom.downloadButton.querySelector("span").textContent = "면허 Excel 받기";
+    licenseDom.downloadButton.querySelector("span").textContent = "Download";
   }
 }
 
@@ -1429,7 +1429,7 @@ function resetPickingTool() {
 async function inspectPickingFile(file) {
   showPickingMessage("");
   if (!file || !/\.(xls|xlsx)$/i.test(file.name)) {
-    showPickingMessage("XLS 또는 XLSX 형식의 파일을 선택해 주세요.", true);
+    showPickingMessage("Choose XLS/XLSX.", true);
     return;
   }
   if (typeof XLSX === "undefined") {
@@ -1438,7 +1438,7 @@ async function inspectPickingFile(file) {
   }
 
   pickingDom.selectButton.disabled = true;
-  pickingDom.selectButton.textContent = "분석 중…";
+  pickingDom.selectButton.textContent = "Checking…";
 
   try {
     const [db, buffer] = await Promise.all([loadGoogleDb(), file.arrayBuffer()]);
@@ -1475,7 +1475,7 @@ async function inspectPickingFile(file) {
     showPickingMessage(error.message || "엑셀파일을 분석할 수 없습니다.", true);
   } finally {
     pickingDom.selectButton.disabled = false;
-    pickingDom.selectButton.textContent = "엑셀파일 선택";
+    pickingDom.selectButton.textContent = "Choose";
   }
 }
 
@@ -2112,7 +2112,7 @@ function buildPickingPdfCanvases(data = pickingData) {
 
 async function downloadPickingExcel(sortByLocation = false) {
   if (!pickingData) {
-    showPickingMessage("먼저 인보이스 엑셀파일을 올려주세요.", true);
+    showPickingMessage("Add invoice file first.", true);
     return;
   }
   const button = sortByLocation ? pickingDom.locationExcelButton : pickingDom.excelButton;
@@ -2149,7 +2149,7 @@ async function downloadPickingExcel(sortByLocation = false) {
 
 async function downloadPickingPdf(sortByLocation = false) {
   if (!pickingData) {
-    showPickingMessage("먼저 인보이스 엑셀파일을 올려주세요.", true);
+    showPickingMessage("Add invoice file first.", true);
     return;
   }
   const button = sortByLocation ? pickingDom.locationPdfButton : pickingDom.pdfButton;
@@ -2308,7 +2308,7 @@ async function inspectSyncFile(file) {
     return;
   }
   syncDom.selectButton.disabled = true;
-  syncDom.selectButton.textContent = "비교 중…";
+  syncDom.selectButton.textContent = "Checking…";
   try {
     const [db, buffer] = await Promise.all([loadGoogleDb(), file.arrayBuffer()]);
     const head = new TextDecoder("utf-8").decode(buffer.slice(0, 200)).toLowerCase();
@@ -2361,10 +2361,10 @@ async function inspectSyncFile(file) {
     );
   } catch (error) {
     resetSyncTool();
-    showSyncMessage(error.message || "재고파일 비교 중 문제가 발생했습니다.", true);
+    showSyncMessage(error.message || "Stock compare failed.", true);
   } finally {
     syncDom.selectButton.disabled = false;
-    syncDom.selectButton.textContent = "재고파일 선택";
+    syncDom.selectButton.textContent = "Choose";
   }
 }
 
@@ -2432,7 +2432,7 @@ function buildSyncWorkbook() {
 
 function downloadSyncReport() {
   if (!syncResults.length) {
-    showSyncMessage("먼저 재고 엑셀파일을 올려주세요.", true);
+    showSyncMessage("Add stock file first.", true);
     return;
   }
   syncDom.downloadButton.disabled = true;
