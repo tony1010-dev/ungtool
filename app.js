@@ -903,7 +903,6 @@ const pickingDom = {
   pdfButton: document.querySelector("#picking-pdf-button"),
   locationExcelButton: document.querySelector("#picking-location-excel-button"),
   locationPdfButton: document.querySelector("#picking-location-pdf-button"),
-  orientationOptions: document.querySelectorAll(".orientation-option"),
   message: document.querySelector("#picking-message"),
 };
 
@@ -914,7 +913,7 @@ let pickingRows = [];
 let pickingColumns = null;
 let pickingFile = null;
 let pickingData = null;
-let pickingOrientation = "landscape";
+const pickingOrientation = "portrait";
 
 async function sha256(text) {
   const bytes = new TextEncoder().encode(text);
@@ -1117,7 +1116,7 @@ function extractPickingData(sheet, columns, rows) {
     String(sheetValue(sheet, 10, 14))
       .replace(/^(?:CONTACT|SHIP\s*VIA)\s*:?\s*/i, "")
       .trim(),
-    String(sheetValue(sheet, 10, 25)).trim(),
+    String(sheetValue(sheet, 10, 24)).trim(),
   ].filter(Boolean);
   const salesPerson = salesPersonParts.join(" ");
   const shippingCarrier = String(sheetValue(sheet, 24, 9))
@@ -1496,6 +1495,10 @@ function wrapCanvasText(ctx, text, maxWidth) {
 function buildPickingPdfCanvases(data = pickingData) {
   const portrait = pickingOrientation === "portrait";
   const outputType = data.outputType || "기본 출력";
+  const documentTitle =
+    outputType === "로케이션 정리"
+      ? "PACKING LIST · 로케이션 정리"
+      : "PACKING LIST";
   const width = portrait ? 1131 : 1600;
   const height = portrait ? 1600 : 1131;
   const margin = 50;
@@ -1523,7 +1526,7 @@ function buildPickingPdfCanvases(data = pickingData) {
     ctx.fillStyle = "#171717";
     ctx.fillRect(0, 0, width, 18);
     ctx.font = "800 34px 'Malgun Gothic', sans-serif";
-    ctx.fillText(`PICKING LIST · ${outputType}`, margin, 70);
+    ctx.fillText(documentTitle, margin, 70);
     ctx.font = "600 17px 'Malgun Gothic', sans-serif";
     ctx.fillStyle = "#77736d";
     ctx.textAlign = "right";
@@ -1632,7 +1635,7 @@ function buildPickingPdfCanvases(data = pickingData) {
     let x = margin;
     ctx.fillStyle = "#f26b3a";
     ctx.fillRect(margin, y, columns.reduce((sum, col) => sum + col[1], 0), 44);
-    ctx.font = "800 14px 'Malgun Gothic', sans-serif";
+    ctx.font = "800 16px 'Malgun Gothic', sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
     columns.forEach(([label, colWidth]) => {
@@ -1648,7 +1651,7 @@ function buildPickingPdfCanvases(data = pickingData) {
     drawTableHeader();
 
     data.items.forEach((item, itemIndex) => {
-      ctx.font = "600 15px 'Malgun Gothic', sans-serif";
+      ctx.font = "600 17px 'Malgun Gothic', sans-serif";
       const values = [
         String(item.index),
         item.sku,
@@ -1662,7 +1665,7 @@ function buildPickingPdfCanvases(data = pickingData) {
       const wrapped = values.map((value, index) =>
         wrapCanvasText(ctx, value, columns[index][1] - 16),
       );
-      const rowHeight = Math.max(54, Math.max(...wrapped.map((lines) => lines.length)) * 20 + 18);
+      const rowHeight = Math.max(58, Math.max(...wrapped.map((lines) => lines.length)) * 22 + 18);
 
       if (y + rowHeight > height - bottom) {
         newPage("상품 목록 계속");
@@ -1681,19 +1684,19 @@ function buildPickingPdfCanvases(data = pickingData) {
           colIndex === 6 ? (item.location ? "#d6532f" : "#c62828") : "#222222";
         ctx.font =
           colIndex === 6
-            ? "800 18px 'Malgun Gothic', sans-serif"
+            ? "800 20px 'Malgun Gothic', sans-serif"
             : colIndex === 2
-              ? "700 15px 'Malgun Gothic', sans-serif"
-              : "500 14px 'Malgun Gothic', sans-serif";
+              ? "700 17px 'Malgun Gothic', sans-serif"
+              : "500 16px 'Malgun Gothic', sans-serif";
         const centered = [0, 5, 6, 7].includes(colIndex);
         ctx.textAlign = centered ? "center" : "left";
         const lines = wrapCanvasText(ctx, value, colWidth - 16);
-        const startY = y + Math.max(20, (rowHeight - lines.length * 20) / 2 + 15);
+        const startY = y + Math.max(22, (rowHeight - lines.length * 22) / 2 + 17);
         lines.forEach((line, lineIndex) => {
           ctx.fillText(
             line,
             centered ? x + colWidth / 2 : x + 8,
-            startY + lineIndex * 20,
+            startY + lineIndex * 22,
           );
         });
         x += colWidth;
@@ -1801,17 +1804,6 @@ pickingDom.excelButton.addEventListener("click", () => downloadPickingExcel());
 pickingDom.pdfButton.addEventListener("click", () => downloadPickingPdf());
 pickingDom.locationExcelButton.addEventListener("click", () => downloadPickingExcel(true));
 pickingDom.locationPdfButton.addEventListener("click", () => downloadPickingPdf(true));
-pickingDom.orientationOptions.forEach((option) => {
-  option.addEventListener("click", () => {
-    pickingOrientation = option.dataset.orientation;
-    pickingDom.orientationOptions.forEach((button) => {
-      const active = button === option;
-      button.classList.toggle("is-active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
-  });
-});
-
 ["dragenter", "dragover"].forEach((eventName) => {
   pickingDom.dropZone.addEventListener(eventName, (event) => {
     event.preventDefault();
