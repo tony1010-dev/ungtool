@@ -511,6 +511,11 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               <small>다운로드한 Default 엑셀파일을 그대로 올려주세요.</small>
             </div>
 
+            <button class="merge-button picking-download-button" id="sync-download-button" type="button">
+              <span>동기화 결과 Excel 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+
             <!-- 파일 선택 후 통계 (workspace) -->
             <div class="workspace" id="sync-workspace">
               <div class="selected-file" hidden>
@@ -529,14 +534,9 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
               </div>
             </div>
 
-            <!-- 항상 고정: 파일명 입력 + 다운로드 버튼 -->
-            <div class="sync-pane-spacer"></div>
+            <!-- 항상 고정: 파일명 입력 -->
             <label class="output-label" for="sync-output-name">저장할 파일명</label>
             <div class="output-field"><input id="sync-output-name" type="text" maxlength="120" /><span>.xlsx</span></div>
-            <button class="merge-button picking-download-button" id="sync-download-button" type="button">
-              <span>동기화 결과 Excel 받기</span>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
-            </button>
             <div class="message" id="sync-message" role="status" aria-live="polite" hidden></div>
           </div>
 
@@ -546,8 +546,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
             <p class="sync-pane-desc">바코드 목록을 붙여넣고 마지막 줄에 로케이션 코드를 입력하세요.</p>
 
             <textarea id="loc-check-input" class="loc-check-textarea" placeholder="8809973501185&#10;8804775367045&#10;8809810217712&#10;D-01"></textarea>
-
-            <div class="loc-pane-spacer"></div>
 
             <button class="merge-button" id="loc-check-button" type="button">
               <span>로케이션 확인</span>
