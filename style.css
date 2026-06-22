@@ -42,10 +42,27 @@ button {
   padding: 14px 0;
   margin: 0 auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
   border-bottom: 1px solid rgba(23, 23, 23, 0.12);
+}
+
+.header-top-row,
+.header-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.header-top-row {
+  justify-content: space-between;
+}
+
+.header-bottom-row {
+  justify-content: flex-end;
 }
 
 .brand {
@@ -331,7 +348,7 @@ main {
   display: flex;
   flex: 0 0 auto;
   gap: 2px;
-  margin-left: 8px;
+  margin-left: 0;
   padding: 3px;
   border: 1px solid var(--line);
   border-radius: 11px;
@@ -343,7 +360,7 @@ main {
   align-items: center;
   gap: 4px;
   flex-wrap: nowrap;
-  margin-left: 6px;
+  margin-left: 0;
 }
 
 .metric-pill {
@@ -2286,7 +2303,7 @@ html[data-theme="dark"] .license-note {
 @media (max-width: 700px) {
   .site-header {
     width: min(100% - 20px, 1180px);
-    height: 64px;
+    min-height: 64px;
   }
 
   .header-note,
@@ -2324,7 +2341,7 @@ html[data-theme="dark"] .license-note {
   }
 
   .theme-switcher {
-    margin-left: 4px;
+    margin-left: 0;
   }
 
   .header-metrics {
