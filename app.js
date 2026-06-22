@@ -2720,6 +2720,12 @@ function fmtKrw(value) {
   return n.toLocaleString("ko-KR") + "원";
 }
 
+function fmtKrwSpaced(value) {
+  const n = Math.round(Number(value));
+  if (!n) return "-";
+  return `${n.toLocaleString("ko-KR")} 원`;
+}
+
 function fmtNum(value) {
   const n = Number(value);
   if (!n && n !== 0) return "-";
@@ -2813,7 +2819,7 @@ function renderIncoming(table, totalsTable) {
     <div class="dash-stat stat-blue">${ICON_DOC}<span>총 입고 건수</span><strong>${dataRows.length}건</strong></div>
     <div class="dash-stat stat-amber">${ICON_PLT}<span>총 PLT</span><strong>${pltTotal} PLT</strong></div>
     <div class="dash-stat stat-orange">${ICON_BOX}<span>총 BOX</span><strong>${boxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 입고 금액</span><strong>${fmtKrw(totalAmt)}</strong></div>
+    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 입고 금액</span><strong>${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
   const chartWrap = document.querySelector("#dash-in-chart");
@@ -2874,7 +2880,7 @@ function renderOutgoing(table, matRows, totalsTable) {
     <div class="dash-stat stat-blue">${ICON_DOC}<span>총 출고 건수</span><strong>${dataRows.length}건</strong></div>
     <div class="dash-stat stat-amber">${ICON_PLT}<span>출고 PLT</span><strong>${pltTotal} PLT</strong></div>
     <div class="dash-stat stat-orange">${ICON_BOX}<span>출고 BOX</span><strong>${boxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 출고 금액</span><strong>${fmtComma(amtStr)}</strong></div>
+    <div class="dash-stat stat-green is-accent">${ICON_MONEY}<span>총 출고 금액</span><strong>${fmtKrwSpaced(amtStr)}</strong></div>
   `;
 
   // 배송사별 카드 — 고정 8개 항목, 항상 표시 (민호탭 rows[6-8] 기준)

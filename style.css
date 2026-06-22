@@ -2737,6 +2737,10 @@ html[data-theme="dark"] .dash-table tbody tr:hover td { background: var(--surfac
   margin-top: 0;
 }
 
+#sync-content #sync-download-button {
+  margin-top: 8px;
+}
+
 #loc-check-results {
   min-height: 286px;
   max-height: 470px;
