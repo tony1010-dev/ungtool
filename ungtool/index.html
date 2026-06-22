@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#171717" />
+    <meta
+      name="description"
+      content="ZIP 파일 속 PDF를 압축 해제 없이 순서대로 병합하는 웅툴"
+    />
+    <title>KPOP TEAM TOOLS</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" id="brand-home" href="#" aria-label="웅툴 홈">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" role="img">
+            <path d="M9.5 10.5h6.2v10.7c0 3.2 1.5 4.8 4.3 4.8s4.3-1.6 4.3-4.8V10.5h6.2v11.2c0 6.4-4 10-10.5 10s-10.5-3.6-10.5-10Z" />
+            <path class="spark" d="m30.8 6.4.8 2.3 2.3.8-2.3.8-.8 2.3-.8-2.3-2.3-.8 2.3-.8Z" />
+          </svg>
+        </span>
+        <span>웅툴</span>
+      </a>
+      <nav class="tool-tabs header-tabs" aria-label="도구 선택">
+        <button class="tool-tab" type="button" data-tool="label">
+          <span class="tab-number">01</span>
+          <span><strong>Label 출력</strong><small>15×10cm</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="zip">
+          <span class="tab-number">02</span>
+          <span><strong>PDF Merge(ZIP파일)</strong><small>압축 속 PDF를 하나로</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="ups">
+          <span class="tab-number">03</span>
+          <span><strong>UPS 출력</strong><small>라벨 사이즈 조정</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="picking">
+          <span class="tab-number">04</span>
+          <span><strong>피킹리스트 출력</strong><small>SKU Location 자동 입력</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="sync">
+          <span class="tab-number">05</span>
+          <span><strong>로케이션 동기화</strong><small>재고·DB 비교</small></span>
+        </button>
+        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+          <span class="tab-number">06</span>
+          <span><strong>Admin</strong><small>관리</small></span>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span></span> WORK TOOLS</div>
+        <h1>복잡한 업무를<br /><em>가볍고 빠르게</em></h1>
+        <p>
+          KPOP TEAM TOOLS
+        </p>
+      </section>
+
+      <section class="home-notice" id="home-panel" aria-labelledby="home-notice-title">
+        <div class="home-notice-label"><span></span> NOTICE</div>
+        <div class="home-notice-card">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 14.5V9.7a2 2 0 0 1 2-2h2.2L17 4v16l-8.8-3.7H6a2 2 0 0 1-2-1.8Z" />
+            <path d="M8 16.3 9.5 21h3L11 17.5M20 8v8" />
+          </svg>
+          <div>
+            <h2 id="home-notice-title">공지</h2>
+            <div id="home-notice-text">업무를 빠르게 처리 하자</div>
+          </div>
+        </div>
+        <p>상단 메뉴에서 필요한 도구를 선택해 주세요.</p>
+      </section>
+
+      <section class="tool-card tool-panel" id="label-tool" aria-labelledby="label-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="label-title">라벨출력</h2>
+            <p>라벨 내용을 수정하고 15×10cm PDF로 저장합니다.</p>
+          </div>
+          <span class="local-badge">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 2.5 4.2 5v4.1c0 3.8 2.5 7.2 5.8 8.4 3.3-1.2 5.8-4.6 5.8-8.4V5L10 2.5Z" />
+              <path d="m7.2 9.8 1.8 1.8 3.8-4" />
+            </svg>
+            내 컴퓨터에서 처리
+          </span>
+        </div>
+
+        <div class="label-editor">
+          <div class="label-fields">
+            <label>
+              <span>업체명</span>
+              <input id="label-company" type="text" value="House of Kpop Pte Ltd" maxlength="80" />
+            </label>
+            <label>
+              <span>인보이스 번호</span>
+              <input id="label-invoice" type="text" value="IN00443990" maxlength="40" />
+            </label>
+            <div class="label-field-row">
+              <label>
+                <span>박스 수량</span>
+                <input id="label-box-count" type="number" value="2" min="1" max="9999" />
+              </label>
+              <label>
+                <span>출력 장수</span>
+                <input id="label-copy-count" type="number" value="1" min="1" max="200" />
+              </label>
+            </div>
+            <label>
+              <span>저장할 파일명</span>
+              <div class="output-field">
+                <input id="label-output-name" type="text" value="LABEL" maxlength="120" />
+                <span>.pdf</span>
+              </div>
+            </label>
+            <button class="merge-button" id="label-download-button" type="button">
+              <span>라벨 PDF 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+          </div>
+
+          <div class="label-preview-wrap">
+            <div class="preview-title"><strong>미리보기</strong><span>15 × 10cm</span></div>
+            <div class="label-preview" id="label-preview">
+              <div id="label-preview-company">House of Kpop Pte Ltd</div>
+              <div id="label-preview-invoice"># IN00443990</div>
+              <div id="label-preview-box">2 BOX</div>
+            </div>
+          </div>
+        </div>
+        <div class="message" id="label-message" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="tool-card tool-panel" id="zip-tool" aria-labelledby="tool-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="tool-title">ZIP PDF 병합</h2>
+            <p>숫자가 포함된 파일명도 올바른 순서로 정렬됩니다.</p>
+          </div>
+          <span class="local-badge">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 2.5 4.2 5v4.1c0 3.8 2.5 7.2 5.8 8.4 3.3-1.2 5.8-4.6 5.8-8.4V5L10 2.5Z" />
+              <path d="m7.2 9.8 1.8 1.8 3.8-4" />
+            </svg>
+            내 컴퓨터에서 처리
+          </span>
+        </div>
+
+        <div class="drop-zone" id="drop-zone">
+          <input id="zip-input" type="file" accept=".zip,application/zip" hidden />
+          <div class="upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 28 28">
+              <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
+            </svg>
+          </div>
+          <strong>ZIP 파일을 여기로 끌어오세요</strong>
+          <span>또는</span>
+          <button class="select-button" id="select-button" type="button">파일 선택</button>
+          <small>ZIP 형식 · 최대 500MB 권장</small>
+        </div>
+
+        <div class="workspace" id="workspace" hidden>
+          <div class="selected-file">
+            <div class="file-type">ZIP</div>
+            <div class="file-meta">
+              <strong id="zip-name"></strong>
+              <span id="zip-size"></span>
+            </div>
+            <button class="icon-button" id="reset-button" type="button" aria-label="파일 제거">
+              <svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" /></svg>
+            </button>
+          </div>
+
+          <div class="list-header">
+            <div>
+              <strong>병합 순서</strong>
+              <span id="file-count"></span>
+            </div>
+            <span>파일명 기준 자동 정렬</span>
+          </div>
+
+          <ol class="pdf-list" id="pdf-list"></ol>
+
+          <label class="output-label" for="output-name">저장할 파일명</label>
+          <div class="output-field">
+            <input id="output-name" type="text" maxlength="120" />
+            <span>.pdf</span>
+          </div>
+
+          <button class="merge-button" id="merge-button" type="button">
+            <span>PDF 병합하기</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>
+          </button>
+
+          <div class="progress-wrap" id="progress-wrap" hidden>
+            <div class="progress-info">
+              <span id="progress-label">PDF를 병합하고 있어요</span>
+              <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track"><div id="progress-bar"></div></div>
+          </div>
+        </div>
+
+        <div class="message" id="message" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="tool-card tool-panel" id="ups-tool" aria-labelledby="ups-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="ups-title">UPS 라벨 출력</h2>
+            <p>A4·Letter PDF에서 배송 라벨만 골라 10×15cm로 변환합니다.</p>
+          </div>
+          <span class="local-badge">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 2.5 4.2 5v4.1c0 3.8 2.5 7.2 5.8 8.4 3.3-1.2 5.8-4.6 5.8-8.4V5L10 2.5Z" />
+              <path d="m7.2 9.8 1.8 1.8 3.8-4" />
+            </svg>
+            내 컴퓨터에서 처리
+          </span>
+        </div>
+
+        <div class="drop-zone ups-drop-zone" id="ups-drop-zone">
+          <input id="ups-input" type="file" accept=".pdf,application/pdf" hidden />
+          <div class="upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 28 28">
+              <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
+            </svg>
+          </div>
+          <strong>UPS PDF 파일을 올려주세요</strong>
+          <span>또는</span>
+          <button class="select-button" id="ups-select-button" type="button">PDF 선택</button>
+          <small>A4·Letter 형식 · 여러 페이지 가능</small>
+        </div>
+
+        <div class="workspace" id="ups-workspace" hidden>
+          <div class="selected-file">
+            <div class="file-type pdf-file-type">PDF</div>
+            <div class="file-meta">
+              <strong id="ups-file-name"></strong>
+              <span id="ups-file-info"></span>
+            </div>
+            <button class="icon-button" id="ups-reset-button" type="button" aria-label="파일 제거">
+              <svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" /></svg>
+            </button>
+          </div>
+
+          <div class="ups-summary">
+            <div><span>원본</span><strong id="ups-total-pages">-</strong><small>페이지</small></div>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
+            <div class="accent-summary"><span>출력</span><strong id="ups-label-pages">-</strong><small>라벨</small></div>
+            <div class="size-summary"><span>용지</span><strong>10 × 15</strong><small>cm</small></div>
+          </div>
+
+          <label class="check-option">
+            <input id="skip-backup" type="checkbox" checked />
+            <span class="check-mark"></span>
+            <span><strong>Backup Document 자동 제외</strong><small>배송 라벨 페이지만 출력합니다.</small></span>
+          </label>
+
+          <label class="output-label" for="ups-output-name">저장할 파일명</label>
+          <div class="output-field">
+            <input id="ups-output-name" type="text" maxlength="120" />
+            <span>.pdf</span>
+          </div>
+
+          <button class="merge-button" id="ups-convert-button" type="button">
+            <span>10×15cm 라벨 PDF 만들기</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>
+          </button>
+
+          <div class="progress-wrap" id="ups-progress-wrap" hidden>
+            <div class="progress-info">
+              <span id="ups-progress-label">라벨을 변환하고 있어요</span>
+              <span id="ups-progress-percent">0%</span>
+            </div>
+            <div class="progress-track"><div id="ups-progress-bar"></div></div>
+          </div>
+        </div>
+
+        <div class="message" id="ups-message" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="tool-card tool-panel" id="picking-tool" aria-labelledby="picking-title" hidden>
+        <div class="password-gate" id="picking-password-gate">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
+              <path d="M12 14v3" />
+            </svg>
+          </div>
+          <h2>피킹리스트 전용 메뉴</h2>
+          <p>Google Sheets DB를 사용하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
+          <form class="password-form" id="picking-password-form">
+            <input
+              id="picking-password"
+              type="password"
+              inputmode="numeric"
+              autocomplete="current-password"
+              placeholder="비밀번호"
+              maxlength="20"
+              aria-label="피킹리스트 비밀번호"
+            />
+            <button type="submit">확인</button>
+          </form>
+          <div class="password-error" id="picking-password-error" role="alert" hidden>
+            비밀번호가 올바르지 않습니다.
+          </div>
+        </div>
+
+        <div id="picking-content" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="picking-title">피킹리스트 출력</h2>
+            <p>인보이스 XLS의 SKU를 DB와 매칭해 A4 출력용 파일로 정리합니다.</p>
+          </div>
+          <span class="sheet-badge" id="db-status">
+            <span class="status-dot"></span>
+            DB 연결 대기
+          </span>
+        </div>
+
+        <div class="drop-zone" id="picking-drop-zone">
+          <input id="picking-input" type="file" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
+          <div class="upload-icon sheet-upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 28 28">
+              <path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" />
+            </svg>
+          </div>
+          <strong>인보이스 엑셀파일을 올려주세요</strong>
+          <span>또는</span>
+          <button class="select-button" id="picking-select-button" type="button">엑셀파일 선택</button>
+          <small>XLS·XLSX 형식 · SKU 기준 자동 매칭</small>
+        </div>
+
+        <div class="workspace" id="picking-workspace" hidden>
+          <div class="selected-file">
+            <div class="file-type excel-file-type">XLS</div>
+            <div class="file-meta">
+              <strong id="picking-file-name"></strong>
+              <span id="picking-file-info"></span>
+            </div>
+            <button class="icon-button" id="picking-reset-button" type="button" aria-label="파일 제거">
+              <svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" /></svg>
+            </button>
+          </div>
+
+          <div class="picking-summary">
+            <div><span>상품</span><strong id="picking-total">-</strong><small>SKU</small></div>
+            <div class="matched-summary"><span>매칭 완료</span><strong id="picking-matched">-</strong><small>개</small></div>
+            <div class="missing-summary"><span>Location 없음</span><strong id="picking-missing">-</strong><small>개</small></div>
+          </div>
+
+          <div class="missing-list" id="missing-list" hidden>
+            <strong>Location을 찾지 못한 SKU</strong>
+            <p id="missing-skus"></p>
+          </div>
+
+          <div class="change-list">
+            <div><span>✓</span>Remark 특이사항 전체 표시</div>
+            <div><span>✓</span>Description 상품명 전체 표시</div>
+            <div><span>✓</span>Location 자동 입력</div>
+            <div><span>✓</span>Packing 작업란 제공</div>
+            <div><span>✓</span>A4 작업자용 디자인</div>
+          </div>
+
+          <label class="output-label" for="picking-output-name">저장할 파일명</label>
+          <div class="output-field">
+            <input id="picking-output-name" type="text" maxlength="120" />
+            <span>파일명</span>
+          </div>
+
+          <div class="orientation-section">
+            <span class="output-label">출력 방향</span>
+            <div class="orientation-options" role="radiogroup" aria-label="피킹리스트 출력 방향">
+              <button class="orientation-option is-active" type="button" data-orientation="landscape" aria-pressed="true">
+                <span class="paper-icon landscape-paper"></span>
+                <span><strong>가로형</strong><small>전체 항목을 한눈에</small></span>
+              </button>
+              <button class="orientation-option" type="button" data-orientation="portrait" aria-pressed="false">
+                <span class="paper-icon portrait-paper"></span>
+                <span><strong>세로형</strong><small>상품명 중심으로 크게</small></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="download-actions">
+            <button class="merge-button picking-download-button" id="picking-excel-button" type="button">
+              <span>Excel 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+            <button class="merge-button pdf-download-button" id="picking-pdf-button" type="button">
+              <span>PDF 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="message" id="picking-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
+      <section class="tool-card tool-panel" id="sync-tool" aria-labelledby="sync-title" hidden>
+        <div class="password-gate" id="sync-password-gate">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
+              <path d="M12 14v3" />
+            </svg>
+          </div>
+          <h2>로케이션 동기화 전용 메뉴</h2>
+          <p>Google Sheets DB와 재고를 비교하는 메뉴입니다.<br />비밀번호를 입력해 주세요.</p>
+          <form class="password-form" id="sync-password-form">
+            <input id="sync-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="로케이션 동기화 비밀번호" />
+            <button type="submit">확인</button>
+          </form>
+          <div class="password-error" id="sync-password-error" role="alert" hidden>비밀번호가 올바르지 않습니다.</div>
+        </div>
+
+        <div id="sync-content" hidden>
+          <div class="tool-heading">
+            <div>
+              <h2 id="sync-title">로케이션 동기화</h2>
+              <p>재고 Manage → CSMS &amp; WMS 재고조회 → Down (Default) → 엑셀파일 업로드</p>
+            </div>
+            <span class="sheet-badge" id="sync-db-status"><span class="status-dot"></span>DB 연결 대기</span>
+          </div>
+
+          <div class="drop-zone" id="sync-drop-zone">
+            <input id="sync-input" type="file" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
+            <div class="upload-icon sheet-upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M14 18V5m0 0L9.5 9.5M14 5l4.5 4.5M6 16.5v4A2.5 2.5 0 0 0 8.5 23h11a2.5 2.5 0 0 0 2.5-2.5v-4" /></svg>
+            </div>
+            <strong>재고 엑셀파일을 올려주세요</strong>
+            <span>또는</span>
+            <button class="select-button" id="sync-select-button" type="button">재고파일 선택</button>
+            <small>다운로드한 Default 엑셀파일을 그대로 올려주세요.</small>
+          </div>
+
+          <div class="workspace" id="sync-workspace" hidden>
+            <div class="selected-file">
+              <div class="file-type excel-file-type">XLS</div>
+              <div class="file-meta"><strong id="sync-file-name"></strong><span id="sync-file-info"></span></div>
+              <button class="icon-button" id="sync-reset-button" type="button" aria-label="파일 제거"><svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" /></svg></button>
+            </div>
+
+            <div class="sync-summary">
+              <div><span>전체 상품</span><strong id="sync-total">-</strong><small>개</small></div>
+              <div class="matched-summary"><span>정상</span><strong id="sync-normal">-</strong><small>개</small></div>
+              <div class="missing-summary"><span>로케이션 없음</span><strong id="sync-no-location">-</strong><small>개</small></div>
+              <div class="zero-summary"><span>재고 없음</span><strong id="sync-no-stock">-</strong><small>개</small></div>
+            </div>
+
+            <div class="sync-note">
+              재고가 있는데 로케이션이 없는 상품과, DB에 있지만 현재 재고가 없는 상품을 구분해 표시합니다.
+            </div>
+
+            <label class="output-label" for="sync-output-name">저장할 파일명</label>
+            <div class="output-field"><input id="sync-output-name" type="text" maxlength="120" /><span>.xlsx</span></div>
+            <button class="merge-button picking-download-button" id="sync-download-button" type="button">
+              <span>동기화 결과 Excel 받기</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+            </button>
+          </div>
+          <div class="message" id="sync-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
+      <section class="tool-card tool-panel" id="admin-tool" aria-labelledby="admin-title" hidden>
+        <div class="password-gate" id="admin-password-gate">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
+              <path d="M12 14v3" />
+            </svg>
+          </div>
+          <h2>Admin</h2>
+          <p>홈 화면 공지를 관리합니다.<br />비밀번호를 입력해 주세요.</p>
+          <form class="password-form" id="admin-password-form">
+            <input id="admin-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="관리자 비밀번호" />
+            <button type="submit">확인</button>
+          </form>
+          <div class="password-error" id="admin-password-error" role="alert" hidden>비밀번호가 올바르지 않습니다.</div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer>
+      <div class="brand footer-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40"><path d="M9.5 10.5h6.2v10.7c0 3.2 1.5 4.8 4.3 4.8s4.3-1.6 4.3-4.8V10.5h6.2v11.2c0 6.4-4 10-10.5 10s-10.5-3.6-10.5-10Z" /></svg>
+        </span>
+        <span>웅툴</span>
+      </div>
+      <p>Warehouse Automation Suite v1.0
+Crafted by Ungjang © 2026</p>
+    </footer>
+
+    <script src="vendor/jszip.min.js"></script>
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="vendor/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
