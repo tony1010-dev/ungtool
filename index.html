@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=10" />
+    <link rel="stylesheet" href="style.css?v=11" />
   </head>
   <body>
     <header class="site-header">
@@ -48,20 +48,24 @@
           <span class="tab-number">04</span>
           <span><strong>Picking List</strong><small>SKU · 로케이션 자동 입력</small></span>
         </button>
-        <button class="tool-tab" type="button" data-tool="sync">
-          <span class="tab-number">05</span>
-          <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
-        </button>
         <button class="tool-tab" type="button" data-tool="license">
-          <span class="tab-number">06</span>
+          <span class="tab-number">05</span>
           <span><strong>면허다운</strong><small>DHL 면허 다운</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="sync">
+          <span class="tab-number">06</span>
+          <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
         </button>
         <button class="tool-tab" type="button" data-tool="business">
           <span class="tab-number">07</span>
           <span><strong>UNGTOOL AI</strong><small>간단한 질문과 업무 도움</small></span>
         </button>
-        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+        <button class="tool-tab" type="button" data-tool="dashboard">
           <span class="tab-number">08</span>
+          <span><strong>Dashboard</strong><small>입고 · 출고 · 자재현황</small></span>
+        </button>
+        <button class="tool-tab admin-tab" type="button" data-tool="admin">
+          <span class="tab-number">09</span>
           <span><strong>Admin</strong><small>관리</small></span>
         </button>
       </nav>
@@ -598,6 +602,59 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         </div>
       </section>
 
+      <section class="tool-card tool-panel" id="dashboard-tool" aria-labelledby="dashboard-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="dashboard-title">Dashboard</h2>
+            <p>오늘의 입고 · 출고 · 자재현황을 구글 시트에서 불러옵니다.</p>
+          </div>
+          <span class="sheet-badge" id="dashboard-sheet-status"><span class="status-dot"></span>데이터 불러오는 중</span>
+        </div>
+
+        <nav class="dash-tabs" aria-label="대시보드 탭">
+          <button class="dash-tab is-active" type="button" data-dash="incoming">입고</button>
+          <button class="dash-tab" type="button" data-dash="outgoing">출고</button>
+          <button class="dash-tab" type="button" data-dash="materials">자재현황</button>
+        </nav>
+
+        <div class="dash-panel" id="dash-incoming">
+          <div class="dash-summary" id="dash-in-summary"></div>
+          <div class="dash-table-wrap">
+            <table class="dash-table" id="dash-in-table">
+              <thead>
+                <tr>
+                  <th>번호</th><th>서류번호</th><th>거래처</th><th>수량</th><th>BOX</th>
+                  <th>금액</th><th>부피</th><th>배차</th><th>특이사항</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="message" id="dash-incoming-message" role="status" aria-live="polite" hidden></div>
+        </div>
+
+        <div class="dash-panel" id="dash-outgoing" hidden>
+          <div class="dash-summary" id="dash-out-summary"></div>
+          <div class="dash-table-wrap">
+            <table class="dash-table" id="dash-out-table">
+              <thead>
+                <tr>
+                  <th>번호</th><th>인보이스</th><th>영업사원</th><th>거래처</th>
+                  <th>BOX</th><th>수량</th><th>금액</th><th>배송사</th><th>특이사항</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="message" id="dash-outgoing-message" role="status" aria-live="polite" hidden></div>
+        </div>
+
+        <div class="dash-panel" id="dash-materials" hidden>
+          <div class="dash-materials-grid" id="dash-materials-content"></div>
+          <div class="message" id="dash-materials-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
       <section class="tool-card tool-panel" id="admin-tool" aria-labelledby="admin-title" hidden>
         <div class="password-gate" id="admin-password-gate">
           <div class="lock-icon" aria-hidden="true">
@@ -633,6 +690,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=33"></script>
+  <script src="app.js?v=34"></script>
   </body>
 </html>

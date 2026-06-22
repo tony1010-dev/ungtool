@@ -654,6 +654,7 @@ const upsDom = {
     sync: document.querySelector("#sync-tool"),
     license: document.querySelector("#license-tool"),
     business: document.querySelector("#business-tool"),
+    dashboard: document.querySelector("#dashboard-tool"),
     admin: document.querySelector("#admin-tool"),
   },
   dropZone: document.querySelector("#ups-drop-zone"),
@@ -691,6 +692,7 @@ function selectTool(name) {
   if (name === "picking") loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
   if (name === "sync") loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
   if (name === "license") loadLicenseRows().catch((error) => showLicenseMessage(error.message, true));
+  if (name === "dashboard") loadDashboard();
   if (name === "admin") updateAdminLock();
 }
 
@@ -881,6 +883,7 @@ upsDom.dropZone.addEventListener("drop", (event) => {
 });
 
 const GOOGLE_SHEET_ID = "1RLA7Qs9hYDiBaSL9CScATVPRjwnwIjznDdRNJGGbg1k";
+const DASH_SHEET_ID = "1og02r9A53W9PUo866w310lCIKuul1KiY0zuefo0YKzA";
 const GOOGLE_DB_GID = "1060200137";
 const GOOGLE_LICENSE_GID = "820278293";
 const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
@@ -2594,6 +2597,306 @@ async function unlockAdmin(event) {
 adminDom.passwordForm.addEventListener("submit", unlockAdmin);
 adminDom.password.addEventListener("input", () => {
   adminDom.passwordError.hidden = true;
+});
+
+/* ── Dashboard ─────────────────────────────────────────────── */
+
+function setDashStatus(state, text) {
+  const el = document.querySelector("#dashboard-sheet-status");
+  el.className = `sheet-badge ${state ? `is-${state}` : ""}`;
+  el.innerHTML = `<span class="status-dot"></span>${text}`;
+}
+
+function fetchDashSheet(sheetName, range) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `woongtoolDash_${sheetName}_${Date.now()}`;
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      script.remove();
+      delete window[callbackName];
+      reject(new Error(`${sheetName} 탭 연결 시간이 초과됐습니다.`));
+    }, 15000);
+
+    window[callbackName] = (response) => {
+      clearTimeout(timeout);
+      script.remove();
+      delete window[callbackName];
+      if (!response || response.status === "error" || !response.table) {
+        reject(new Error(`${sheetName} 탭 내용을 읽을 수 없습니다.`));
+      } else {
+        resolve(response.table);
+      }
+    };
+
+    const tqx = encodeURIComponent(`out:json;responseHandler:${callbackName}`);
+    const encodedSheet = encodeURIComponent(sheetName);
+    script.src =
+      `https://docs.google.com/spreadsheets/d/${DASH_SHEET_ID}/gviz/tq` +
+      `?sheet=${encodedSheet}&tqx=${tqx}${range ? `&range=${range}` : ""}&t=${Date.now()}`;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      script.remove();
+      delete window[callbackName];
+      reject(new Error(`${sheetName} 탭을 불러오지 못했습니다.`));
+    };
+    document.head.append(script);
+  });
+}
+
+function fmtKrw(value) {
+  const n = Number(value);
+  if (!n) return "-";
+  return n.toLocaleString("ko-KR") + "원";
+}
+
+function fmtNum(value) {
+  const n = Number(value);
+  if (!n && n !== 0) return "-";
+  return n.toLocaleString("ko-KR");
+}
+
+function dashCell(cells, idx) {
+  return String(gvizCellValue(cells[idx] ?? null) ?? "").trim();
+}
+
+function renderIncoming(table) {
+  const tbody = document.querySelector("#dash-in-table tbody");
+  tbody.replaceChildren();
+
+  const rows = table.rows;
+  const dataRows = rows.filter((row) => {
+    const cells = row.c || [];
+    const numVal = gvizCellValue(cells[0] ?? null);
+    return typeof numVal === "number";
+  });
+
+  let totalBox = 0;
+  let totalAmt = 0;
+  let pltCount = 0;
+
+  const fragment = document.createDocumentFragment();
+  dataRows.forEach((row) => {
+    const cells = row.c || [];
+    const qty = gvizCellValue(cells[7] ?? null);
+    const box = gvizCellValue(cells[8] ?? null);
+    const amt = gvizCellValue(cells[9] ?? null);
+    const buri = dashCell(cells, 10);
+
+    if (typeof box === "number") totalBox += box;
+    if (typeof amt === "number") totalAmt += amt;
+    if (buri.includes("PLT")) pltCount += 1;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="tag-cell">${dashCell(cells, 0)}</td>
+      <td>${dashCell(cells, 1)}</td>
+      <td>${dashCell(cells, 3)}</td>
+      <td class="num-cell">${fmtNum(qty)}</td>
+      <td class="num-cell">${fmtNum(box)}</td>
+      <td class="amount-cell">${fmtKrw(amt)}</td>
+      <td class="tag-cell">${buri || "-"}</td>
+      <td>${dashCell(cells, 13) || "-"}</td>
+      <td>${dashCell(cells, 11) || "-"}</td>
+    `;
+    fragment.append(tr);
+  });
+  tbody.append(fragment);
+
+  const summary = document.querySelector("#dash-in-summary");
+  summary.innerHTML = `
+    <div class="dash-stat"><span>총 입고 건수</span><strong>${dataRows.length}건</strong></div>
+    <div class="dash-stat"><span>총 BOX</span><strong>${fmtNum(totalBox)}</strong></div>
+    <div class="dash-stat"><span>PLT 포함 건수</span><strong>${pltCount}건</strong></div>
+    <div class="dash-stat is-accent"><span>총 입고 금액</span><strong>${fmtKrw(totalAmt)}</strong></div>
+  `;
+
+  if (!dataRows.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px">데이터가 없습니다.</td>`;
+    tbody.append(tr);
+  }
+}
+
+function renderOutgoing(table) {
+  const tbody = document.querySelector("#dash-out-table tbody");
+  tbody.replaceChildren();
+
+  const rows = table.rows;
+  const dataRows = rows.filter((row) => {
+    const cells = row.c || [];
+    const numVal = gvizCellValue(cells[0] ?? null);
+    return typeof numVal === "number";
+  });
+
+  let totalBox = 0;
+  let totalAmt = 0;
+
+  const fragment = document.createDocumentFragment();
+  dataRows.forEach((row) => {
+    const cells = row.c || [];
+    const box = gvizCellValue(cells[7] ?? null);
+    const qty = gvizCellValue(cells[8] ?? null);
+    const amt = gvizCellValue(cells[9] ?? null);
+
+    if (typeof box === "number") totalBox += box;
+    if (typeof amt === "number") totalAmt += amt;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="tag-cell">${dashCell(cells, 0)}</td>
+      <td>${dashCell(cells, 1)}</td>
+      <td>${dashCell(cells, 2).replace(/\r/g, "")}</td>
+      <td>${dashCell(cells, 3)}</td>
+      <td class="num-cell">${fmtNum(box)}</td>
+      <td class="num-cell">${fmtNum(qty)}</td>
+      <td class="amount-cell">${fmtKrw(amt)}</td>
+      <td class="tag-cell">${dashCell(cells, 10) || "-"}</td>
+      <td>${dashCell(cells, 13) || "-"}</td>
+    `;
+    fragment.append(tr);
+  });
+  tbody.append(fragment);
+
+  const summary = document.querySelector("#dash-out-summary");
+  summary.innerHTML = `
+    <div class="dash-stat"><span>총 출고 건수</span><strong>${dataRows.length}건</strong></div>
+    <div class="dash-stat"><span>총 BOX</span><strong>${fmtNum(totalBox)}</strong></div>
+    <div class="dash-stat is-accent"><span>총 출고 금액</span><strong>${fmtKrw(totalAmt)}</strong></div>
+  `;
+
+  if (!dataRows.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px">데이터가 없습니다.</td>`;
+    tbody.append(tr);
+  }
+}
+
+function renderMaterials(table) {
+  const container = document.querySelector("#dash-materials-content");
+  container.replaceChildren();
+
+  const rows = table.rows;
+
+  function rowCells(idx) {
+    return (rows[idx]?.c || []).map((cell) => String(gvizCellValue(cell ?? null) ?? "").trim());
+  }
+
+  // 출고 carrier summary (rows 7-9 = 인보이스/BOX/PLT, headers at row 6)
+  const carrierHeaders = rowCells(6);
+  const invoiceCounts = rowCells(7);
+  const boxCounts = rowCells(8);
+
+  const carriers = [];
+  for (let i = 1; i < carrierHeaders.length; i++) {
+    const name = carrierHeaders[i];
+    if (!name || name === "-") continue;
+    carriers.push({ name, invoice: invoiceCounts[i] || "-", box: boxCounts[i] || "-" });
+  }
+
+  if (carriers.length) {
+    const card = document.createElement("div");
+    card.className = "dash-materials-card";
+    card.innerHTML = `<h3>출고 배송사 현황</h3>`;
+    const tbl = document.createElement("table");
+    tbl.className = "dash-materials-table";
+    const thead = document.createElement("thead");
+    thead.innerHTML = `<tr><th>배송사</th><th>인보이스</th><th>BOX</th></tr>`;
+    const tbody = document.createElement("tbody");
+    carriers.forEach(({ name, invoice, box }) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${invoice}</td><td>${box}</td>`;
+      tbody.append(tr);
+    });
+    tbl.append(thead, tbody);
+    card.append(tbl);
+    container.append(card);
+  }
+
+  // 부자재 재고 (rows 11-12)
+  const matHeaders = rowCells(11);
+  const matQtys = rowCells(12);
+
+  const mats = [];
+  for (let i = 2; i < matHeaders.length; i++) {
+    const name = matHeaders[i];
+    if (!name || name === "-") continue;
+    mats.push({ name, qty: matQtys[i] || "-" });
+  }
+
+  if (mats.length) {
+    const card = document.createElement("div");
+    card.className = "dash-materials-card";
+    card.innerHTML = `<h3>부자재 재고 현황</h3>`;
+    const tbl = document.createElement("table");
+    tbl.className = "dash-materials-table";
+    const thead = document.createElement("thead");
+    thead.innerHTML = `<tr>${mats.map((m) => `<th>${m.name}</th>`).join("")}</tr>`;
+    const tbody = document.createElement("tbody");
+    const tr = document.createElement("tr");
+    tr.innerHTML = mats.map((m) => `<td>${m.qty}</td>`).join("");
+    tbody.append(tr);
+
+    // 특이사항 (row 12 last non-empty values)
+    const note = rowCells(12).slice(-3).find((v) => v && v !== "-") || "";
+
+    tbl.append(thead, tbody);
+    card.append(tbl);
+
+    if (note) {
+      const noteEl = document.createElement("p");
+      noteEl.style.cssText = "padding:10px 16px;margin:0;font-size:12px;color:var(--text-muted);border-top:1px solid var(--border)";
+      noteEl.textContent = `📌 ${note}`;
+      card.append(noteEl);
+    }
+
+    container.append(card);
+  }
+
+  if (!carriers.length && !mats.length) {
+    container.textContent = "민호탭에서 데이터를 찾지 못했습니다.";
+  }
+}
+
+let dashLoaded = false;
+
+async function loadDashboard() {
+  if (dashLoaded) return;
+  setDashStatus("loading", "데이터 불러오는 중");
+
+  try {
+    const [inTable, outTable, matTable] = await Promise.all([
+      fetchDashSheet("입고", null),
+      fetchDashSheet("출고", null),
+      fetchDashSheet("민호", null),
+    ]);
+
+    renderIncoming(inTable);
+    renderOutgoing(outTable);
+    renderMaterials(matTable);
+
+    setDashStatus("ready", "데이터 연결 완료");
+    dashLoaded = true;
+  } catch (error) {
+    setDashStatus("error", "데이터 연결 실패");
+    ["dash-incoming-message", "dash-outgoing-message", "dash-materials-message"].forEach((id) => {
+      const el = document.querySelector(`#${id}`);
+      el.textContent = error.message;
+      el.classList.add("error");
+      el.hidden = false;
+    });
+  }
+}
+
+document.querySelectorAll(".dash-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".dash-tab").forEach((t) => t.classList.remove("is-active"));
+    tab.classList.add("is-active");
+
+    const target = tab.dataset.dash;
+    document.querySelectorAll(".dash-panel").forEach((panel) => {
+      panel.hidden = panel.id !== `dash-${target}`;
+    });
+  });
 });
 brandHome.addEventListener("click", (event) => {
   event.preventDefault();
