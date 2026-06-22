@@ -1841,9 +1841,10 @@ function buildPickingWorkbook(data = pickingData) {
   }
   const footerRow = totalRow + 1;
   sheet[XLSX.utils.encode_cell({ r: footerRow, c: 0 })].s = {
-    font: { name: "맑은 고딕", sz: 8, color: { rgb: "8B8780" } },
+    font: { name: "맑은 고딕", sz: 9, bold: true, color: { rgb: "FF7A00" } },
     alignment: { horizontal: "left", vertical: "center" },
   };
+  sheet[XLSX.utils.encode_cell({ r: footerRow, c: 0 })].v = `◉ ${PICKING_FOOTER_LABEL}`;
 
   sheet["!autofilter"] = {
     ref: `A${headerRow + 1}:H${headerRow + 1 + data.items.length}`,
@@ -2166,9 +2167,10 @@ function buildPickingPdfCanvases(data = pickingData) {
   pages.forEach((canvas, index) => {
     const footer = canvas.getContext("2d");
     footer.fillStyle = "#8b8780";
-    footer.font = "500 12px 'Malgun Gothic', sans-serif";
+    footer.font = "600 13px 'Malgun Gothic', sans-serif";
     footer.textAlign = "left";
-    footer.fillText("웅툴 - 업무를 가볍고 빠르게", margin, height - 22);
+    drawPickingFooterMark(footer, margin, height - 20, 14);
+    footer.fillText(PICKING_FOOTER_LABEL, margin + 20, height - 17);
     footer.textAlign = "right";
     footer.fillText(`${index + 1} / ${pages.length}`, width - margin, height - 22);
   });
@@ -2720,6 +2722,26 @@ function carrierDisplayHtml(name) {
     return `Fed<span class="fedex-accent">Ex</span>${rest}`;
   }
   return text;
+}
+
+const PICKING_FOOTER_LABEL = "웅툴 - 업무를 가볍고 빠르게";
+
+function drawPickingFooterMark(ctx, x, y, size = 14) {
+  ctx.save();
+  ctx.fillStyle = "#ff7a00";
+  if (typeof ctx.roundRect === "function") {
+    ctx.beginPath();
+    ctx.roundRect(x, y - size + 1, size, size, 4);
+    ctx.fill();
+  } else {
+    ctx.fillRect(x, y - size + 1, size, size);
+  }
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 ${Math.max(9, Math.floor(size * 0.75))}px 'Malgun Gothic', sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("U", x + size / 2, y - size / 2 + 1);
+  ctx.restore();
 }
 
 const ICON_BOX = `<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
