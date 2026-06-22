@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="light" data-theme-mode="system">
+<html lang="ko" data-theme="light" data-theme-mode="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +10,7 @@
     />
     <script>
       (() => {
-        const saved = localStorage.getItem("woongtoolTheme") || "system";
+        const saved = localStorage.getItem("woongtoolTheme") || "light";
         const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         document.documentElement.dataset.themeMode = saved;
         document.documentElement.dataset.theme = saved === "system" ? (dark ? "dark" : "light") : saved;
@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=9" />
+    <link rel="stylesheet" href="style.css?v=10" />
   </head>
   <body>
     <header class="site-header">
@@ -52,12 +52,16 @@
           <span class="tab-number">05</span>
           <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
         </button>
-        <button class="tool-tab" type="button" data-tool="business">
+        <button class="tool-tab" type="button" data-tool="license">
           <span class="tab-number">06</span>
+          <span><strong>면허다운</strong><small>DHL 면허 다운</small></span>
+        </button>
+        <button class="tool-tab" type="button" data-tool="business">
+          <span class="tab-number">07</span>
           <span><strong>UNGTOOL AI</strong><small>간단한 질문과 업무 도움</small></span>
         </button>
         <button class="tool-tab admin-tab" type="button" data-tool="admin">
-          <span class="tab-number">07</span>
+          <span class="tab-number">08</span>
           <span><strong>Admin</strong><small>관리</small></span>
         </button>
       </nav>
@@ -530,6 +534,32 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
         </div>
       </section>
 
+      <section class="tool-card tool-panel" id="license-tool" aria-labelledby="license-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="license-title">면허다운</h2>
+            <p>DHL 면허 다운</p>
+          </div>
+          <span class="sheet-badge" id="license-sheet-status"><span class="status-dot"></span>면허 탭 연결 대기</span>
+        </div>
+
+        <div class="license-download-card">
+          <div class="license-file-icon" aria-hidden="true">XLS</div>
+          <div class="license-download-copy">
+            <strong>실리콘투 음반팀 면허 파일</strong>
+            <span id="license-summary">구글 시트의 면허 탭을 불러와 오늘 날짜의 Excel 파일로 저장합니다.</span>
+          </div>
+          <button class="merge-button picking-download-button" id="license-download-button" type="button">
+            <span>면허 Excel 받기</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+          </button>
+        </div>
+        <div class="license-note">
+          배터리 포함 내역이 있으면 해당 행을 노란색으로 표시하고 파일명 끝에 <strong>_배터리포함</strong>을 자동으로 붙입니다.
+        </div>
+        <div class="message" id="license-message" role="status" aria-live="polite" hidden></div>
+      </section>
+
       <section class="tool-card tool-panel" id="business-tool" aria-labelledby="business-title" hidden>
         <div class="tool-heading">
           <div>
@@ -603,6 +633,6 @@ Location Sync: 재고 데이터와 DB 비교 검증</div>
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=30"></script>
   </body>
 </html>

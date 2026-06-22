@@ -332,8 +332,8 @@ main {
 
 .header-tabs .tool-tab {
   min-height: 54px;
-  gap: 10px;
-  padding: 9px 11px;
+  gap: 8px;
+  padding: 9px 9px;
   border-color: transparent;
   border-radius: 10px;
   background: transparent;
@@ -352,15 +352,15 @@ main {
 }
 
 .header-tabs .tool-tab strong {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .header-tabs .tool-tab small {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .header-tabs .tab-number {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .tool-tab {
@@ -890,6 +890,62 @@ main {
 
 .sheet-badge.is-error .status-dot {
   background: #d05a43;
+}
+
+.license-download-card {
+  min-height: 150px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fbfaf7;
+}
+
+.license-file-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  color: #217346;
+  border-radius: 15px;
+  background: #e9f7ef;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.license-download-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.license-download-copy strong {
+  font-size: 17px;
+}
+
+.license-download-copy span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.license-download-card .merge-button {
+  width: auto;
+  min-width: 190px;
+}
+
+.license-note {
+  margin-top: 12px;
+  padding: 13px 15px;
+  color: #77736d;
+  border-radius: 12px;
+  background: #fff8d9;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .password-gate {
@@ -2044,6 +2100,15 @@ html[data-theme="dark"] .sync-note {
   background: #2b2522;
 }
 
+html[data-theme="dark"] .license-download-card {
+  background: #222;
+}
+
+html[data-theme="dark"] .license-note {
+  color: #d7cfa7;
+  background: #332f20;
+}
+
 @media (max-width: 700px) {
   .site-header {
     width: min(100% - 20px, 1180px);
@@ -2110,7 +2175,7 @@ html[data-theme="dark"] .sync-note {
   }
 
   .header-tabs .tool-tab strong {
-    font-size: 11px;
+    font-size: 10px;
     white-space: nowrap;
   }
 
@@ -2120,6 +2185,16 @@ html[data-theme="dark"] .sync-note {
 
   .tool-heading {
     flex-direction: column;
+  }
+
+  .license-download-card {
+    grid-template-columns: auto 1fr;
+    padding: 18px;
+  }
+
+  .license-download-card .merge-button {
+    width: 100%;
+    grid-column: 1 / -1;
   }
 
   .label-workspaces {

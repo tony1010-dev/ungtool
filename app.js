@@ -28,7 +28,7 @@ systemTheme.addEventListener("change", () => {
   if (document.documentElement.dataset.themeMode === "system") applyTheme("system", false);
 });
 
-applyTheme(document.documentElement.dataset.themeMode || "system", false);
+applyTheme(document.documentElement.dataset.themeMode || "light", false);
 
 const dom = {
   dropZone: document.querySelector("#drop-zone"),
@@ -652,6 +652,7 @@ const upsDom = {
     ups: document.querySelector("#ups-tool"),
     picking: document.querySelector("#picking-tool"),
     sync: document.querySelector("#sync-tool"),
+    license: document.querySelector("#license-tool"),
     business: document.querySelector("#business-tool"),
     admin: document.querySelector("#admin-tool"),
   },
@@ -689,6 +690,7 @@ function selectTool(name) {
 
   if (name === "picking") loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
   if (name === "sync") loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
+  if (name === "license") loadLicenseRows().catch((error) => showLicenseMessage(error.message, true));
   if (name === "admin") updateAdminLock();
 }
 
@@ -880,6 +882,7 @@ upsDom.dropZone.addEventListener("drop", (event) => {
 
 const GOOGLE_SHEET_ID = "1RLA7Qs9hYDiBaSL9CScATVPRjwnwIjznDdRNJGGbg1k";
 const GOOGLE_DB_GID = "1060200137";
+const GOOGLE_LICENSE_GID = "820278293";
 const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
 
 const pickingDom = {
@@ -907,6 +910,7 @@ const pickingDom = {
 };
 
 let locationDb = null;
+let licenseRows = null;
 let pickingWorkbook = null;
 let pickingSheet = null;
 let pickingRows = [];
@@ -1018,6 +1022,212 @@ function loadGoogleDb(force = false) {
     document.head.append(script);
   });
 }
+
+const LICENSE_HEADERS = [
+  "운송장번호",
+  "거래구분",
+  "Incoterms",
+  "사업자번호(수출자)",
+  "사업자번호(제조자)",
+  "환급여부",
+  "환급신청인",
+  "구매자(BILL TO)",
+  "주문번호(Invoice 번호)",
+  "란신고품명",
+  "결재방법",
+  "상품명",
+  "신고구분",
+  "기타",
+  "작업구분",
+  "BOX",
+];
+
+const licenseDom = {
+  status: document.querySelector("#license-sheet-status"),
+  summary: document.querySelector("#license-summary"),
+  downloadButton: document.querySelector("#license-download-button"),
+  message: document.querySelector("#license-message"),
+};
+
+function setLicenseStatus(state, text) {
+  licenseDom.status.className = `sheet-badge ${state ? `is-${state}` : ""}`;
+  licenseDom.status.innerHTML = `<span class="status-dot"></span>${text}`;
+}
+
+function showLicenseMessage(text, isError = false) {
+  licenseDom.message.textContent = text;
+  licenseDom.message.classList.toggle("error", isError);
+  licenseDom.message.hidden = !text;
+}
+
+function makeLicenseRows(response) {
+  if (!response || response.status === "error" || !response.table) {
+    throw new Error("면허 탭 내용을 읽을 수 없습니다.");
+  }
+
+  const rows = response.table.rows
+    .map((row) => {
+      const cells = row.c || [];
+      const values = Array.from({ length: 17 }, (_, index) => gvizCellValue(cells[index]));
+      return {
+        values: values.slice(0, 16),
+        batteryNote: String(values[16] ?? "").trim(),
+      };
+    })
+    .filter((row) => {
+      const first = String(row.values[0] ?? "").trim();
+      if (!first || first === "운송장번호") return false;
+      return row.values.some((value) => String(value ?? "").trim());
+    });
+
+  if (!rows.length) throw new Error("면허 탭에서 출력할 데이터를 찾지 못했습니다.");
+  return rows;
+}
+
+function loadLicenseRows(force = false) {
+  if (licenseRows && !force) return Promise.resolve(licenseRows);
+
+  setLicenseStatus("loading", "면허 탭 불러오는 중");
+  return new Promise((resolve, reject) => {
+    const callbackName = `woongtoolLicense_${Date.now()}`;
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      cleanup();
+      setLicenseStatus("error", "면허 탭 연결 실패");
+      reject(new Error("면허 탭 연결 시간이 초과됐습니다. 공유 설정을 확인해 주세요."));
+    }, 15000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      script.remove();
+      delete window[callbackName];
+    }
+
+    window[callbackName] = (response) => {
+      try {
+        licenseRows = makeLicenseRows(response);
+        const batteryCount = licenseRows.filter((row) => row.batteryNote).length;
+        setLicenseStatus("ready", `${licenseRows.length.toLocaleString()}건 연결`);
+        licenseDom.summary.textContent = batteryCount
+          ? `총 ${licenseRows.length.toLocaleString()}건 · 배터리 포함 ${batteryCount.toLocaleString()}건을 확인했습니다.`
+          : `총 ${licenseRows.length.toLocaleString()}건 · 일반 면허 양식으로 저장됩니다.`;
+        cleanup();
+        resolve(licenseRows);
+      } catch (error) {
+        setLicenseStatus("error", "면허 탭 확인 필요");
+        cleanup();
+        reject(error);
+      }
+    };
+
+    const tqx = encodeURIComponent(`out:json;responseHandler:${callbackName}`);
+    script.src =
+      `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq` +
+      `?gid=${GOOGLE_LICENSE_GID}&headers=0&tqx=${tqx}&range=A:Q&t=${Date.now()}`;
+    script.onerror = () => {
+      cleanup();
+      setLicenseStatus("error", "면허 탭 연결 실패");
+      reject(new Error("면허 탭을 불러오지 못했습니다. 인터넷 연결과 공유 설정을 확인해 주세요."));
+    };
+    document.head.append(script);
+  });
+}
+
+function seoulDateString() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function buildLicenseWorkbook(rows) {
+  const hasBattery = rows.some((row) => row.batteryNote);
+  const headers = hasBattery
+    ? [...LICENSE_HEADERS, "배터리포함 BOX수량", "비고"]
+    : [...LICENSE_HEADERS];
+  const matrix = [
+    headers,
+    ...rows.map((row) => {
+      const values = row.values.map((value, index) => {
+        if (value == null) return "";
+        if (index === 0) return String(value).replace(/\.0$/, "");
+        return value;
+      });
+      if (!hasBattery) return values;
+      return [...values, row.batteryNote ? 1 : "", row.batteryNote];
+    }),
+  ];
+
+  const sheet = XLSX.utils.aoa_to_sheet(matrix);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, sheet, "pckg_DHL");
+
+  const thinBorder = {
+    top: { style: "thin", color: { rgb: "000000" } },
+    bottom: { style: "thin", color: { rgb: "000000" } },
+    left: { style: "thin", color: { rgb: "000000" } },
+    right: { style: "thin", color: { rgb: "000000" } },
+  };
+  const lastColumn = headers.length - 1;
+  const lastRow = matrix.length - 1;
+
+  for (let row = 0; row <= lastRow; row += 1) {
+    for (let col = 0; col <= lastColumn; col += 1) {
+      const address = XLSX.utils.encode_cell({ r: row, c: col });
+      const cell = sheet[address] || (sheet[address] = { t: "s", v: "" });
+      const batteryRow = row > 0 && Boolean(rows[row - 1]?.batteryNote);
+      const yellow = (row === 0 && hasBattery && col === 16) || (batteryRow && col <= 16);
+      cell.s = {
+        font: { name: "맑은 고딕", sz: 10, bold: row === 0 },
+        alignment: { horizontal: "center", vertical: "center", wrapText: true },
+        border: thinBorder,
+        fill: { patternType: "solid", fgColor: { rgb: yellow ? "FFF2CC" : row === 0 ? "D9EAD3" : "FFFFFF" } },
+      };
+    }
+  }
+
+  sheet["!cols"] = [13, 14, 11, 21, 21, 10, 28, 30, 25, 13, 10, 9, 9, 8, 10, 8, 20, 18]
+    .slice(0, headers.length)
+    .map((wch) => ({ wch }));
+  sheet["!rows"] = matrix.map((_, index) => ({ hpt: index === 0 ? 34 : 27 }));
+  sheet["!autofilter"] = { ref: `A1:${XLSX.utils.encode_col(lastColumn)}${matrix.length}` };
+  return { workbook, hasBattery };
+}
+
+async function downloadLicenseWorkbook() {
+  if (typeof XLSX === "undefined") {
+    showLicenseMessage("Excel 기능을 불러오지 못했습니다. 인터넷 연결 후 다시 시도해 주세요.", true);
+    return;
+  }
+
+  licenseDom.downloadButton.disabled = true;
+  licenseDom.downloadButton.querySelector("span").textContent = "면허 탭 확인 중…";
+  showLicenseMessage("");
+
+  try {
+    const rows = await loadLicenseRows(true);
+    const { workbook, hasBattery } = buildLicenseWorkbook(rows);
+    const output = XLSX.write(workbook, {
+      type: "array",
+      bookType: "xlsx",
+      cellStyles: true,
+      compression: true,
+    });
+    const suffix = hasBattery ? "_배터리포함" : "";
+    const fileName = `실리콘투 음반팀_종합 ${seoulDateString()}${suffix}.xlsx`;
+    downloadFile(output, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    showLicenseMessage(`${fileName} 파일을 저장했습니다.`);
+  } catch (error) {
+    showLicenseMessage(error.message || "면허 파일을 만들지 못했습니다.", true);
+  } finally {
+    licenseDom.downloadButton.disabled = false;
+    licenseDom.downloadButton.querySelector("span").textContent = "면허 Excel 받기";
+  }
+}
+
+licenseDom.downloadButton.addEventListener("click", downloadLicenseWorkbook);
 
 function findPickingStructure(sheet) {
   const range = XLSX.utils.decode_range(sheet["!ref"]);
