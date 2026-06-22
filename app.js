@@ -1328,7 +1328,7 @@ function extractPickingData(sheet, columns, rows) {
       .trim(),
     String(sheetValue(sheet, 10, 24)).trim(),
   ].filter(Boolean);
-  const salesPerson = salesPersonParts.join(" ");
+  const salesPerson = formatSalesPersonDisplay(salesPersonParts.join(" "));
   const shippingCarrier = String(sheetValue(sheet, 24, 9))
     .replace(/^SHIP\s*VIA\s*:?\s*/i, "")
     .trim();
@@ -1344,6 +1344,40 @@ function extractPickingData(sheet, columns, rows) {
     totalQuantity: items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
     items,
   };
+}
+
+const salesPersonAliases = new Map([
+  ["한이연 과장", "aileen"],
+  ["김시리 대리", "siri"],
+  ["장혜원 대리", "briana"],
+  ["한혜원 사원", "hyewon"],
+  ["박주선 사원", "jusun"],
+  ["정재이 인턴", "jaeyi"],
+]);
+
+function normalizeDisplayText(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function formatSalesPersonDisplay(value) {
+  const text = normalizeDisplayText(value);
+  if (!text) return "";
+  for (const [key, alias] of salesPersonAliases.entries()) {
+    if (text.includes(`(${alias})`)) return text;
+    const aliasTail = new RegExp(`(?:^|\\s)\\(?${escapeRegExp(alias)}\\)?\\s*$`, "i");
+    const stripped = text.replace(aliasTail, "").trim();
+    if (stripped === key || stripped.startsWith(`${key} `)) {
+      return `${stripped} (${alias})`;
+    }
+    if (text === key || text.startsWith(`${key} `)) {
+      return `${text} (${alias})`;
+    }
+  }
+  return text;
 }
 
 function updatePickingSummary() {
@@ -1522,7 +1556,7 @@ function buildPickingWorkbook(data = pickingData) {
     ["특이사항", data.remark || "특이사항 없음", "", "", "", "", "", ""],
     ["특전 :", "", "검수 :", "", "피킹 :", "", "패킹 :", ""],
     ["", "", "", "", "", "", "", ""],
-    ["NO", "SKU", "DESCRIPTION", "BRAND", "BARCODE", "QTY", "LOC", "PACKING"],
+    ["NO", "SKU", "DESCRIPTION", "BRAND", "BARCODE", "QTY", "LOC", "PACK"],
     ...data.items.map((item) => [
       item.index,
       item.sku,
@@ -1698,7 +1732,7 @@ function buildPickingWorkbook(data = pickingData) {
         fill: { fgColor: { rgb: index % 2 ? "FAF9F6" : "FFFFFF" } },
         font: {
           name: "맑은 고딕",
-          sz: col === 6 ? 9 : col === 1 ? 8 : 9,
+          sz: col === 6 ? 8 : col === 1 ? 8 : 9,
           bold: col === 2 || col === 6,
           color: { rgb: col === 6 ? (item.location ? "D6532F" : "C62828") : "222222" },
         },
@@ -1706,7 +1740,7 @@ function buildPickingWorkbook(data = pickingData) {
           horizontal: [0, 5, 6, 7].includes(col) ? "center" : "left",
           vertical: "center",
           wrapText: ![1, 4].includes(col),
-          shrinkToFit: [1, 4].includes(col),
+          shrinkToFit: [1, 4, 6].includes(col),
         },
         border: thinBorder,
       };
@@ -1926,7 +1960,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         ["BARCODE", 145],
         ["QTY", 55],
         ["LOC", 80],
-        ["PACKING", 81],
+        ["PACK", 81],
       ]
     : [
         ["NO", 55],
@@ -1936,7 +1970,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         ["BARCODE", 150],
         ["QTY", 80],
         ["LOCATION", 150],
-        ["PACKING", 150],
+        ["PACK", 150],
       ];
 
   function drawTableHeader() {
@@ -1990,7 +2024,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         ctx.strokeRect(x, y, colWidth, rowHeight);
         ctx.fillStyle =
           colIndex === 6 ? (item.location ? "#d6532f" : "#c62828") : "#222222";
-        let fontSize = colIndex === 6 ? 16 : colIndex === 2 ? 16 : colIndex === 1 ? 14 : 15;
+        let fontSize = colIndex === 6 ? 12 : colIndex === 2 ? 16 : colIndex === 1 ? 14 : 15;
         const fontWeight = colIndex === 6 || colIndex === 2 ? 700 : 500;
         if (colIndex === 1) {
           ctx.font = `${fontWeight} ${fontSize}px 'Malgun Gothic', sans-serif`;
