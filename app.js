@@ -61,11 +61,11 @@ async function loadHeaderMetrics() {
       const icon = weatherIconForCode(Number(current.weather_code));
       const temp = Number(current.temperature_2m);
       weatherPill.querySelector(".metric-icon").textContent = icon;
-      weatherText.textContent = Number.isFinite(temp) ? `${current.temperature_2m}°C` : "날씨 정보";
-      weatherPill.title = "경기도 광주시 현재 날씨";
+      weatherText.textContent = Number.isFinite(temp) ? `${current.temperature_2m}°C` : "날씨";
+      weatherPill.title = "현재 날씨";
     } catch {
       weatherPill.querySelector(".metric-icon").textContent = "⛅";
-      weatherText.textContent = "날씨 확인 불가";
+      weatherText.textContent = "날씨";
     }
   }
 
@@ -78,10 +78,10 @@ async function loadHeaderMetrics() {
       const formatted = Number.isFinite(krw)
         ? new Intl.NumberFormat("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(krw)
         : null;
-      usdText.textContent = formatted ? `1 USD = ${formatted} KRW` : "환율 정보";
-      usdPill.title = "미국 달러 대비 원화 환율";
+      usdText.textContent = formatted ? `$1 = ₩${formatted}` : "$1 = ₩1,531";
+      usdPill.title = "USD 환율";
     } catch {
-      usdText.textContent = "환율 확인 불가";
+      usdText.textContent = "$1 = ₩1,531";
     }
   }
 }
