@@ -78,10 +78,10 @@ async function loadHeaderMetrics() {
       const formatted = Number.isFinite(krw)
         ? new Intl.NumberFormat("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(krw)
         : null;
-      usdText.textContent = formatted ? `$1 = ₩${formatted}` : "$1 = ₩1,531";
+      usdText.textContent = formatted ? `₩${formatted}` : "₩1,531";
       usdPill.title = "환율";
     } catch {
-      usdText.textContent = "$1 = ₩1,531";
+      usdText.textContent = "₩1,531";
     }
   }
 }
