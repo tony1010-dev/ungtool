@@ -138,7 +138,7 @@ function showLabelMessage(text, isError = false) {
 function fitCanvasFont(ctx, text, maxWidth, startSize, minSize = 42) {
   let size = startSize;
   while (size > minSize) {
-    ctx.font = `800 ${size}px Arial, "Malgun Gothic", sans-serif`;
+    ctx.font = `700 ${size}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
     if (ctx.measureText(text).width <= maxWidth) break;
     size -= 2;
   }
@@ -157,17 +157,17 @@ function createLabelCanvas(values) {
   ctx.textBaseline = "middle";
 
   const companySize = fitCanvasFont(ctx, values.company, 1400, 150, 62);
-  ctx.font = `800 ${companySize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.font = `700 ${companySize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
   ctx.fillText(values.company, 750, 305);
 
   const invoiceText = `# ${values.invoice}`;
   const invoiceSize = fitCanvasFont(ctx, invoiceText, 1400, 150, 62);
-  ctx.font = `800 ${invoiceSize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.font = `700 ${invoiceSize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
   ctx.fillText(invoiceText, 750, 515);
 
   const boxText = `${values.boxes} BOX`;
   const boxSize = fitCanvasFont(ctx, boxText, 1400, 200, 82);
-  ctx.font = `900 ${boxSize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.font = `700 ${boxSize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
   ctx.fillText(boxText, 750, 755);
   return canvas;
 }
@@ -275,7 +275,7 @@ function createCustomLabelCanvas(text, fontSize, alignment) {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#000000";
-  ctx.font = `800 ${canvasFontSize}px Arial, "Malgun Gothic", sans-serif`;
+  ctx.font = `700 ${canvasFontSize}px "Malgun Gothic", "Apple SD Gothic Neo", sans-serif`;
   ctx.textBaseline = "middle";
   ctx.textAlign = alignment;
 
