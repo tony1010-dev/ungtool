@@ -2913,28 +2913,34 @@ function locationPickRemainingQty(data = locationPickData) {
 }
 
 function locationPickQtyHtml(remainingQty, totalQty) {
+  if (totalQty > 0 && remainingQty <= 0) {
+    return `<span class="location-pick-done">완료</span>`;
+  }
   return `
     <span class="location-pick-remaining">${remainingQty.toLocaleString("ko-KR")}</span>
     <span class="location-pick-slash">/</span>
-    <span class="location-pick-total">${totalQty.toLocaleString("ko-KR")}</span>
-    <small>EA</small>`;
+    <span class="location-pick-total">${totalQty.toLocaleString("ko-KR")}</span>`;
 }
 
-function updateLocationPickStats(data = locationPickData) {
-  if (!locationPickDom.stats) return;
+function locationPickStatsHtml(data = locationPickData) {
   if (!data) {
-    locationPickDom.stats.innerHTML = `
+    return `
       <div class="location-pick-stat-card invoice"><span>Invoice No</span><strong>-</strong></div>
       <div class="location-pick-stat-card customer"><span>거래처</span><strong>-</strong></div>
-      <div class="location-pick-stat-card total"><span>상품 / 수량</span><strong>-</strong></div>`;
-    return;
+      <div class="location-pick-stat-card total"><span>진행</span><strong>-</strong></div>`;
   }
   const totalQty = locationPickTotalQty(data);
   const remainingQty = locationPickRemainingQty(data);
-  locationPickDom.stats.innerHTML = `
+  return `
     <div class="location-pick-stat-card invoice"><span>Invoice No</span><strong>${escapeHtml(data.invoiceNo)}</strong></div>
     <div class="location-pick-stat-card customer"><span>거래처</span><strong>${escapeHtml(data.customer)}</strong></div>
-    <div class="location-pick-stat-card total"><span>${data.rows.length.toLocaleString("ko-KR")}개 상품</span><strong class="location-pick-qty-progress">${locationPickQtyHtml(remainingQty, totalQty)}</strong></div>`;
+    <div class="location-pick-stat-card total"><span>진행 (${data.rows.length.toLocaleString("ko-KR")}개 상품)</span><strong class="location-pick-qty-progress">${locationPickQtyHtml(remainingQty, totalQty)}</strong></div>`;
+}
+
+function updateLocationPickStats(data = locationPickData) {
+  const stats = locationPickDom.result?.querySelector("#location-pick-stats") || locationPickDom.stats;
+  if (!stats) return;
+  stats.innerHTML = locationPickStatsHtml(data);
 }
 
 function renderLocationPickResult(data = null) {
@@ -2942,13 +2948,14 @@ function renderLocationPickResult(data = null) {
   locationPickData = data;
   locationPickCopiedRows = new Set();
   if (!data) {
-    updateLocationPickStats(null);
-    locationPickDom.result.innerHTML = `<div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>`;
+    locationPickDom.result.innerHTML = `
+      <div class="location-pick-stat-grid" id="location-pick-stats">${locationPickStatsHtml(null)}</div>
+      <div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>`;
     return;
   }
 
-  updateLocationPickStats(data);
   locationPickDom.result.innerHTML = `
+    <div class="location-pick-stat-grid" id="location-pick-stats">${locationPickStatsHtml(data)}</div>
     <div class="location-pick-table-wrap">
       <table class="location-pick-table">
         <thead>
