@@ -195,9 +195,15 @@ const labelDom = {
 const dashboardDom = {
   excelButton: document.querySelector("#dashboard-excel-button"),
   pdfButton: document.querySelector("#dashboard-pdf-button"),
+  passwordGate: document.querySelector("#dashboard-password-gate"),
+  passwordForm: document.querySelector("#dashboard-password-form"),
+  password: document.querySelector("#dashboard-password"),
+  passwordError: document.querySelector("#dashboard-password-error"),
+  content: document.querySelector("#dashboard-content"),
 };
 
 let labelUnit = "BOX";
+let dashboardUnlocked = false;
 
 const dashboardState = {
   incoming: null,
@@ -847,7 +853,7 @@ function selectTool(name) {
   if (name === "picking") loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
   if (name === "sync") loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
   if (name === "license") loadLicenseRows().catch((error) => showLicenseMessage(error.message, true));
-  if (name === "dashboard") loadDashboard();
+  if (name === "dashboard") updateDashboardLock();
   if (name === "admin") updateAdminLock();
 }
 
@@ -1042,6 +1048,7 @@ const DASH_SHEET_ID = "1og02r9A53W9PUo866w310lCIKuul1KiY0zuefo0YKzA";
 const GOOGLE_DB_GID = "1060200137";
 const GOOGLE_LICENSE_GID = "820278293";
 const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
+const DASHBOARD_PASSWORD_HASH = "03aaef0fd45d47ee37afee60b41f0a80010f58f95d3d34e9b7dc253c8558bf2a";
 
 const pickingDom = {
   content: document.querySelector("#picking-content"),
@@ -2881,6 +2888,35 @@ adminDom.password.addEventListener("input", () => {
   adminDom.passwordError.hidden = true;
 });
 
+function updateDashboardLock() {
+  dashboardDom.passwordGate.hidden = dashboardUnlocked;
+  dashboardDom.content.hidden = !dashboardUnlocked;
+  if (dashboardUnlocked) {
+    loadDashboard();
+  } else {
+    requestAnimationFrame(() => dashboardDom.password?.focus());
+  }
+}
+
+async function unlockDashboard(event) {
+  event.preventDefault();
+  const enteredHash = await sha256(dashboardDom.password.value);
+  if (enteredHash !== DASHBOARD_PASSWORD_HASH) {
+    dashboardDom.passwordError.hidden = false;
+    dashboardDom.password.select();
+    return;
+  }
+  dashboardUnlocked = true;
+  dashboardDom.password.value = "";
+  dashboardDom.passwordError.hidden = true;
+  updateDashboardLock();
+}
+
+dashboardDom.passwordForm?.addEventListener("submit", unlockDashboard);
+dashboardDom.password?.addEventListener("input", () => {
+  dashboardDom.passwordError.hidden = true;
+});
+
 /* ── Dashboard ─────────────────────────────────────────────── */
 
 /* ── Dashboard helpers ──────────────────────────────────────── */
@@ -3426,34 +3462,102 @@ function renderMaterials(matTable) {
 }
 
 function renderPersonnel(rows = []) {
-  const tbody = document.querySelector("#dash-personnel-table tbody");
-  if (!tbody) return;
+  const container = document.querySelector("#dash-personnel-content");
+  if (!container) return;
 
   const cleanRows = rows
     .map((row) => Array.from({ length: 8 }, (_, index) => String(row?.[index] ?? "").trim()))
     .filter((row) => row.some(Boolean));
 
-  tbody.replaceChildren();
-
   if (!cleanRows.length) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">인원 데이터를 찾지 못했습니다.</td>`;
-    tbody.append(tr);
-  } else {
-    const fragment = document.createDocumentFragment();
-    cleanRows.forEach((row) => {
-      const tr = document.createElement("tr");
-      const isSection = row.filter(Boolean).length <= 3 && (row[0] || row[6]);
-      if (isSection) tr.className = "personnel-section-row";
-      tr.innerHTML = row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("");
-      fragment.append(tr);
-    });
-    tbody.append(fragment);
+    container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:32px">인원 데이터를 찾지 못했습니다.</p>`;
+    dashboardState.personnel = {
+      headers: ["설명", "성별", "나이", "입사일", "상태"],
+      rows: [],
+    };
+    return;
   }
 
+  const summaryItems = [];
+  const employees = [];
+  cleanRows.forEach((row) => {
+    const [name, genderCount, gender, age, startDate, , label, value] = row;
+    if ((name === "男" || name === "女") && genderCount) {
+      summaryItems.push({
+        label: name === "男" ? "남성" : "여성",
+        value: genderCount,
+        tone: name === "男" ? "male" : "female",
+      });
+    }
+    if (label && value) {
+      summaryItems.push({
+        label: label.replace(/\s+/g, ""),
+        value,
+        tone: label.includes("출근") ? "present" : label.includes("총원") ? "total" : "rest",
+      });
+    }
+    if (name && name !== "男" && name !== "女" && !name.includes("이름") && (gender === "男" || gender === "女")) {
+      employees.push({
+        name,
+        gender,
+        age,
+        startDate,
+        status: label || "",
+      });
+    }
+  });
+
+  const uniqueSummary = [];
+  const seenSummary = new Set();
+  summaryItems.forEach((item) => {
+    const key = `${item.label}:${item.value}`;
+    if (!seenSummary.has(key)) {
+      seenSummary.add(key);
+      uniqueSummary.push(item);
+    }
+  });
+
+  container.innerHTML = `
+    <div class="personnel-hero">
+      <div>
+        <p class="personnel-eyebrow">PERSONNEL</p>
+        <h3>음반팀 인원 현황</h3>
+      </div>
+      <span class="personnel-source">인원 · AC15:AJ97</span>
+    </div>
+    <div class="personnel-summary-grid">
+      ${uniqueSummary.map((item) => `
+        <div class="personnel-summary-card ${item.tone}">
+          <span>설명</span>
+          <strong>${escapeHtml(item.label)}</strong>
+          <em>${escapeHtml(item.value)}</em>
+        </div>`).join("")}
+    </div>
+    <div class="personnel-card-grid">
+      ${employees.map((person) => `
+        <article class="person-card ${person.gender === "男" ? "is-male" : "is-female"}">
+          <div class="person-avatar">${person.gender === "男" ? "男" : "女"}</div>
+          <div class="person-info">
+            <strong>${escapeHtml(person.name)}</strong>
+            <div class="person-meta">
+              <span>성별 ${escapeHtml(person.gender)}</span>
+              ${person.age ? `<span>${escapeHtml(person.age)}세</span>` : ""}
+              ${person.startDate ? `<span>${escapeHtml(person.startDate)}</span>` : ""}
+            </div>
+          </div>
+          ${person.status ? `<span class="person-status">${escapeHtml(person.status)}</span>` : ""}
+        </article>`).join("")}
+    </div>`;
+
   dashboardState.personnel = {
-    headers: ["구분", "수량", "팀·성별", "나이", "입사일", "비고", "항목", "내용"],
-    rows: cleanRows,
+    headers: ["설명", "성별", "나이", "입사일", "상태"],
+    rows: employees.map((person) => [
+      person.name,
+      person.gender,
+      person.age,
+      person.startDate,
+      person.status || "-",
+    ]),
   };
 }
 
@@ -3563,7 +3667,7 @@ function buildDashboardWorkbook() {
 
   const personnelSheet = dashboardBuildWorkbookSheet(
     "웅툴 - 인원",
-    [18, 12, 16, 10, 14, 14, 16, 18],
+    [20, 12, 10, 14, 14],
     dashboardState.personnel.headers,
     dashboardState.personnel.rows,
   );
@@ -3770,7 +3874,7 @@ async function downloadDashboardPdf() {
       ["인원 탭 AC15:AJ97"],
       dashboardState.personnel.headers,
       dashboardState.personnel.rows,
-      [150, 100, 130, 90, 120, 120, 130, 140],
+      [220, 110, 90, 130, 140],
     );
     const materialPages = buildDashboardSectionCanvases(
       "자재현황",

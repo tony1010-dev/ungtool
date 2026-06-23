@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=20" />
+    <link rel="stylesheet" href="style.css?v=21" />
   </head>
   <body>
     <header class="site-header">
@@ -632,6 +632,23 @@
       </section>
 
       <section class="tool-card tool-panel" id="dashboard-tool" aria-labelledby="dashboard-title" hidden>
+        <div class="password-gate" id="dashboard-password-gate">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10M6 10h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" />
+              <path d="M12 14v3" />
+            </svg>
+          </div>
+          <h2>Dashboard</h2>
+          <p>비밀번호를 입력해 주세요</p>
+          <form class="password-form" id="dashboard-password-form">
+            <input id="dashboard-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호" maxlength="20" aria-label="대시보드 비밀번호" />
+            <button type="submit">입장</button>
+          </form>
+          <div class="password-error" id="dashboard-password-error" role="alert" hidden>비밀번호가 올바르지 않습니다.</div>
+        </div>
+
+        <div id="dashboard-content" hidden>
         <div class="tool-heading">
           <div>
             <h2 id="dashboard-title">Dashboard</h2>
@@ -693,23 +710,14 @@
         </div>
 
         <div class="dash-panel" id="dash-personnel" hidden>
-          <div class="dash-table-wrap">
-            <table class="dash-table dash-personnel-table" id="dash-personnel-table">
-              <thead>
-                <tr>
-                  <th>구분</th><th>수량</th><th>팀·성별</th><th>나이</th>
-                  <th>입사일</th><th>비고</th><th>항목</th><th>내용</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
+          <div class="dash-personnel-graphic" id="dash-personnel-content"></div>
           <div class="message" id="dash-personnel-message" role="status" aria-live="polite" hidden></div>
         </div>
 
         <div class="dash-panel" id="dash-materials" hidden>
           <div class="dash-materials-grid" id="dash-materials-content"></div>
           <div class="message" id="dash-materials-message" role="status" aria-live="polite" hidden></div>
+        </div>
         </div>
       </section>
 
@@ -764,6 +772,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=46"></script>
+  <script src="app.js?v=47"></script>
   </body>
 </html>

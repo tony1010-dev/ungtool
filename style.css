@@ -1308,6 +1308,7 @@ html[data-theme="dark"] .unit-button.is-active {
 .password-gate[hidden],
 #picking-content[hidden],
 #sync-content[hidden],
+#dashboard-content[hidden],
 #admin-content[hidden] {
   display: none !important;
 }
@@ -2884,6 +2885,187 @@ html[data-theme="dark"] .license-note {
 
 .dash-personnel-table .personnel-section-row td {
   background: var(--accent-soft);
+}
+
+.dash-personnel-graphic {
+  display: grid;
+  gap: 18px;
+}
+
+.personnel-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 15%, transparent), transparent 34%),
+    var(--surface);
+}
+
+.personnel-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  color: var(--accent);
+}
+
+.personnel-hero h3 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -.05em;
+}
+
+.personnel-source {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.personnel-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.personnel-summary-card {
+  min-height: 112px;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.personnel-summary-card::after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  bottom: -24px;
+  width: 86px;
+  height: 86px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-color, var(--accent)) 16%, transparent);
+}
+
+.personnel-summary-card span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.personnel-summary-card strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.personnel-summary-card em {
+  display: block;
+  margin-top: 10px;
+  color: var(--card-color, var(--accent));
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: -.05em;
+}
+
+.personnel-summary-card.male { --card-color: #3b82f6; }
+.personnel-summary-card.female { --card-color: #ec4899; }
+.personnel-summary-card.present { --card-color: #22c55e; }
+.personnel-summary-card.total { --card-color: var(--accent); }
+.personnel-summary-card.rest { --card-color: #8b5cf6; }
+
+.personnel-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.person-card {
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.person-avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 900;
+}
+
+.person-card.is-male .person-avatar { background: linear-gradient(135deg, #60a5fa, #2563eb); }
+.person-card.is-female .person-avatar { background: linear-gradient(135deg, #f472b6, #db2777); }
+
+.person-info strong {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.person-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.person-meta span,
+.person-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 10%, var(--surface));
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.person-status {
+  background: color-mix(in srgb, #ef4444 12%, var(--surface));
+  color: #b91c1c;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .personnel-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .personnel-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .person-card {
+    grid-template-columns: 38px 1fr;
+  }
+
+  .person-status {
+    grid-column: 2;
+    justify-self: start;
+  }
 }
 
 .dash-table .num-cell { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
