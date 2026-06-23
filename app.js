@@ -3499,6 +3499,7 @@ function queueStage(progress = "") {
   const text = String(progress || "").trim();
   if (text === "완료") return "완료";
   if (text.includes("검수")) return "검수";
+  if (text.includes("패킹완료")) return "패킹완료";
   if (text.includes("패킹")) return "패킹";
   if (text.includes("피킹")) return "피킹";
   if (text.includes("출력")) return "출력";
@@ -3513,6 +3514,7 @@ function queueProgressLabel(progress = "") {
 
 function queueProgressClass(progress = "") {
   const text = String(progress || "").trim();
+  if (text.includes("패킹완료")) return "is-packing-done";
   if (text.includes("패킹중")) return "is-packing";
   if (text.includes("피킹")) return "is-picking";
   return "";
@@ -3604,8 +3606,8 @@ function renderQueue(items = []) {
   const totalItem = rows.reduce((sum, row) => sum + parseNumber(row.item), 0);
   const totalQty = rows.reduce((sum, row) => sum + parseNumber(row.qty), 0);
   const workingCount = rows.filter((row) => queueStatus(row.worker, row.progress) === "작업중").length;
-  const stageOrder = ["출력", "피킹", "패킹", "검수", "완료", "대기"];
-  const activeRows = rows.filter((row) => ["출력", "피킹", "패킹", "검수"].includes(queueStage(row.progress)));
+  const stageOrder = ["출력", "피킹", "패킹", "패킹완료", "검수", "완료", "대기"];
+  const activeRows = rows.filter((row) => ["출력", "피킹", "패킹", "패킹완료", "검수"].includes(queueStage(row.progress)));
   const stageGroups = groupCount(activeRows, (row) => queueStage(row.progress))
     .sort((a, b) => {
       const ai = stageOrder.indexOf(a[0]);

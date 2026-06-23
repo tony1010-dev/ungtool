@@ -3621,6 +3621,12 @@ html[data-theme="dark"] .license-note {
   color: #5479df;
 }
 
+.queue-stage-badge.is-packing-done {
+  color: #171717;
+  border-color: color-mix(in srgb, #171717 24%, var(--border));
+  background: color-mix(in srgb, #171717 6%, var(--surface));
+}
+
 .queue-panel .queue-row-progress i {
   display: none;
 }
