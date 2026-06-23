@@ -3254,8 +3254,12 @@ function renderOutgoing(table, matRows, totalsTable) {
     function matCell(idx) {
       return (matRows[idx]?.c || []).map((cell) => String(gvizCellValue(cell ?? null) ?? "").trim());
     }
-    const cInvoice = matCell(7);
-    const cBox     = matCell(8);
+    const invoiceRowIndex = matRows.findIndex((row) => dashCell(row.c || [], 0) === "인보이스");
+    const boxRowIndex = matRows.findIndex((row, index) =>
+      index > invoiceRowIndex && dashCell(row.c || [], 0) === "BOX"
+    );
+    const cInvoice = matCell(invoiceRowIndex >= 0 ? invoiceRowIndex : 7);
+    const cBox     = matCell(boxRowIndex >= 0 ? boxRowIndex : 8);
 
     const carriers = CARRIER_COLS.map(({ col, name, key }) => ({
       name,
@@ -3309,9 +3313,13 @@ function renderMaterials(matTable) {
     return (rows[idx]?.c || []).map((cell) => String(gvizCellValue(cell ?? null) ?? "").trim());
   }
 
-  // 부자재 재고 (rows[11]=material names, rows[12]=quantities)
-  const matHeaders = rowCells(11);
-  const matQtys    = rowCells(12);
+  // 시트 앞부분의 행이 추가되어도 "박스 / 포장용품" 구분 행을 기준으로 찾습니다.
+  const categoryRowIndex = rows.findIndex((row, index) => {
+    const cells = rowCells(index);
+    return cells.includes("박스") && cells.includes("포장용품");
+  });
+  const matHeaders = rowCells(categoryRowIndex >= 0 ? categoryRowIndex + 1 : 11);
+  const matQtys    = rowCells(categoryRowIndex >= 0 ? categoryRowIndex + 2 : 12);
 
   const boxItems  = [];
   const packItems = [];
@@ -3734,7 +3742,7 @@ async function loadDashboard() {
     const [inTable, outTable, matTable] = await Promise.all([
       fetchDashSheet("In",  "입고"),
       fetchDashSheet("Out", "출고"),
-      fetchDashSheet("Mat", "민호"),
+      fetchDashSheet("Mat", "민호", null, 0),
     ]);
 
     // gviz가 전체 시트 응답 시 빈 열을 압축하므로 M3:M4 / L3:N4 를 별도 range로 가져옴
