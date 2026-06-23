@@ -3364,10 +3364,11 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
 
 function queueStage(progress = "") {
   const text = String(progress || "").trim();
-  if (text.includes("출력")) return "출력";
-  if (text.includes("피킹")) return "피킹";
-  if (text.includes("패킹")) return "패킹";
+  if (text === "완료") return "완료";
   if (text.includes("검수")) return "검수";
+  if (text.includes("패킹")) return "패킹";
+  if (text.includes("피킹")) return "피킹";
+  if (text.includes("출력")) return "출력";
   if (text.includes("완료")) return "완료";
   return text || "대기";
 }
@@ -3383,7 +3384,6 @@ function queueStatus(worker = "", progress = "") {
 
 function queueWorkerName(worker = "") {
   const text = String(worker || "").trim();
-  if (!text || /box/i.test(text)) return "";
   return text;
 }
 
@@ -3485,7 +3485,7 @@ function renderQueue(items = []) {
             <span class="queue-row-number">${escapeHtml(row.qty)}</span>
             <span class="queue-row-worker">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
             <div class="queue-row-progress">
-              <span>${escapeHtml(stage)}</span>
+              <span class="queue-stage-badge">${escapeHtml(stage)}</span>
               <i><b style="width:${progressPercent(stage)}%"></b></i>
             </div>
           </div>`;

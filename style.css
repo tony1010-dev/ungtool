@@ -3081,16 +3081,29 @@ html[data-theme="dark"] .license-note {
 
 .queue-row-progress {
   display: grid;
-  gap: 5px;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: 8px;
 }
 
-.queue-row-progress span {
+.queue-stage-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 48px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
   color: var(--accent);
   font-size: 12px;
   font-weight: 850;
+  line-height: 1;
 }
 
-.queue-row.is-done .queue-row-progress span {
+.queue-row.is-done .queue-stage-badge {
+  border-color: color-mix(in srgb, #22c55e 35%, var(--border));
+  background: color-mix(in srgb, #22c55e 10%, var(--surface));
   color: #16a34a;
 }
 
