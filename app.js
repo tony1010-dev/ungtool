@@ -203,7 +203,17 @@ const dashboardDom = {
 };
 
 let labelUnit = "BOX";
-let dashboardUnlocked = false;
+const DASHBOARD_UNLOCK_KEY = "ungtool.dashboard.unlocked";
+
+function getStoredDashboardUnlock() {
+  try {
+    return localStorage.getItem(DASHBOARD_UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+let dashboardUnlocked = getStoredDashboardUnlock();
 
 const dashboardState = {
   incoming: null,
@@ -2908,6 +2918,11 @@ async function unlockDashboard(event) {
     return;
   }
   dashboardUnlocked = true;
+  try {
+    localStorage.setItem(DASHBOARD_UNLOCK_KEY, "1");
+  } catch {
+    // 저장소를 사용할 수 없는 브라우저에서는 현재 화면에서만 유지합니다.
+  }
   dashboardDom.password.value = "";
   dashboardDom.passwordError.hidden = true;
   updateDashboardLock();
@@ -3164,7 +3179,7 @@ function renderIncoming(table, totalsTable) {
       <td class="num-cell dash-item-value">${fmtNum(qty)}</td>
       <td class="num-cell dash-qty-value">${fmtNum(box)}</td>
       <td class="amount-cell">${fmtKrw(amt)}</td>
-      <td class="tag-cell">${buri || "-"}</td>
+      <td class="tag-cell">${buri ? `<span class="dash-unit-badge ${queueWorkerClass(buri)}">${escapeHtml(buri)}</span>` : "-"}</td>
       <td>${baecha}</td>
       <td>${note}</td>
     `;
@@ -3180,9 +3195,9 @@ function renderIncoming(table, totalsTable) {
 
   document.querySelector("#dash-in-summary").innerHTML = `
     <div class="queue-summary-card"><span>입고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>PLT</span><strong class="dash-qty-value">${pltTotal}</strong></div>
-    <div class="queue-summary-card"><span>BOX</span><strong class="dash-qty-value">${boxTotal}</strong></div>
-    <div class="queue-summary-card"><span>금액</span><strong>${fmtKrwSpaced(totalAmt)}</strong></div>
+    <div class="queue-summary-card"><span>PLT</span><strong><span class="dash-unit-badge is-plt">${pltTotal}</span></strong></div>
+    <div class="queue-summary-card"><span>BOX</span><strong><span class="dash-unit-badge is-box">${boxTotal}</span></strong></div>
+    <div class="queue-summary-card"><span>금액</span><strong class="dashboard-amount-value">${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
   dashboardState.incoming = {
