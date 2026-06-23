@@ -3387,6 +3387,25 @@ function queueWorkerName(worker = "") {
   return text;
 }
 
+function queueCarrierIconHtml(name = "") {
+  const text = String(name || "").trim() || "-";
+  const key = carrierKey(text);
+  const label = key === "fedex"
+    ? `Fed<span>Ex</span>`
+    : key === "dhl"
+      ? "DHL"
+      : key === "ups"
+        ? "UPS"
+        : key === "cj"
+          ? "CJ"
+          : text.includes("3층")
+            ? "3F"
+            : key === "forward"
+              ? "FWD"
+              : escapeHtml(text.slice(0, 4));
+  return `<span class="queue-carrier-icon ${key}" title="${escapeHtml(text)}">${label}</span>`;
+}
+
 function groupCount(items, keyFn) {
   const map = new Map();
   items.forEach((item) => {
@@ -3433,6 +3452,8 @@ function renderQueue(items = []) {
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     });
   const carrierGroups = groupCount(rows, (row) => row.carrier).slice(0, 6);
+  const activeRows = rows.filter((row) => ["출력", "피킹", "패킹"].includes(queueStage(row.progress)));
+  const packedRows = rows.filter((row) => /\b\d+\s*(box|plt)\b/i.test(row.worker));
 
   function progressPercent(stage) {
     const index = stageOrder.indexOf(stage);
@@ -3460,27 +3481,33 @@ function renderQueue(items = []) {
         ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
       </div>
       <div class="queue-carrier-pills">
-        ${carrierGroups.map(([name, count]) => `<span>${escapeHtml(name)} <b>${count}</b></span>`).join("")}
+        ${carrierGroups.map(([name, count]) => `<span>${queueCarrierIconHtml(name)}${escapeHtml(name)} <b>${count}</b></span>`).join("")}
       </div>
     </div>
-    <div class="queue-row-list">
-      <div class="queue-row queue-row-head">
-        <span>Invoice No</span>
-        <span>거래처</span>
-        <span>배송사</span>
-        <span>Item</span>
-        <span>수량</span>
-        <span>작업</span>
-        <span>진행</span>
-      </div>
-      ${rows.map((row) => {
+    <div class="queue-split-grid">
+      ${renderQueuePanel("진행중", activeRows, "active")}
+      ${renderQueuePanel("패킹완료", packedRows, "packed")}
+    </div>`;
+
+  function renderQueuePanel(title, panelRows, type) {
+    return `
+      <section class="queue-panel ${type}">
+        <div class="queue-panel-title">
+          <h3>${escapeHtml(title)}</h3>
+          <span>${panelRows.length.toLocaleString("ko-KR")}건</span>
+        </div>
+        <div class="queue-panel-head">
+          <span>Invoice</span><span>거래처</span><span>배송</span><span>Item</span><span>수량</span><span>작업</span><span>진행</span>
+        </div>
+        <div class="queue-panel-list">
+      ${panelRows.length ? panelRows.map((row) => {
         const status = queueStatus(row.worker, row.progress);
         const stage = queueStage(row.progress);
         return `
           <div class="queue-row ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}">
             <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
             <span class="queue-row-customer">${escapeHtml(row.customer)}</span>
-            <span class="queue-row-carrier">${escapeHtml(row.carrier)}</span>
+            <span class="queue-row-carrier">${queueCarrierIconHtml(row.carrier)}</span>
             <span class="queue-row-number">${escapeHtml(row.item)}</span>
             <span class="queue-row-number">${escapeHtml(row.qty)}</span>
             <span class="queue-row-worker">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
@@ -3489,8 +3516,10 @@ function renderQueue(items = []) {
               <i><b style="width:${progressPercent(stage)}%"></b></i>
             </div>
           </div>`;
-      }).join("")}
-    </div>`;
+      }).join("") : `<p class="queue-empty">표시할 데이터가 없습니다.</p>`}
+        </div>
+      </section>`;
+  }
 
   dashboardState.shippingQueue = {
     headers: ["Invoice No", "거래처", "배송사", "Item", "수량", "작업", "진행"],

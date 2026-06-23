@@ -3000,16 +3000,109 @@ html[data-theme="dark"] .license-note {
   color: var(--accent);
 }
 
+.queue-carrier-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 7px;
+  background: #334155;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+.queue-carrier-icon span { color: #ff6600; }
+.queue-carrier-icon.dhl { background: #ffcc00; color: #d40511; }
+.queue-carrier-icon.fedex { background: #4d148c; color: #fff; }
+.queue-carrier-icon.ups { background: #351c15; color: #ffb500; }
+.queue-carrier-icon.cj { background: #e30613; color: #fff; }
+.queue-carrier-icon.forward { background: #1d4ed8; color: #fff; }
+
+.queue-split-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.queue-panel {
+  min-width: 0;
+  padding: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.queue-panel.active {
+  border-left: 5px solid var(--accent);
+}
+
+.queue-panel.packed {
+  border-left: 5px solid #22c55e;
+}
+
+.queue-panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.queue-panel-title h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: -.03em;
+}
+
+.queue-panel-title span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.queue-panel.packed .queue-panel-title span {
+  background: color-mix(in srgb, #22c55e 10%, var(--surface));
+  color: #16a34a;
+}
+
+.queue-panel-head,
+.queue-panel .queue-row {
+  display: grid;
+  grid-template-columns: 102px minmax(120px, 1fr) 48px 42px 52px 72px 76px;
+  align-items: center;
+  gap: 8px;
+}
+
+.queue-panel-head {
+  padding: 0 9px 7px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.queue-panel-list {
+  display: grid;
+  gap: 7px;
+}
+
 .queue-row-list {
   display: grid;
   gap: 8px;
 }
 
 .queue-row {
-  display: grid;
-  grid-template-columns: 122px minmax(220px, 1.4fr) 106px 64px 72px 94px 150px;
-  align-items: center;
-  gap: 10px;
   min-height: 54px;
   padding: 10px 12px;
   border: 1.5px solid var(--border);
@@ -3046,7 +3139,7 @@ html[data-theme="dark"] .license-note {
 .queue-row-customer {
   min-width: 0;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 750;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3060,6 +3153,11 @@ html[data-theme="dark"] .license-note {
   font-size: 12px;
   font-weight: 750;
   white-space: nowrap;
+}
+
+.queue-row-carrier {
+  display: inline-flex;
+  justify-content: flex-start;
 }
 
 .queue-row-number {
@@ -3081,7 +3179,6 @@ html[data-theme="dark"] .license-note {
 
 .queue-row-progress {
   display: grid;
-  grid-template-columns: 52px 1fr;
   align-items: center;
   gap: 8px;
 }
@@ -3099,6 +3196,25 @@ html[data-theme="dark"] .license-note {
   font-size: 12px;
   font-weight: 850;
   line-height: 1;
+}
+
+.queue-panel .queue-row-progress i {
+  display: none;
+}
+
+.queue-empty {
+  margin: 0;
+  padding: 24px 10px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.queue-panel.packed .queue-stage-badge {
+  border-color: color-mix(in srgb, #22c55e 35%, var(--border));
+  background: color-mix(in srgb, #22c55e 10%, var(--surface));
+  color: #16a34a;
 }
 
 .queue-row.is-done .queue-stage-badge {
@@ -3458,16 +3574,19 @@ html[data-theme="dark"] .license-note {
 
   .queue-summary-grid,
   .queue-layout-grid,
-  .queue-mini-board {
+  .queue-mini-board,
+  .queue-split-grid {
     grid-template-columns: 1fr;
   }
 
   .queue-row,
-  .queue-row-head {
+  .queue-row-head,
+  .queue-panel .queue-row {
     grid-template-columns: 1fr;
   }
 
-  .queue-row-head {
+  .queue-row-head,
+  .queue-panel-head {
     display: none;
   }
 
