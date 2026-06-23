@@ -3532,9 +3532,8 @@ function renderPersonnel(rows = []) {
       </div>
     </div>
     <div class="personnel-summary-grid">
-      ${uniqueSummary.slice(0, 4).map((item, index) => `
+      ${uniqueSummary.slice(0, 4).map((item) => `
         <div class="personnel-summary-card ${item.tone}">
-          <span>${String(index + 1).padStart(2, "0")}</span>
           <strong>${escapeHtml(item.label)}</strong>
           <em>${escapeHtml(item.value)}</em>
         </div>`).join("")}

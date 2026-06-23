@@ -2904,15 +2904,16 @@ html[data-theme="dark"] .license-note {
 .personnel-eyebrow {
   margin: 0 0 4px;
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .12em;
+  font-weight: 800;
+  letter-spacing: .08em;
   color: var(--accent);
 }
 
 .personnel-hero h3 {
   margin: 0;
-  font-size: 22px;
-  letter-spacing: -.05em;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -.025em;
 }
 
 .personnel-summary-grid {
@@ -2922,7 +2923,7 @@ html[data-theme="dark"] .license-note {
 }
 
 .personnel-summary-card {
-  min-height: 112px;
+  min-height: 104px;
   padding: 16px;
   border: 1.5px solid var(--border);
   border-radius: 18px;
@@ -2942,29 +2943,23 @@ html[data-theme="dark"] .license-note {
   background: color-mix(in srgb, var(--card-color, var(--accent)) 16%, transparent);
 }
 
-.personnel-summary-card span {
-  display: block;
-  color: var(--card-color, var(--accent));
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .08em;
-}
-
 .personnel-summary-card strong {
   display: block;
-  margin-top: 8px;
+  margin-top: 2px;
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.015em;
 }
 
 .personnel-summary-card em {
   display: block;
-  margin-top: 10px;
+  margin-top: 12px;
   color: var(--card-color, var(--accent));
-  font-size: 28px;
+  font-size: 30px;
   font-style: normal;
-  font-weight: 900;
-  letter-spacing: -.05em;
+  font-weight: 800;
+  letter-spacing: -.03em;
 }
 
 .personnel-summary-card.male { --card-color: #3b82f6; }
@@ -3007,8 +3002,9 @@ html[data-theme="dark"] .license-note {
 .person-info strong {
   display: block;
   color: var(--text);
-  font-size: 15px;
-  letter-spacing: -.03em;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.01em;
 }
 
 .person-meta {
@@ -3028,7 +3024,7 @@ html[data-theme="dark"] .license-note {
   background: color-mix(in srgb, var(--text-muted) 10%, var(--surface));
   color: var(--text-muted);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .person-status {
