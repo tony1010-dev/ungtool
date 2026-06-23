@@ -4733,6 +4733,10 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   scrollbar-width: none;
 }
 
+.location-pick-highlight.has-content {
+  color: #334155;
+}
+
 .location-pick-highlight::-webkit-scrollbar {
   display: none;
 }
@@ -5000,12 +5004,22 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 .location-pick-table th {
   position: sticky;
   top: 0;
-  z-index: 5;
-  background: var(--surface);
+  z-index: 10;
+  background: color-mix(in srgb, var(--surface) 96%, white);
   color: var(--text-muted);
   font-size: 11px;
   font-weight: 950;
-  box-shadow: 0 1px 0 var(--border), 0 6px 12px rgba(17, 24, 39, .05);
+  box-shadow: 0 1px 0 var(--border), 0 10px 18px color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.location-pick-table th::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--border);
 }
 
 .location-pick-table th:first-child,
@@ -5064,8 +5078,14 @@ html[data-theme="dark"] .location-pick-input-frame {
 }
 
 html[data-theme="dark"] .location-pick-highlight {
-  color: rgba(226, 232, 240, .9);
+  color: #e2e8f0;
   text-shadow: none;
+}
+
+html[data-theme="dark"] .location-pick-table th {
+  background: #111827;
+  color: #cbd5e1;
+  box-shadow: 0 1px 0 rgba(148, 163, 184, .26), 0 12px 18px rgba(15, 23, 42, .9);
 }
 
 html[data-theme="dark"] .location-pick-barcode-button {
@@ -5091,11 +5111,11 @@ html[data-theme="dark"] .location-pick-table tbody tr.is-copied td:last-child {
 }
 
 html[data-theme="dark"] .location-pick-table td:nth-child(2) {
-  color: #fca5a5;
+  color: #ff8a8a;
 }
 
 html[data-theme="dark"] .location-pick-table td:last-child {
-  color: #93c5fd;
+  color: #7db7ff;
 }
 
 html[data-theme="dark"] .location-pick-stat-card {
@@ -5139,23 +5159,24 @@ html[data-theme="dark"] .location-pick-done {
 }
 
 html[data-theme="dark"] .location-pick-highlight .json-key {
-  color: #ddd6fe;
+  color: #c084fc;
 }
 
 html[data-theme="dark"] .location-pick-highlight .json-string {
-  color: #99f6e4;
+  color: #5eead4;
 }
 
 html[data-theme="dark"] .location-pick-highlight .json-number {
-  color: #bfdbfe;
+  color: #60a5fa;
+  font-weight: 900;
 }
 
 html[data-theme="dark"] .location-pick-highlight .json-boolean {
-  color: #fed7aa;
+  color: #fb923c;
 }
 
 html[data-theme="dark"] .location-pick-highlight .json-null {
-  color: #cbd5e1;
+  color: #94a3b8;
 }
 
 @media (max-width: 700px) {

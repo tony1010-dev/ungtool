@@ -2862,6 +2862,8 @@ function updateLocationPickHighlight() {
     ? `${locationPickHighlightedJson(text)}\n`
     : "";
   locationPickDom.highlight.scrollTop = locationPickDom.input.scrollTop;
+  locationPickDom.highlight.scrollLeft = locationPickDom.input.scrollLeft;
+  locationPickDom.highlight.classList.toggle("has-content", Boolean(text));
 }
 
 function formatLocationPickInputIfJson() {
@@ -3031,12 +3033,15 @@ let locationPickTimer = null;
 locationPickDom.button?.addEventListener("click", analyzeLocationPick);
 locationPickDom.input?.addEventListener("input", () => {
   updateLocationPickHighlight();
+  requestAnimationFrame(updateLocationPickHighlight);
   clearTimeout(locationPickTimer);
   locationPickTimer = setTimeout(analyzeLocationPick, 250);
 });
 locationPickDom.input?.addEventListener("paste", () => {
   setTimeout(() => {
     formatLocationPickInputIfJson();
+    updateLocationPickHighlight();
+    requestAnimationFrame(updateLocationPickHighlight);
     analyzeLocationPick();
   }, 0);
 });
