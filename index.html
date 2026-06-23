@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=17" />
+    <link rel="stylesheet" href="style.css?v=18" />
   </head>
   <body>
     <header class="site-header">
@@ -545,30 +545,51 @@
         <div class="message" id="license-message" role="status" aria-live="polite" hidden></div>
         <div class="license-mail-preview" id="license-mail-preview" hidden>
           <div class="license-mail-preview-head">
-            <strong>메일 정보 (자동생성 - 웅툴)</strong>
-            <button class="license-copy-button" id="license-mail-copy-button" type="button">전체 복사</button>
+            <strong>메일 작성 정보</strong>
           </div>
           <dl class="license-mail-fields">
             <div>
               <dt>제목</dt>
-              <dd id="license-mail-subject"></dd>
+              <dd>
+                <span id="license-mail-subject"></span>
+                <button class="license-copy-button license-field-copy" type="button" data-copy-target="license-mail-subject">복사</button>
+              </dd>
             </div>
             <div>
               <dt>받는 사람</dt>
-              <dd id="license-mail-to"></dd>
+              <dd>
+                <span id="license-mail-to"></span>
+                <button class="license-copy-button license-field-copy" type="button" data-copy-target="license-mail-to">복사</button>
+              </dd>
             </div>
             <div>
               <dt>참조</dt>
-              <dd id="license-mail-cc"></dd>
+              <dd>
+                <span id="license-mail-cc"></span>
+                <button class="license-copy-button license-field-copy" type="button" data-copy-target="license-mail-cc">복사</button>
+              </dd>
             </div>
           </dl>
         </div>
         <div class="license-delivery-copy" id="license-delivery-copy" hidden>
           <div class="license-delivery-copy-head">
-            <strong>전달 문구 (자동생성 - 웅툴)</strong>
+            <strong>메일 본문</strong>
             <button class="license-copy-button" id="license-copy-button" type="button">복사</button>
           </div>
           <pre id="license-delivery-text"></pre>
+          <div class="license-generated-by">
+            <span>이 내용은</span>
+            <span class="license-generated-brand">
+              <span class="license-generated-logo" aria-hidden="true">
+                <svg viewBox="0 0 40 40">
+                  <path d="M9.5 10.5h6.2v10.7c0 3.2 1.5 4.8 4.3 4.8s4.3-1.6 4.3-4.8V10.5h6.2v11.2c0 6.4-4 10-10.5 10s-10.5-3.6-10.5-10Z" />
+                  <path class="spark" d="m30.8 6.4.8 2.3 2.3.8-2.3.8-.8 2.3-.8-2.3-2.3-.8 2.3-.8Z" />
+                </svg>
+              </span>
+              <strong>웅툴</strong>
+            </span>
+            <span>에서 자동 생성되었습니다.</span>
+          </div>
         </div>
       </section>
 
@@ -727,6 +748,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=40"></script>
+  <script src="app.js?v=41"></script>
   </body>
 </html>

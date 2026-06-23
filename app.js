@@ -1217,7 +1217,7 @@ const licenseDom = {
   mailSubject: document.querySelector("#license-mail-subject"),
   mailTo: document.querySelector("#license-mail-to"),
   mailCc: document.querySelector("#license-mail-cc"),
-  mailCopyButton: document.querySelector("#license-mail-copy-button"),
+  fieldCopyButtons: document.querySelectorAll(".license-field-copy"),
 };
 
 const LICENSE_MAIL_TO = '"MinJi Ryu (DHL KR)" <minji.ryu@dhl.com>';
@@ -1339,7 +1339,7 @@ async function copyLicenseText(text, button) {
   }
   button.textContent = "복사 완료";
   setTimeout(() => {
-    button.textContent = button === licenseDom.mailCopyButton ? "전체 복사" : "복사";
+    button.textContent = "복사";
   }, 1500);
 }
 
@@ -1496,24 +1496,15 @@ licenseDom.copyButton.addEventListener("click", async () => {
   }
 });
 
-licenseDom.mailCopyButton.addEventListener("click", async () => {
-  const mailText = [
-    `제목 : ${licenseDom.mailSubject.textContent}`,
-    "",
-    "받는 사람 :",
-    licenseDom.mailTo.textContent,
-    "",
-    "참조 :",
-    licenseDom.mailCc.textContent,
-    "",
-    licenseDom.deliveryText.textContent,
-  ].join("\n");
-
-  try {
-    await copyLicenseText(mailText, licenseDom.mailCopyButton);
-  } catch {
-    showLicenseMessage("메일 정보를 복사하지 못했습니다.", true);
-  }
+licenseDom.fieldCopyButtons.forEach((button) => {
+  button.addEventListener("click", async () => {
+    const target = document.querySelector(`#${button.dataset.copyTarget}`);
+    try {
+      await copyLicenseText(target?.textContent || "", button);
+    } catch {
+      showLicenseMessage("메일 정보를 복사하지 못했습니다.", true);
+    }
+  });
 });
 
 function findPickingStructure(sheet) {

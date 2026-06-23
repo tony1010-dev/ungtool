@@ -1227,8 +1227,20 @@ html[data-theme="dark"] .unit-button.is-active {
 }
 
 .license-mail-fields dd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   color: var(--text);
   word-break: break-word;
+}
+
+.license-mail-fields dd > span {
+  min-width: 0;
+}
+
+.license-field-copy {
+  flex: 0 0 auto;
 }
 
 .license-delivery-copy pre {
@@ -1240,6 +1252,47 @@ html[data-theme="dark"] .unit-button.is-active {
   font: 500 13px/1.9 "Malgun Gothic", "맑은 고딕", sans-serif;
   white-space: pre-wrap;
   word-break: keep-all;
+}
+
+.license-generated-by {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 15px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.license-generated-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.license-generated-logo {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  color: white;
+  border-radius: 8px;
+  background: var(--ink);
+  transform: rotate(-3deg);
+}
+
+.license-generated-logo svg {
+  width: 22px;
+  fill: currentColor;
+}
+
+.license-generated-logo .spark {
+  fill: var(--accent);
 }
 
 .password-gate {
