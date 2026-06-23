@@ -2912,14 +2912,14 @@ function locationPickRemainingQty(data = locationPickData) {
   return Math.max(0, locationPickTotalQty(data) - copiedQty);
 }
 
-function locationPickQtyHtml(remainingQty, totalQty) {
-  if (totalQty > 0 && remainingQty <= 0) {
+function locationPickProgressHtml(remaining, total) {
+  if (total > 0 && remaining <= 0) {
     return `<span class="location-pick-done">완료</span>`;
   }
   return `
-    <span class="location-pick-remaining">${remainingQty.toLocaleString("ko-KR")}</span>
+    <span class="location-pick-remaining">${remaining.toLocaleString("ko-KR")}</span>
     <span class="location-pick-slash">/</span>
-    <span class="location-pick-total">${totalQty.toLocaleString("ko-KR")}</span>`;
+    <span class="location-pick-total">${total.toLocaleString("ko-KR")}</span>`;
 }
 
 function locationPickStatsHtml(data = locationPickData) {
@@ -2927,14 +2927,18 @@ function locationPickStatsHtml(data = locationPickData) {
     return `
       <div class="location-pick-stat-card invoice"><span>Invoice No</span><strong>-</strong></div>
       <div class="location-pick-stat-card customer"><span>거래처</span><strong>-</strong></div>
-      <div class="location-pick-stat-card total"><span>진행</span><strong>-</strong></div>`;
+      <div class="location-pick-stat-card product"><span>상품 진행</span><strong>-</strong></div>
+      <div class="location-pick-stat-card total"><span>수량 진행</span><strong>-</strong></div>`;
   }
   const totalQty = locationPickTotalQty(data);
   const remainingQty = locationPickRemainingQty(data);
+  const totalItems = data.rows.length;
+  const remainingItems = Math.max(0, totalItems - locationPickCopiedRows.size);
   return `
     <div class="location-pick-stat-card invoice"><span>Invoice No</span><strong>${escapeHtml(data.invoiceNo)}</strong></div>
     <div class="location-pick-stat-card customer"><span>거래처</span><strong>${escapeHtml(data.customer)}</strong></div>
-    <div class="location-pick-stat-card total"><span>진행 (${data.rows.length.toLocaleString("ko-KR")}개 상품)</span><strong class="location-pick-qty-progress">${locationPickQtyHtml(remainingQty, totalQty)}</strong></div>`;
+    <div class="location-pick-stat-card product"><span>상품 진행</span><strong class="location-pick-progress">${locationPickProgressHtml(remainingItems, totalItems)}</strong></div>
+    <div class="location-pick-stat-card total"><span>수량 진행</span><strong class="location-pick-progress">${locationPickProgressHtml(remainingQty, totalQty)}</strong></div>`;
 }
 
 function updateLocationPickStats(data = locationPickData) {
