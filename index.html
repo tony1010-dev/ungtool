@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=23" />
+    <link rel="stylesheet" href="style.css?v=24" />
   </head>
   <body>
     <header class="site-header">
@@ -670,6 +670,7 @@
 
         <nav class="dash-tabs" aria-label="대시보드 탭">
           <button class="dash-tab is-active" type="button" data-dash="incoming">입고</button>
+          <button class="dash-tab" type="button" data-dash="queue">출고대기</button>
           <button class="dash-tab" type="button" data-dash="outgoing">출고</button>
           <button class="dash-tab" type="button" data-dash="personnel">인원</button>
           <button class="dash-tab" type="button" data-dash="materials">자재현황</button>
@@ -690,6 +691,11 @@
             </table>
           </div>
           <div class="message" id="dash-incoming-message" role="status" aria-live="polite" hidden></div>
+        </div>
+
+        <div class="dash-panel" id="dash-queue" hidden>
+          <div class="dash-queue-wrap" id="dash-queue-content"></div>
+          <div class="message" id="dash-queue-message" role="status" aria-live="polite" hidden></div>
         </div>
 
         <div class="dash-panel" id="dash-outgoing" hidden>
@@ -772,6 +778,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=49"></script>
+  <script src="app.js?v=50"></script>
   </body>
 </html>

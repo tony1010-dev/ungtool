@@ -207,6 +207,7 @@ let dashboardUnlocked = false;
 
 const dashboardState = {
   incoming: null,
+  shippingQueue: null,
   outgoing: null,
   personnel: null,
   materials: null,
@@ -3361,6 +3362,157 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
   }
 }
 
+function queueStage(progress = "") {
+  const text = String(progress || "").trim();
+  if (text.includes("출력")) return "출력";
+  if (text.includes("피킹")) return "피킹";
+  if (text.includes("패킹")) return "패킹";
+  if (text.includes("검수")) return "검수";
+  if (text.includes("완료")) return "완료";
+  return text || "대기";
+}
+
+function queueStatus(worker = "", progress = "") {
+  const workerText = String(worker || "").trim();
+  const progressText = String(progress || "").trim();
+  if (progressText === "완료") return "완료";
+  if (workerText && !/box/i.test(workerText)) return "작업중";
+  if (progressText.includes("완료")) return "작업중";
+  return "대기";
+}
+
+function queueWorkerName(worker = "") {
+  const text = String(worker || "").trim();
+  if (!text || /box/i.test(text)) return "";
+  return text;
+}
+
+function groupCount(items, keyFn) {
+  const map = new Map();
+  items.forEach((item) => {
+    const key = keyFn(item) || "-";
+    map.set(key, (map.get(key) || 0) + 1);
+  });
+  return [...map.entries()].sort((a, b) => b[1] - a[1] || naturalCollator.compare(a[0], b[0]));
+}
+
+function renderQueue(items = []) {
+  const container = document.querySelector("#dash-queue-content");
+  if (!container) return;
+
+  const rows = (items || [])
+    .map((item) => ({
+      invoiceNo: String(item.invoiceNo || "").trim(),
+      customer: String(item.customer || "").trim(),
+      carrier: normalizeCarrierName(String(item.carrier || "").trim()),
+      item: fmtComma(item.item),
+      qty: fmtComma(item.qty),
+      worker: queueWorkerName(item.worker),
+      progress: String(item.progress || "").trim(),
+    }))
+    .filter((item) => item.invoiceNo && (item.customer || item.carrier));
+
+  if (!rows.length) {
+    container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:32px">출고대기 데이터를 찾지 못했습니다.</p>`;
+    dashboardState.shippingQueue = {
+      headers: ["Invoice No", "거래처", "배송사", "Item", "수량", "작업", "진행"],
+      rows: [],
+    };
+    return;
+  }
+
+  const totalItem = rows.reduce((sum, row) => sum + parseNumber(row.item), 0);
+  const totalQty = rows.reduce((sum, row) => sum + parseNumber(row.qty), 0);
+  const workingCount = rows.filter((row) => queueStatus(row.worker, row.progress) === "작업중").length;
+  const doneCount = rows.filter((row) => queueStatus(row.worker, row.progress) === "완료").length;
+  const stageOrder = ["출력", "피킹", "패킹", "검수", "완료", "대기"];
+  const stageGroups = groupCount(rows, (row) => queueStage(row.progress))
+    .sort((a, b) => {
+      const ai = stageOrder.indexOf(a[0]);
+      const bi = stageOrder.indexOf(b[0]);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+  const customerGroups = groupCount(rows, (row) => row.customer).slice(0, 8);
+  const carrierGroups = groupCount(rows, (row) => row.carrier).slice(0, 8);
+
+  container.innerHTML = `
+    <div class="queue-hero">
+      <div>
+        <p class="personnel-eyebrow">SHIPPING QUEUE</p>
+        <h3>출고대기 현황</h3>
+      </div>
+      <div class="queue-total-pill">총 ${rows.length.toLocaleString("ko-KR")}건</div>
+    </div>
+    <div class="queue-summary-grid">
+      <div class="queue-summary-card"><span>Invoice</span><strong>${rows.length.toLocaleString("ko-KR")}건</strong></div>
+      <div class="queue-summary-card"><span>Item</span><strong>${totalItem.toLocaleString("ko-KR")}</strong></div>
+      <div class="queue-summary-card"><span>수량</span><strong>${totalQty.toLocaleString("ko-KR")}</strong></div>
+      <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}건</strong></div>
+      <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}건</strong></div>
+    </div>
+    <div class="queue-layout-grid">
+      <section class="queue-section queue-stage-section">
+        <h3>진행 단계</h3>
+        <div class="queue-stage-list">
+          ${stageGroups.map(([stage, count]) => `
+            <div class="queue-stage-row">
+              <span>${escapeHtml(stage)}</span>
+              <div class="queue-stage-bar"><i style="width:${Math.max(8, Math.round((count / rows.length) * 100))}%"></i></div>
+              <strong>${count}건</strong>
+            </div>`).join("")}
+        </div>
+      </section>
+      <section class="queue-section">
+        <h3>거래처별</h3>
+        <div class="queue-chip-list">
+          ${customerGroups.map(([name, count]) => `<span class="queue-chip">${escapeHtml(name)} <b>${count}</b></span>`).join("")}
+        </div>
+      </section>
+      <section class="queue-section">
+        <h3>배송사별</h3>
+        <div class="queue-carrier-grid">
+          ${carrierGroups.map(([name, count]) => `<div class="queue-carrier-card">${carrierBadgeHtml(name)}<strong>${escapeHtml(name)}</strong><span>${count}건</span></div>`).join("")}
+        </div>
+      </section>
+    </div>
+    <div class="queue-card-grid">
+      ${rows.map((row) => {
+        const status = queueStatus(row.worker, row.progress);
+        const stage = queueStage(row.progress);
+        return `
+          <article class="queue-card ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}">
+            <div class="queue-card-top">
+              <strong>${escapeHtml(row.invoiceNo)}</strong>
+              <span class="queue-status">${escapeHtml(status)}</span>
+            </div>
+            <p class="queue-customer">${escapeHtml(row.customer)}</p>
+            <div class="queue-card-meta">
+              <span>${escapeHtml(row.carrier)}</span>
+              <span>Item ${escapeHtml(row.item)}</span>
+              <span>수량 ${escapeHtml(row.qty)}</span>
+            </div>
+            <div class="queue-workline">
+              ${row.worker ? `<span class="queue-worker">${escapeHtml(row.worker)}</span>` : `<span class="queue-worker is-empty">작업자 대기</span>`}
+              <span class="queue-progress">${escapeHtml(stage)}</span>
+            </div>
+          </article>`;
+      }).join("")}
+    </div>`;
+
+  dashboardState.shippingQueue = {
+    headers: ["Invoice No", "거래처", "배송사", "Item", "수량", "작업", "진행"],
+    rows: rows.map((row) => [
+      row.invoiceNo,
+      row.customer,
+      row.carrier,
+      row.item,
+      row.qty,
+      row.worker || queueStatus(row.worker, row.progress),
+      row.progress || queueStage(row.progress),
+    ]),
+  };
+}
+
 // ── 자재현황 렌더 ───────────────────────────────────────────────
 function renderMaterials(matTable) {
   const container = document.querySelector("#dash-materials-content");
@@ -3566,7 +3718,7 @@ function renderPersonnel(rows = []) {
 }
 
 function dashboardExportReady() {
-  if (!dashboardState.incoming || !dashboardState.outgoing || !dashboardState.personnel || !dashboardState.materials) {
+  if (!dashboardState.incoming || !dashboardState.shippingQueue || !dashboardState.outgoing || !dashboardState.personnel || !dashboardState.materials) {
     throw new Error("대시보드 데이터를 아직 불러오지 못했어요.");
   }
 }
@@ -3655,6 +3807,15 @@ function buildDashboardWorkbook() {
     incomingSummary,
   );
   XLSX.utils.book_append_sheet(workbook, incomingSheet.sheet, incomingSheet.workbookSheetName);
+
+  const queueSheet = dashboardBuildWorkbookSheet(
+    "웅툴 - 출고대기",
+    [18, 24, 16, 10, 10, 16, 14],
+    dashboardState.shippingQueue.headers,
+    dashboardState.shippingQueue.rows,
+    [["요약", `${dashboardState.shippingQueue.rows.length}건`, "", "", "", "", ""]],
+  );
+  XLSX.utils.book_append_sheet(workbook, queueSheet.sheet, queueSheet.workbookSheetName);
 
   const outgoing = dashboardState.outgoing;
   const outgoingSummary = [
@@ -3869,6 +4030,14 @@ async function downloadDashboardPdf() {
       [80, 160, 170, 190, 120, 90, 140, 160, 480],
     );
 
+    const queuePages = buildDashboardSectionCanvases(
+      "출고대기",
+      [`총 출고대기 : ${dashboardState.shippingQueue.rows.length}건`],
+      dashboardState.shippingQueue.headers,
+      dashboardState.shippingQueue.rows,
+      [150, 240, 150, 80, 90, 150, 120],
+    );
+
     const materialRows = [
       ...dashboardState.materials.boxItems.map((item) => ["박스 재고", item.name, item.qty]),
       ...dashboardState.materials.packItems.map((item) => ["포장용품", item.name, item.qty]),
@@ -3891,7 +4060,7 @@ async function downloadDashboardPdf() {
     const pageWidth = 841.8898;
     const pageHeight = 595.2756;
 
-    for (const canvas of [...incomingPages, ...outgoingPages, ...personnelPages, ...materialPages]) {
+    for (const canvas of [...incomingPages, ...queuePages, ...outgoingPages, ...personnelPages, ...materialPages]) {
       const image = await pdf.embedPng(canvas.toDataURL("image/png"));
       const page = pdf.addPage([pageWidth, pageHeight]);
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
@@ -3914,6 +4083,7 @@ async function loadDashboardFromServer() {
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "대시보드 API 연결 실패");
   renderIncoming(data.incoming, data.incomingTotals);
+  renderQueue(data.shippingQueue);
   renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals, data.album);
   renderPersonnel(data.personnel);
   renderMaterials(data.minho);
@@ -3932,6 +4102,7 @@ async function loadDashboardFromPublicSheet() {
   ]);
 
   renderIncoming(inTable, inTotals);
+  renderQueue([]);
   renderOutgoing(outTable, matTable.rows, outTotals);
   renderPersonnel([]);
   renderMaterials(matTable);
@@ -3957,6 +4128,7 @@ async function loadDashboard() {
       const el = document.querySelector(`#${id}`);
       if (el) el.innerHTML = errHtml;
     });
+    renderQueue([]);
     renderPersonnel([]);
   }
 }
