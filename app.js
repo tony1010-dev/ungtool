@@ -2792,6 +2792,7 @@ const locationPickDom = {
   input: document.querySelector("#location-pick-input"),
   highlight: document.querySelector("#location-pick-highlight"),
   button: document.querySelector("#location-pick-button"),
+  stats: document.querySelector("#location-pick-stats"),
   result: document.querySelector("#location-pick-result"),
   message: document.querySelector("#location-pick-message"),
 };
@@ -2902,22 +2903,24 @@ function renderLocationPickResult(data = null) {
   if (!locationPickDom.result) return;
   locationPickData = data;
   if (!data) {
+    if (locationPickDom.stats) {
+      locationPickDom.stats.innerHTML = `
+        <div class="location-pick-stat-card invoice"><span>Invoice No</span><strong>-</strong></div>
+        <div class="location-pick-stat-card customer"><span>거래처</span><strong>-</strong></div>
+        <div class="location-pick-stat-card total"><span>상품 / 수량</span><strong>-</strong></div>`;
+    }
     locationPickDom.result.innerHTML = `<div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>`;
     return;
   }
 
   const totalQty = data.rows.reduce((sum, row) => sum + row.qty, 0);
+  if (locationPickDom.stats) {
+    locationPickDom.stats.innerHTML = `
+      <div class="location-pick-stat-card invoice"><span>Invoice No</span><strong>${escapeHtml(data.invoiceNo)}</strong></div>
+      <div class="location-pick-stat-card customer"><span>거래처</span><strong>${escapeHtml(data.customer)}</strong></div>
+      <div class="location-pick-stat-card total"><span>상품 / 수량</span><strong>${data.rows.length.toLocaleString("ko-KR")}개 · ${totalQty.toLocaleString("ko-KR")} EA</strong></div>`;
+  }
   locationPickDom.result.innerHTML = `
-    <div class="location-pick-fixed">
-      <div><span>Invoice No</span><strong>${escapeHtml(data.invoiceNo)}</strong></div>
-      <div><span>거래처</span><strong>${escapeHtml(data.customer)}</strong></div>
-    </div>
-    <div class="location-pick-summary">
-      <div>
-        <span>총 ${data.rows.length.toLocaleString("ko-KR")}개 상품</span>
-        <strong>${totalQty.toLocaleString("ko-KR")} EA</strong>
-      </div>
-    </div>
     <div class="location-pick-table-wrap">
       <table class="location-pick-table">
         <thead>
