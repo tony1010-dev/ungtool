@@ -3964,6 +3964,14 @@ function renderPersonnel(rows = []) {
     return `${tenureYear}년차`;
   }
 
+  function personnelTenureTone(value = "") {
+    const year = Number(String(value || "").match(/\d+/)?.[0] || 0);
+    if (year >= 10) return "tenure-decade";
+    if (year >= 5) return "tenure-senior";
+    if (year > 0) return "tenure-junior";
+    return "";
+  }
+
   cleanRows.forEach((row) => {
     const [name, genderCount, gender, age, startDate, , label, value] = row;
     if ((name === "男" || name === "女") && genderCount) {
@@ -3981,13 +3989,15 @@ function renderPersonnel(rows = []) {
       });
     }
     if (name && name !== "男" && name !== "女" && !name.includes("이름") && (gender === "男" || gender === "女")) {
+      const tenure = personnelTenureYear(startDate);
       employees.push({
         name,
         gender,
         age,
         startDate,
         dday: personnelDday(startDate),
-        tenure: personnelTenureYear(startDate),
+        tenure,
+        tenureTone: personnelTenureTone(tenure),
         status: label || "",
       });
     }
@@ -4037,7 +4047,7 @@ function renderPersonnel(rows = []) {
             <div class="person-meta">
               ${person.age ? `<span>${escapeHtml(person.age)}세</span>` : ""}
               ${person.startDate ? `<span>입사일 ${escapeHtml(person.startDate)}</span>` : ""}
-              ${person.tenure ? `<span class="person-tenure">${escapeHtml(person.tenure)}</span>` : ""}
+              ${person.tenure ? `<span class="person-tenure ${escapeHtml(person.tenureTone)}">${escapeHtml(person.tenure)}</span>` : ""}
               ${person.dday ? `<span class="person-dday">${escapeHtml(person.dday)}</span>` : ""}
             </div>
           </div>

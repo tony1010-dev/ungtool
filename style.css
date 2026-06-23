@@ -4101,14 +4101,26 @@ html[data-theme="dark"] .queue-row {
   align-items: center;
   min-height: 24px;
   padding: 4px 9px;
-  border: 1px solid rgba(17, 85, 204, .18);
+  border: 1px solid rgba(34, 197, 94, .22);
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(17, 85, 204, .12), rgba(34, 197, 94, .12));
-  color: #1155cc;
+  background: linear-gradient(135deg, rgba(34, 197, 94, .16), rgba(20, 184, 166, .11));
+  color: #15803d;
   font-size: 11px;
   font-weight: 950;
   letter-spacing: -.01em;
   white-space: nowrap;
+}
+
+.person-tenure.tenure-senior {
+  border-color: rgba(17, 85, 204, .2);
+  background: linear-gradient(135deg, rgba(17, 85, 204, .13), rgba(59, 130, 246, .1));
+  color: #1155cc;
+}
+
+.person-tenure.tenure-decade {
+  border-color: rgba(245, 158, 11, .34);
+  background: linear-gradient(135deg, rgba(245, 158, 11, .2), rgba(255, 107, 53, .12));
+  color: #b45309;
 }
 
 .person-status {
@@ -4119,9 +4131,21 @@ html[data-theme="dark"] .queue-row {
 }
 
 html[data-theme="dark"] .person-tenure {
-  border-color: rgba(96, 165, 250, .28);
+  border-color: rgba(74, 222, 128, .3);
+  background: rgba(34, 197, 94, .14);
+  color: #86efac;
+}
+
+html[data-theme="dark"] .person-tenure.tenure-senior {
+  border-color: rgba(96, 165, 250, .32);
   background: rgba(59, 130, 246, .14);
   color: #93c5fd;
+}
+
+html[data-theme="dark"] .person-tenure.tenure-decade {
+  border-color: rgba(251, 191, 36, .34);
+  background: rgba(245, 158, 11, .16);
+  color: #fcd34d;
 }
 
 @media (max-width: 700px) {
