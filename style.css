@@ -3184,7 +3184,7 @@ html[data-theme="dark"] .license-note {
 }
 
 .outgoing-list-panel .dash-table {
-  min-width: 780px;
+  min-width: 560px;
 }
 
 .outgoing-carrier-panel .dash-chart-wrap {

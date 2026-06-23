@@ -3285,15 +3285,12 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="tag-cell">${dashCell(cells, 0)}</td>
       <td>${dashCell(cells, 1)}</td>
-      <td>${dashCell(cells, 2).replace(/\r/g, "")}</td>
       <td>${dashCell(cells, 3)}</td>
+      <td class="tag-cell">${carrierBadgeHtml(carrier)}</td>
       <td class="num-cell dash-item-value">${item}</td>
       <td class="num-cell dash-qty-value">${qty}</td>
-      <td class="amount-cell">${fmtUsd(amt)}</td>
-      <td class="tag-cell">${carrierBadgeHtml(carrier)}</td>
-      <td>${note}</td>
+      <td class="tag-cell">${note}</td>
     `;
     fragment.append(tr);
   });
@@ -3301,7 +3298,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
 
   if (!dataRows.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px">데이터가 없습니다.</td>`;
+    tr.innerHTML = `<td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">데이터가 없습니다.</td>`;
     tbody.append(tr);
   }
 
@@ -3323,15 +3320,12 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     albumRows.forEach((row, index) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td class="tag-cell">${(index + 1).toLocaleString("ko-KR")}</td>
         <td>${escapeHtml(row.invoiceNo)}</td>
-        <td>${escapeHtml(row.worker || "-")}</td>
         <td>${escapeHtml(row.customer || "-")}</td>
+        <td class="tag-cell">${row.carrier ? carrierBadgeHtml(row.carrier) : "-"}</td>
         <td class="num-cell dash-item-value">${escapeHtml(row.item || "-")}</td>
         <td class="num-cell dash-qty-value">${escapeHtml(row.qty || "-")}</td>
-        <td class="amount-cell">-</td>
-        <td class="tag-cell">${row.carrier ? carrierBadgeHtml(row.carrier) : "-"}</td>
-        <td>${escapeHtml(row.progress || "-")}</td>
+        <td class="tag-cell">${row.worker ? `<span class="dash-unit-badge ${queueWorkerClass(row.worker)}">${escapeHtml(row.worker)}</span>` : "-"}</td>
       `;
       albumFragment.append(tr);
     });
@@ -3368,26 +3362,20 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
       amtStr: displayAmtStr,
     },
     rows: (albumRows.length ? albumRows.map((row, index) => [
-      String(index + 1),
       row.invoiceNo,
-      row.worker || "-",
       row.customer || "-",
+      row.carrier || "-",
       row.item || "-",
       row.qty || "-",
-      "-",
-      row.carrier || "-",
-      row.progress || "-",
+      row.worker || "-",
     ]) : dataRows.map((row) => {
       const cells = row.c || [];
       return [
-        dashCell(cells, 0),
         dashCell(cells, 1),
-        dashCell(cells, 2).replace(/\r/g, ""),
         dashCell(cells, 3),
+        normalizeCarrierName(dashCell(cells, 11) || "-"),
         dashCell(cells, 8) || "-",
         dashCell(cells, 9) || "-",
-        fmtUsd(gvizCellValue(cells[10] ?? null)),
-        normalizeCarrierName(dashCell(cells, 11) || "-"),
         dashCell(cells, 14) || "-",
       ];
     })),
@@ -4026,12 +4014,12 @@ function buildDashboardWorkbook() {
 
   const outgoing = dashboardState.outgoing;
   const outgoingSummary = [
-    ["요약", `${outgoing.summary.count}건`, `${outgoing.summary.pltTotal} PLT`, `${outgoing.summary.boxTotal} BOX`, outgoing.summary.amtStr, "", "", "", ""],
+    ["요약", `${outgoing.summary.count}건`, `${outgoing.summary.itemTotal} item`, `${outgoing.summary.qtyTotal} EA`, outgoing.summary.amtStr, "", ""],
   ];
   const outgoingSheet = dashboardBuildWorkbookSheet(
     "웅툴 - 출고",
-    [8, 16, 16, 18, 12, 10, 14, 16, 20],
-    ["번호", "인보이스", "영업사원", "거래처", "Item", "수량", "금액($)", "배송사", "특이사항"],
+    [18, 24, 16, 10, 10, 16],
+    ["Invoice No", "거래처", "배송사", "item", "수량", "작업"],
     outgoing.rows,
     outgoingSummary,
   );
@@ -4232,9 +4220,9 @@ async function downloadDashboardPdf() {
         `총 출고 PLT : ${dashboardState.outgoing.summary.pltTotal} / 총 출고 BOX : ${dashboardState.outgoing.summary.boxTotal}`,
         `총 출고 금액 : ${dashboardState.outgoing.summary.amtStr}`,
       ],
-      ["번호", "인보이스", "영업사원", "거래처", "Item", "수량", "금액($)", "배송사", "특이사항"],
+      ["Invoice No", "거래처", "배송사", "item", "수량", "작업"],
       dashboardState.outgoing.rows,
-      [80, 160, 170, 190, 120, 90, 140, 160, 480],
+      [150, 240, 150, 80, 90, 150],
     );
 
     const queuePages = buildDashboardSectionCanvases(
