@@ -3104,9 +3104,9 @@ function dashCell(cells, idx) {
 function normalizeCarrierName(text) {
   const raw = String(text ?? "").replace(/\s+/g, "").toLowerCase();
   if (raw === "fedex코어" || raw === "fedexcore") return "FedEx 코어";
-  if (raw === "fedexpickup" || raw === "fedex픽업") return "FedEx 픽업";
+  if (raw === "fedexpickup" || raw === "fedex픽업" || raw === "픽업fedex" || raw === "pickupfedex") return "픽업 FedEx";
   if (raw === "ups코어" || raw === "upscore") return "UPS 코어";
-  if (raw === "upspickup" || raw === "ups픽업") return "UPS 픽업";
+  if (raw === "upspickup" || raw === "ups픽업" || raw === "픽업ups" || raw === "pickupups") return "픽업UPS";
   if (raw === "dhl픽업" || raw === "dhlpickup") return "DHL 픽업";
   return text;
 }
@@ -3409,12 +3409,21 @@ function queueWorkerClass(worker = "") {
 function queueCarrierIconHtml(name = "") {
   const text = String(name || "").trim() || "-";
   const key = carrierKey(text);
+  const fedexLogo = (suffix = "", prefix = "") => `${prefix}Fed<span>Ex</span>${suffix}`;
   const label = key === "fedex"
-    ? `Fed<span>Ex</span>`
+    ? text.includes("픽업")
+      ? fedexLogo("", "픽업 ")
+      : text.includes("코어")
+        ? fedexLogo(" 코어")
+        : fedexLogo()
     : key === "dhl"
       ? "DHL"
       : key === "ups"
-        ? "UPS"
+        ? text.includes("픽업")
+          ? "픽업UPS"
+          : text.includes("코어")
+            ? "UPS 코어"
+            : "UPS"
         : key === "cj"
           ? "CJ"
           : text.includes("3층")
