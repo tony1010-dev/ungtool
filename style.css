@@ -4118,9 +4118,9 @@ html[data-theme="dark"] .queue-row {
 }
 
 .person-tenure.tenure-decade {
-  border-color: rgba(245, 158, 11, .34);
-  background: linear-gradient(135deg, rgba(245, 158, 11, .2), rgba(255, 107, 53, .12));
-  color: #b45309;
+  border-color: rgba(124, 58, 237, .26);
+  background: linear-gradient(135deg, rgba(124, 58, 237, .14), rgba(168, 85, 247, .11));
+  color: #6d28d9;
 }
 
 .person-status {
@@ -4143,9 +4143,9 @@ html[data-theme="dark"] .person-tenure.tenure-senior {
 }
 
 html[data-theme="dark"] .person-tenure.tenure-decade {
-  border-color: rgba(251, 191, 36, .34);
-  background: rgba(245, 158, 11, .16);
-  color: #fcd34d;
+  border-color: rgba(196, 181, 253, .34);
+  background: rgba(124, 58, 237, .18);
+  color: #c4b5fd;
 }
 
 @media (max-width: 700px) {
