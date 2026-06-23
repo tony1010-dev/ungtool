@@ -4837,7 +4837,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-stat-card .location-pick-total {
-  color: #1155cc;
+  color: #1f2937;
 }
 
 .location-pick-stat-card .location-pick-slash {
@@ -5052,7 +5052,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-table td:nth-child(2) {
-  color: #cc0000;
+  color: #262626;
   font-weight: 850;
   word-break: break-all;
 }
@@ -5064,7 +5064,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-table td:last-child {
-  color: #1155cc;
+  color: #262626;
   font-weight: 950;
 }
 
@@ -5127,11 +5127,11 @@ html[data-theme="dark"] .location-pick-table tbody tr.is-copied td:last-child {
 }
 
 html[data-theme="dark"] .location-pick-table td:nth-child(2) {
-  color: #ff8a8a;
+  color: #e5e7eb;
 }
 
 html[data-theme="dark"] .location-pick-table td:last-child {
-  color: #7db7ff;
+  color: #e5e7eb;
 }
 
 html[data-theme="dark"] .location-pick-stat-card {
