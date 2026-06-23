@@ -3567,15 +3567,14 @@ function renderQueue(items = []) {
   const totalItem = rows.reduce((sum, row) => sum + parseNumber(row.item), 0);
   const totalQty = rows.reduce((sum, row) => sum + parseNumber(row.qty), 0);
   const workingCount = rows.filter((row) => queueStatus(row.worker, row.progress) === "작업중").length;
-  const doneCount = rows.filter((row) => queueStatus(row.worker, row.progress) === "완료").length;
   const stageOrder = ["출력", "피킹", "패킹", "검수", "완료", "대기"];
-  const stageGroups = groupCount(rows, (row) => queueStage(row.progress))
+  const activeRows = rows.filter((row) => ["출력", "피킹", "패킹", "검수"].includes(queueStage(row.progress)));
+  const stageGroups = groupCount(activeRows, (row) => queueStage(row.progress))
     .sort((a, b) => {
       const ai = stageOrder.indexOf(a[0]);
       const bi = stageOrder.indexOf(b[0]);
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     });
-  const activeRows = rows.filter((row) => ["출력", "피킹", "패킹"].includes(queueStage(row.progress)));
   const packedRows = rows.filter((row) => /\b\d+\s*(box|plt)\b/i.test(row.worker));
   const carrierGroups = groupCount(packedRows, (row) => row.carrier).slice(0, 8);
   const packedBoxTotal = packedRows.reduce((sum, row) => {
@@ -3608,10 +3607,10 @@ function renderQueue(items = []) {
       <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
       <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${totalQty.toLocaleString("ko-KR")}</strong></div>
       <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}</strong></div>
-      <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}</strong></div>
     </div>
     <div class="queue-stage-pills">
-      ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
+      <button class="queue-stage-filter is-active" type="button" data-stage="all"><span>전체</span><b>${activeRows.length.toLocaleString("ko-KR")}</b></button>
+      ${stageGroups.map(([stage, count]) => `<button class="queue-stage-filter" type="button" data-stage="${escapeHtml(stage)}"><span>${escapeHtml(stage)}</span><b>${count}</b></button>`).join("")}
     </div>
     <div class="queue-split-grid">
       <div class="queue-active-column">
@@ -3645,7 +3644,7 @@ function renderQueue(items = []) {
         const stage = queueStage(row.progress);
         const progressLabel = queueProgressLabel(row.progress);
         return `
-          <div class="queue-row ${showProgress ? "" : "no-progress"} ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}" data-panel="${type}" data-carrier="${escapeHtml(row.carrier)}">
+          <div class="queue-row ${showProgress ? "" : "no-progress"} ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}" data-panel="${type}" data-carrier="${escapeHtml(row.carrier)}" data-stage="${escapeHtml(stage)}">
             <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
             <span class="queue-row-customer">${escapeHtml(row.customer)}</span>
             <span class="queue-row-carrier">${queueCarrierIconHtml(row.carrier)}</span>
@@ -3675,8 +3674,24 @@ function renderQueue(items = []) {
     if (packedCountEl) packedCountEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
   }
 
+  function applyStageFilter(stage) {
+    const target = stage || "all";
+    container.querySelectorAll(".queue-stage-filter").forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stage === target);
+    });
+    container.querySelectorAll('.queue-row[data-panel="active"][data-stage]').forEach((row) => {
+      row.hidden = target !== "all" && row.dataset.stage !== target;
+    });
+    const visibleCount = container.querySelectorAll('.queue-row[data-panel="active"]:not([hidden])').length;
+    const activeCountEl = container.querySelector('[data-panel-count="active"]');
+    if (activeCountEl) activeCountEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
+  }
+
   container.querySelectorAll(".queue-carrier-filter").forEach((button) => {
     button.addEventListener("click", () => applyCarrierFilter(button.dataset.carrier));
+  });
+  container.querySelectorAll(".queue-stage-filter").forEach((button) => {
+    button.addEventListener("click", () => applyStageFilter(button.dataset.stage));
   });
 
   dashboardState.shippingQueue = {
@@ -3755,27 +3770,38 @@ function renderMaterials(matTable) {
         : name.includes("랩") || name.includes("필름")
           ? "wrap"
           : "box";
+    const colors = {
+      box: { stroke: "#d97706", fill: "#fff7ed" },
+      air: { stroke: "#0284c7", fill: "#ecfeff" },
+      tape: { stroke: "#ea580c", fill: "#fff1e8" },
+      wrap: { stroke: "#059669", fill: "#ecfdf5" },
+    };
+    const { stroke, fill } = colors[kind] || colors.box;
     const svg = kind === "air"
       ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-          <path d="M20 44h22c6.6 0 12-4.7 12-10.5S42.6 23 36 23c-1.9 0-3.7.4-5.3 1.1C29 18.8 24.5 15 19 15c-6.1 0-11 4.6-11 10.4 0 4.6 3 8.4 7.2 9.9C15.8 40.6 17.6 44 20 44Z" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 50h18" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+          <rect x="5" y="5" width="54" height="54" rx="16" fill="${fill}"/>
+          <path d="M20 44h22c6.6 0 12-4.7 12-10.5S42.6 23 36 23c-1.9 0-3.7.4-5.3 1.1C29 18.8 24.5 15 19 15c-6.1 0-11 4.6-11 10.4 0 4.6 3 8.4 7.2 9.9C15.8 40.6 17.6 44 20 44Z" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 50h18" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
         </svg>`
       : kind === "tape"
         ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-            <rect x="12" y="16" width="34" height="32" rx="14" stroke="currentColor" stroke-width="3.4" />
-            <circle cx="29" cy="32" r="7" stroke="currentColor" stroke-width="3.4" />
-            <path d="M46 24h6c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4h-6" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
-            <path d="M16 24h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+            <rect x="5" y="5" width="54" height="54" rx="16" fill="${fill}"/>
+            <rect x="12" y="16" width="34" height="32" rx="14" stroke="${stroke}" stroke-width="3.4" />
+            <circle cx="29" cy="32" r="7" stroke="${stroke}" stroke-width="3.4" />
+            <path d="M46 24h6c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4h-6" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
+            <path d="M16 24h8" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
           </svg>`
         : kind === "wrap"
           ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-              <rect x="14" y="15" width="36" height="34" rx="8" stroke="currentColor" stroke-width="3.4" />
-              <path d="M20 23h24M20 32h24M20 41h16" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+              <rect x="5" y="5" width="54" height="54" rx="16" fill="${fill}"/>
+              <rect x="14" y="15" width="36" height="34" rx="8" stroke="${stroke}" stroke-width="3.4" />
+              <path d="M20 23h24M20 32h24M20 41h16" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
             </svg>`
           : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-              <path d="m12 22 20-10 20 10-20 10-20-10Z" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/>
-              <path d="M12 22v20l20 10 20-10V22" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/>
-              <path d="M32 32v20" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+              <rect x="5" y="5" width="54" height="54" rx="16" fill="${fill}"/>
+              <path d="m12 22 20-10 20 10-20 10-20-10Z" stroke="${stroke}" stroke-width="3.4" stroke-linejoin="round"/>
+              <path d="M12 22v20l20 10 20-10V22" stroke="${stroke}" stroke-width="3.4" stroke-linejoin="round"/>
+              <path d="M32 32v20" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
             </svg>`;
     const label = kind === "air" ? "AIR" : kind === "tape" ? "TAPE" : kind === "wrap" ? "WRAP" : "BOX";
     return `<img class="mat-visual-icon ${kind}" alt="${label}" src="${svgDataUri(svg)}" />`;
@@ -3783,7 +3809,7 @@ function renderMaterials(matTable) {
 
   if (boxItems.length) {
     const card = document.createElement("div");
-    card.className = "dash-materials-card";
+    card.className = "dash-materials-card is-box-stock";
     card.innerHTML = `
       <h3>박스 재고</h3>
       <div class="mat-item-grid">
@@ -3794,7 +3820,7 @@ function renderMaterials(matTable) {
 
   if (packItems.length) {
     const card = document.createElement("div");
-    card.className = "dash-materials-card";
+    card.className = "dash-materials-card is-pack-stock";
     card.innerHTML = `
       <h3>포장용품</h3>
       <div class="mat-item-grid">
@@ -4074,7 +4100,7 @@ async function downloadDashboardExcel() {
   if (!button) return;
   try {
     button.disabled = true;
-    button.textContent = "저장중";
+    setDashboardExportButton(button, "excel", "저장중");
     const workbook = buildDashboardWorkbook();
     const output = XLSX.write(workbook, { type: "array", bookType: "xlsx", cellStyles: true, compression: true });
     downloadFile(output, `${dashboardFileBase()}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -4082,8 +4108,15 @@ async function downloadDashboardExcel() {
     setDashStatus("error", error.message || "Excel 저장 실패");
   } finally {
     button.disabled = false;
-    button.textContent = "엑셀";
+    setDashboardExportButton(button, "excel", "엑셀");
   }
+}
+
+function setDashboardExportButton(button, type, label) {
+  const icon = type === "pdf"
+    ? `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.8h6.8L15.8 6v11.2H5z"/><path d="M12 2.8V6h3.8"/><path d="M7 10h6M7 13h5"/></svg>`
+    : `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h8l4 4v10H4z"/><path d="M12 3v4h4"/><path d="M7 8l6 6M13 8l-6 6"/></svg>`;
+  button.innerHTML = `${icon}<span>${escapeHtml(label)}</span>`;
 }
 
 function fitCanvasText(ctx, text, maxWidth) {
@@ -4215,7 +4248,7 @@ async function downloadDashboardPdf() {
   if (!button) return;
   try {
     button.disabled = true;
-    button.textContent = "저장중";
+    setDashboardExportButton(button, "pdf", "저장중");
     dashboardExportReady();
 
     const incomingPages = buildDashboardSectionCanvases(
@@ -4284,7 +4317,7 @@ async function downloadDashboardPdf() {
     setDashStatus("error", error.message || "PDF 저장 실패");
   } finally {
     button.disabled = false;
-    button.textContent = "PDF";
+    setDashboardExportButton(button, "pdf", "PDF");
   }
 }
 
