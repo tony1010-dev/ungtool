@@ -849,6 +849,12 @@ const upsDom = {
   message: document.querySelector("#ups-message"),
 };
 
+const googleToolRefreshing = new Set();
+
+function currentToolName() {
+  return document.querySelector(".tool-tab.is-active")?.dataset.tool || "";
+}
+
 function selectTool(name) {
   upsDom.tabs.forEach((tab) => {
     const selected = tab.dataset.tool === name;
@@ -861,11 +867,36 @@ function selectTool(name) {
   });
   homePanel.hidden = true;
 
-  if (name === "picking") loadGoogleDb().catch((error) => showPickingMessage(error.message, true));
-  if (name === "sync") loadGoogleDb().catch((error) => showSyncMessage(error.message, true));
-  if (name === "license") loadLicenseRows().catch((error) => showLicenseMessage(error.message, true));
-  if (name === "dashboard") updateDashboardLock();
+  refreshGoogleBackedTool(name);
+  if (name === "dashboard") updateDashboardLock(true);
   if (name === "admin") updateAdminLock();
+}
+
+async function refreshGoogleBackedTool(name) {
+  if (!["picking", "sync", "license"].includes(name)) return;
+  if (googleToolRefreshing.has(name)) return;
+  googleToolRefreshing.add(name);
+  try {
+    if (name === "picking") {
+      await loadGoogleDb(true);
+      if (pickingFile) await inspectPickingFile(pickingFile);
+      return;
+    }
+    if (name === "sync") {
+      await loadGoogleDb(true);
+      if (syncFile) await inspectSyncFile(syncFile);
+      return;
+    }
+    if (name === "license") {
+      await loadLicenseRows(true);
+    }
+  } catch (error) {
+    if (name === "picking") showPickingMessage(error.message, true);
+    if (name === "sync") showSyncMessage(error.message, true);
+    if (name === "license") showLicenseMessage(error.message, true);
+  } finally {
+    googleToolRefreshing.delete(name);
+  }
 }
 
 function showUpsMessage(text, isError = false) {
@@ -2899,12 +2930,12 @@ adminDom.password.addEventListener("input", () => {
   adminDom.passwordError.hidden = true;
 });
 
-function updateDashboardLock() {
+function updateDashboardLock(forceRefresh = false) {
   dashboardDom.passwordGate.hidden = dashboardUnlocked;
   dashboardDom.content.hidden = !dashboardUnlocked;
   if (dashboardUnlocked) {
     startDashboardAutoRefresh();
-    loadDashboard();
+    loadDashboard(forceRefresh);
   } else {
     requestAnimationFrame(() => dashboardDom.password?.focus());
   }
@@ -4405,7 +4436,15 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && !document.querySelector("#dashboard-tool")?.hidden && !dashboardDom.content?.hidden) {
     loadDashboard(true);
   }
+  if (document.visibilityState === "visible") {
+    refreshGoogleBackedTool(currentToolName());
+  }
 });
+
+setInterval(() => {
+  if (document.visibilityState !== "visible") return;
+  refreshGoogleBackedTool(currentToolName());
+}, 60000);
 
 /* ── 로케이션 파악 ───────────────────────────────────────────── */
 function renderLocCheckResults(barcodes, targetLoc) {
