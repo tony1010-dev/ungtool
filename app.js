@@ -3509,7 +3509,14 @@ function renderPersonnel(rows = []) {
 
   const uniqueSummary = [];
   const seenSummary = new Set();
-  summaryItems.forEach((item) => {
+  const summaryOrder = ["총원", "출근", "남성", "여성"];
+  summaryItems
+    .sort((a, b) => {
+      const ai = summaryOrder.indexOf(a.label);
+      const bi = summaryOrder.indexOf(b.label);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    })
+    .forEach((item) => {
     const key = `${item.label}:${item.value}`;
     if (!seenSummary.has(key)) {
       seenSummary.add(key);
@@ -3523,12 +3530,11 @@ function renderPersonnel(rows = []) {
         <p class="personnel-eyebrow">PERSONNEL</p>
         <h3>음반팀 인원 현황</h3>
       </div>
-      <span class="personnel-source">인원 · AC15:AJ97</span>
     </div>
     <div class="personnel-summary-grid">
-      ${uniqueSummary.map((item) => `
+      ${uniqueSummary.slice(0, 4).map((item, index) => `
         <div class="personnel-summary-card ${item.tone}">
-          <span>설명</span>
+          <span>${String(index + 1).padStart(2, "0")}</span>
           <strong>${escapeHtml(item.label)}</strong>
           <em>${escapeHtml(item.value)}</em>
         </div>`).join("")}
@@ -3540,9 +3546,8 @@ function renderPersonnel(rows = []) {
           <div class="person-info">
             <strong>${escapeHtml(person.name)}</strong>
             <div class="person-meta">
-              <span>성별 ${escapeHtml(person.gender)}</span>
               ${person.age ? `<span>${escapeHtml(person.age)}세</span>` : ""}
-              ${person.startDate ? `<span>${escapeHtml(person.startDate)}</span>` : ""}
+              ${person.startDate ? `<span>입사일 ${escapeHtml(person.startDate)}</span>` : ""}
             </div>
           </div>
           ${person.status ? `<span class="person-status">${escapeHtml(person.status)}</span>` : ""}
