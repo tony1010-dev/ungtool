@@ -2792,12 +2792,16 @@ const locationPickDom = {
   input: document.querySelector("#location-pick-input"),
   highlight: document.querySelector("#location-pick-highlight"),
   button: document.querySelector("#location-pick-button"),
+  sampleButton: document.querySelector("#location-pick-sample-button"),
+  excelButton: document.querySelector("#location-pick-excel-button"),
   stats: document.querySelector("#location-pick-stats"),
   result: document.querySelector("#location-pick-result"),
   message: document.querySelector("#location-pick-message"),
 };
 let locationPickData = null;
 let locationPickCopiedRows = new Set();
+
+const LOCATION_PICK_SAMPLE_JSON = `{"err":0,"errMsg":"","rows":12,"data":[{"prod_nm":"(AP) 코르티스 - EP 1집 [COLOR OUTSIDE THE LINES] (3종)","prod_cd":"KP8800320198928AP-A","bar_code":"8800320198928","qty":30,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"코르티스 - EP 1집 [COLOR OUTSIDE THE LINES] (Weverse Albums ver.) (2종)","prod_cd":"KP8800320198935-A","bar_code":"8800320198935","qty":20,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"하츠투하츠 - 미니 2집 [Lemon Tang] (Photobook Ver.) (2종)","prod_cd":"KP8804775474255-A","bar_code":"8804775474255","qty":20,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"하츠투하츠 - 미니 2집 [Lemon Tang] (Jewel Case Ver.)","prod_cd":"KP8804775474262-A","bar_code":"8804775474262","qty":24,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"하츠투하츠 - 미니 2집 [Lemon Tang] (Sticker Ver.) (스마트앨범) (8종)","prod_cd":"KP8804775474279-A","bar_code":"8804775474279","qty":24,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"하츠투하츠 - 미니 2집 [Lemon Tang] (Keyring Ver.) (스마트앨범)","prod_cd":"KP8804775474286-A","bar_code":"8804775474286","qty":12,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"스테이씨 - 싱글 6집 [2:LOVE] (2종)","prod_cd":"KP8804775475962-A","bar_code":"8804775475962","qty":30,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"스테이씨 - 싱글 6집 [2:LOVE] (PLVE ver.)","prod_cd":"KP8804775475979-A","bar_code":"8804775475979","qty":30,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"마마무 - 스페셜 싱글 [4WARD] (4 Flowers ver.)","prod_cd":"KP8804775478079-A","bar_code":"8804775478079","qty":15,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"마마무 - 스페셜 싱글 [4WARD] (Memories ver. / Silence ver.) (2종)","prod_cd":"KP8804775478086-A","bar_code":"8804775478086","qty":20,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"마마무 - 스페셜 싱글 [4WARD] (KiT ver.)","prod_cd":"KP8804775478093-A","bar_code":"8804775478093","qty":5,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"},{"prod_nm":"마마무 - 스페셜 싱글 [4WARD] (KiT ver.)","prod_cd":"KP8804775478093-A","bar_code":"8804775478093","qty":8,"cust_nm":"Oh Seoul Happy","invc_no":"IN00450298"}],"onRowCount":0}`;
 
 function showLocationPickMessage(text, isError = false) {
   if (!locationPickDom.message) return;
@@ -2896,6 +2900,7 @@ function parseLocationPickRows(text) {
     rows: rows.map((row, index) => ({
       no: index + 1,
       productCode: String(row?.prod_cd ?? "").trim() || "-",
+      productName: String(row?.prod_nm ?? "").trim() || "-",
       barcode: String(row?.bar_code ?? "").trim() || "-",
       qty: parseNumber(row?.qty),
     })),
@@ -2957,8 +2962,10 @@ function renderLocationPickResult(data = null) {
     locationPickDom.result.innerHTML = `
       <div class="location-pick-stat-grid" id="location-pick-stats">${locationPickStatsHtml(null)}</div>
       <div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>`;
+    if (locationPickDom.excelButton) locationPickDom.excelButton.disabled = true;
     return;
   }
+  if (locationPickDom.excelButton) locationPickDom.excelButton.disabled = false;
 
   locationPickDom.result.innerHTML = `
     <div class="location-pick-stat-grid" id="location-pick-stats">${locationPickStatsHtml(data)}</div>
@@ -2968,6 +2975,7 @@ function renderLocationPickResult(data = null) {
           <tr>
             <th>No</th>
             <th>상품코드</th>
+            <th>상품명</th>
             <th>바코드</th>
             <th>수량</th>
           </tr>
@@ -2977,6 +2985,7 @@ function renderLocationPickResult(data = null) {
             <tr data-location-pick-row="${row.no}">
               <td>${row.no}</td>
               <td>${escapeHtml(row.productCode)}</td>
+              <td>${escapeHtml(row.productName)}</td>
               <td>
                 <button class="location-pick-barcode-button" type="button" data-location-pick-row="${row.no}" data-location-pick-barcode="${escapeHtml(row.barcode)}">
                   ${escapeHtml(row.barcode)}
@@ -3029,8 +3038,72 @@ function analyzeLocationPick() {
   }
 }
 
+function fillLocationPickSample() {
+  if (!locationPickDom.input) return;
+  locationPickDom.input.value = LOCATION_PICK_SAMPLE_JSON;
+  formatLocationPickInputIfJson();
+  analyzeLocationPick();
+  locationPickDom.input.focus();
+  showLocationPickMessage("예시 데이터를 입력했어요.");
+}
+
+function buildLocationPickWorkbook() {
+  if (!locationPickData?.rows?.length) {
+    throw new Error("저장할 분석 결과가 없습니다.");
+  }
+  const rows = [
+    ["No", "상품코드", "상품명", "바코드", "수량"],
+    ...locationPickData.rows.map((row) => [
+      row.no,
+      row.productCode,
+      row.productName,
+      row.barcode,
+      row.qty,
+    ]),
+  ];
+  const sheet = XLSX.utils.aoa_to_sheet(rows);
+  sheet["!cols"] = [{ wch: 8 }, { wch: 26 }, { wch: 64 }, { wch: 18 }, { wch: 10 }];
+  const border = {
+    top: { style: "thin", color: { rgb: "D9D9D9" } },
+    bottom: { style: "thin", color: { rgb: "D9D9D9" } },
+    left: { style: "thin", color: { rgb: "D9D9D9" } },
+    right: { style: "thin", color: { rgb: "D9D9D9" } },
+  };
+  const range = XLSX.utils.decode_range(sheet["!ref"]);
+  for (let row = 0; row <= range.e.r; row += 1) {
+    for (let col = 0; col <= range.e.c; col += 1) {
+      const cell = ensureCell(sheet, row, col);
+      cell.s = {
+        font: { name: "맑은 고딕", sz: row === 0 ? 10 : 9, bold: row === 0, color: { rgb: row === 0 ? "FFFFFF" : "222222" } },
+        fill: row === 0 ? { fgColor: { rgb: "171717" } } : { fgColor: { rgb: row % 2 ? "FFFFFF" : "F8F8F8" } },
+        alignment: { horizontal: [0, 4].includes(col) ? "center" : "left", vertical: "center", wrapText: col === 2 },
+        border,
+      };
+    }
+  }
+  sheet["!autofilter"] = { ref: `A1:E${rows.length}` };
+  sheet["!freeze"] = { xSplit: 0, ySplit: 1 };
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, sheet, "Location Pick");
+  return workbook;
+}
+
+function downloadLocationPickExcel() {
+  try {
+    const workbook = buildLocationPickWorkbook();
+    const output = XLSX.write(workbook, { type: "array", bookType: "xlsx", cellStyles: true, compression: true });
+    const invoice = safeBaseName(locationPickData?.invoiceNo || "LocationPick");
+    downloadFile(output, `웅툴_LocationPick_${invoice}_${seoulDateString()}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    showLocationPickMessage("Location Pick Excel을 저장했어요.");
+  } catch (error) {
+    showLocationPickMessage(error.message || "Excel 저장 중 문제가 발생했습니다.", true);
+  }
+}
+
 let locationPickTimer = null;
 locationPickDom.button?.addEventListener("click", analyzeLocationPick);
+locationPickDom.sampleButton?.addEventListener("click", fillLocationPickSample);
+locationPickDom.excelButton?.addEventListener("click", downloadLocationPickExcel);
 locationPickDom.input?.addEventListener("input", () => {
   updateLocationPickHighlight();
   requestAnimationFrame(updateLocationPickHighlight);

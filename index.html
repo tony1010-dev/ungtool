@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=75" />
+    <link rel="stylesheet" href="style.css?v=76" />
   </head>
   <body>
     <header class="site-header">
@@ -534,7 +534,12 @@
 
         <div class="sync-split location-pick-split">
           <div class="sync-pane">
-            <h3 class="sync-pane-title">데이터 붙여넣기</h3>
+            <div class="location-pick-title-row">
+              <h3 class="sync-pane-title">데이터 붙여넣기</h3>
+              <button class="location-pick-mini-button" id="location-pick-sample-button" type="button">
+                예시입력
+              </button>
+            </div>
             <p class="sync-pane-desc">CMS에서 복사한 JSON 문구를 그대로 붙여넣어 주세요.</p>
 
             <div class="loc-input-frame location-pick-input-frame">
@@ -555,7 +560,13 @@
           </div>
 
           <div class="sync-pane location-pick-result-pane">
-            <h3 class="sync-pane-title">분석 결과</h3>
+            <div class="location-pick-title-row">
+              <h3 class="sync-pane-title">분석 결과</h3>
+              <button class="location-pick-mini-button excel" id="location-pick-excel-button" type="button" disabled title="Excel 받기">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 16h12" /></svg>
+                <span>Excel</span>
+              </button>
+            </div>
             <p class="sync-pane-desc">목록을 순서대로 정리합니다.</p>
 
             <div class="location-pick-result" id="location-pick-result">
@@ -869,6 +880,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=103"></script>
+  <script src="app.js?v=104"></script>
   </body>
 </html>

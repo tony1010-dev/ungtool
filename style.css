@@ -4761,6 +4761,60 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   gap: 12px;
 }
 
+.location-pick-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.location-pick-title-row .sync-pane-title {
+  margin: 0;
+}
+
+.location-pick-mini-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform .14s ease, background .14s ease, border-color .14s ease;
+}
+
+.location-pick-mini-button svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.location-pick-mini-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.location-pick-mini-button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.location-pick-mini-button.excel {
+  color: #217346;
+}
+
 .location-pick-stat-grid {
   display: grid;
   grid-template-columns: 1fr 1.05fr .9fr .9fr;
@@ -5058,6 +5112,12 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-table td:nth-child(3) {
+  color: #262626;
+  font-weight: 750;
+  word-break: break-word;
+}
+
+.location-pick-table td:nth-child(4) {
   font-family: var(--mono, monospace);
   font-weight: 800;
   white-space: nowrap;
@@ -5127,6 +5187,10 @@ html[data-theme="dark"] .location-pick-table tbody tr.is-copied td:last-child {
 }
 
 html[data-theme="dark"] .location-pick-table td:nth-child(2) {
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .location-pick-table td:nth-child(3) {
   color: #e5e7eb;
 }
 
