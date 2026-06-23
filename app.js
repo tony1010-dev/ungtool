@@ -1893,8 +1893,8 @@ function buildPickingWorkbook(data = pickingData) {
     { wch: 4 },
     { wch: 24 },
     { wch: 27 },
-    { wch: 21 },
-    { wch: 15 },
+    { wch: 18 },
+    { wch: 17 },
     { wch: 7 },
     { wch: 10 },
     { wch: 10 },
@@ -2029,7 +2029,7 @@ function buildPickingWorkbook(data = pickingData) {
         fill: { fgColor: { rgb: index % 2 ? "FAF9F6" : "FFFFFF" } },
         font: {
           name: "맑은 고딕",
-          sz: col === 1 ? 8 : 9,
+          sz: col === 1 || col === 3 ? 8 : 9,
           bold: col === 2 || col === 6,
           color: { rgb: col === 6 ? (item.location ? "D6532F" : "C62828") : "222222" },
         },
@@ -2254,8 +2254,8 @@ function buildPickingPdfCanvases(data = pickingData) {
         ["NO", 45],
         ["SKU", 210],
         ["DESCRIPTION", 270],
-        ["BRAND", 145],
-        ["BARCODE", 120],
+        ["BRAND", 115],
+        ["BARCODE", 150],
         ["QTY", 55],
         ["LOC", 105],
         ["PACK", 81],
@@ -2264,8 +2264,8 @@ function buildPickingPdfCanvases(data = pickingData) {
         ["NO", 55],
         ["SKU", 205],
         ["DESCRIPTION", 540],
-        ["BRAND", 120],
-        ["BARCODE", 130],
+        ["BRAND", 100],
+        ["BARCODE", 150],
         ["QTY", 80],
         ["LOCATION", 170],
         ["PACK", 150],
@@ -2303,7 +2303,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         "",
       ];
       const wrapped = values.map((value, index) =>
-        index === 1 ? [String(value)] : wrapCanvasText(ctx, value, columns[index][1] - 16),
+        [1, 4].includes(index) ? [String(value)] : wrapCanvasText(ctx, value, columns[index][1] - 16),
       );
       const rowHeight = Math.max(58, Math.max(...wrapped.map((lines) => lines.length)) * 22 + 18);
 
@@ -2322,9 +2322,9 @@ function buildPickingPdfCanvases(data = pickingData) {
         ctx.strokeRect(x, y, colWidth, rowHeight);
         ctx.fillStyle =
           colIndex === 6 ? (item.location ? "#d6532f" : "#c62828") : "#222222";
-        let fontSize = colIndex === 2 ? 16 : colIndex === 1 ? 14 : 15;
+        let fontSize = colIndex === 2 ? 16 : colIndex === 1 ? 14 : colIndex === 3 ? 13 : 15;
         const fontWeight = colIndex === 6 || colIndex === 2 ? 700 : 500;
-        if (colIndex === 1) {
+        if ([1, 4].includes(colIndex)) {
           ctx.font = `${fontWeight} ${fontSize}px 'Malgun Gothic', sans-serif`;
           while (fontSize > 8 && ctx.measureText(String(value)).width > colWidth - 16) {
             fontSize -= 1;
@@ -2336,7 +2336,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         const centered = [0, 5, 6, 7].includes(colIndex);
         ctx.textAlign = centered ? "center" : "left";
         const lines =
-          colIndex === 1 ? [String(value)] : wrapCanvasText(ctx, value, colWidth - 16);
+          [1, 4].includes(colIndex) ? [String(value)] : wrapCanvasText(ctx, value, colWidth - 16);
         const startY = y + Math.max(22, (rowHeight - lines.length * 22) / 2 + 17);
         lines.forEach((line, lineIndex) => {
           ctx.fillText(
@@ -2903,6 +2903,7 @@ function updateDashboardLock() {
   dashboardDom.passwordGate.hidden = dashboardUnlocked;
   dashboardDom.content.hidden = !dashboardUnlocked;
   if (dashboardUnlocked) {
+    startDashboardAutoRefresh();
     loadDashboard();
   } else {
     requestAnimationFrame(() => dashboardDom.password?.focus());
@@ -4282,6 +4283,8 @@ async function downloadDashboardPdf() {
 }
 
 let dashLoaded = false;
+let dashboardRefreshTimer = null;
+let dashboardLoading = false;
 
 async function loadDashboardFromServer() {
   const response = await fetch(`/api/dashboard?t=${Date.now()}`, { cache: "no-store" });
@@ -4313,8 +4316,10 @@ async function loadDashboardFromPublicSheet() {
   renderMaterials(matTable);
 }
 
-async function loadDashboard() {
-  if (dashLoaded) return;
+async function loadDashboard(force = false) {
+  if (dashboardLoading) return;
+  if (dashLoaded && !force) return;
+  dashboardLoading = true;
   setDashStatus("loading", "데이터 불러오는 중");
 
   try {
@@ -4335,8 +4340,27 @@ async function loadDashboard() {
     });
     renderQueue([]);
     renderPersonnel([]);
+  } finally {
+    dashboardLoading = false;
   }
 }
+
+function startDashboardAutoRefresh() {
+  if (dashboardRefreshTimer) return;
+  dashboardRefreshTimer = setInterval(() => {
+    const dashboardVisible = !document.querySelector("#dashboard-tool")?.hidden;
+    const dashboardContentVisible = !dashboardDom.content?.hidden;
+    if (dashboardVisible && dashboardContentVisible && document.visibilityState === "visible") {
+      loadDashboard(true);
+    }
+  }, 30000);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !document.querySelector("#dashboard-tool")?.hidden && !dashboardDom.content?.hidden) {
+    loadDashboard(true);
+  }
+});
 
 /* ── 로케이션 파악 ───────────────────────────────────────────── */
 function renderLocCheckResults(barcodes, targetLoc) {
@@ -4422,6 +4446,7 @@ document.querySelectorAll(".dash-tab").forEach((tab) => {
     document.querySelectorAll(".dash-panel").forEach((panel) => {
       panel.hidden = panel.id !== `dash-${target}`;
     });
+    loadDashboard(true);
     if (target === "queue") requestAnimationFrame(adjustQueuePanelAlignment);
   });
 });
