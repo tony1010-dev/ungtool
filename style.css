@@ -3215,6 +3215,18 @@ html[data-theme="dark"] .license-note {
   color: var(--text);
 }
 
+.queue-row-worker.is-box {
+  background: #ffff00;
+  color: #ff0000;
+  font-weight: 900;
+}
+
+.queue-row-worker.is-plt {
+  background: #000000;
+  color: #ffffff;
+  font-weight: 900;
+}
+
 .queue-row-progress {
   display: grid;
   align-items: center;
@@ -3234,6 +3246,14 @@ html[data-theme="dark"] .license-note {
   font-size: 10px;
   font-weight: 850;
   line-height: 1;
+}
+
+.queue-stage-badge.is-picking {
+  color: #3f3f3f;
+}
+
+.queue-stage-badge.is-packing {
+  color: #5479df;
 }
 
 .queue-panel .queue-row-progress i {

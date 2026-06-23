@@ -3373,6 +3373,18 @@ function queueStage(progress = "") {
   return text || "대기";
 }
 
+function queueProgressLabel(progress = "") {
+  const text = String(progress || "").trim();
+  return text || queueStage(progress);
+}
+
+function queueProgressClass(progress = "") {
+  const text = String(progress || "").trim();
+  if (text.includes("패킹중")) return "is-packing";
+  if (text.includes("피킹")) return "is-picking";
+  return "";
+}
+
 function queueStatus(worker = "", progress = "") {
   const workerText = String(worker || "").trim();
   const progressText = String(progress || "").trim();
@@ -3385,6 +3397,13 @@ function queueStatus(worker = "", progress = "") {
 function queueWorkerName(worker = "") {
   const text = String(worker || "").trim();
   return text;
+}
+
+function queueWorkerClass(worker = "") {
+  const text = String(worker || "").trim();
+  if (/\b\d+\s*box\b/i.test(text)) return "is-box";
+  if (/\b\d+\s*plt\b/i.test(text)) return "is-plt";
+  return "";
 }
 
 function queueCarrierIconHtml(name = "") {
@@ -3504,6 +3523,7 @@ function renderQueue(items = []) {
       ${panelRows.length ? panelRows.map((row) => {
         const status = queueStatus(row.worker, row.progress);
         const stage = queueStage(row.progress);
+        const progressLabel = queueProgressLabel(row.progress);
         return `
           <div class="queue-row ${showProgress ? "" : "no-progress"} ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}" data-panel="${type}" data-carrier="${escapeHtml(row.carrier)}">
             <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
@@ -3511,9 +3531,9 @@ function renderQueue(items = []) {
             <span class="queue-row-carrier">${queueCarrierIconHtml(row.carrier)}</span>
             <span class="queue-row-number queue-row-item">${escapeHtml(row.item)}</span>
             <span class="queue-row-number queue-row-qty">${escapeHtml(row.qty)}</span>
-            <span class="queue-row-worker">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
+            <span class="queue-row-worker ${queueWorkerClass(row.worker)}">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
             ${showProgress ? `<div class="queue-row-progress">
-              <span class="queue-stage-badge">${escapeHtml(stage)}</span>
+              <span class="queue-stage-badge ${queueProgressClass(row.progress)}">${escapeHtml(progressLabel)}</span>
               <i><b style="width:${progressPercent(stage)}%"></b></i>
             </div>` : ""}
           </div>`;
