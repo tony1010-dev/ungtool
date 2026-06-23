@@ -3520,6 +3520,12 @@ function renderQueue(items = []) {
       </div>
     </div>`;
 
+  const carrierFilterBar = container.querySelector(".queue-packed-column .queue-carrier-pills");
+  const activeSpacer = container.querySelector(".queue-panel-spacer");
+  if (carrierFilterBar && activeSpacer) {
+    activeSpacer.style.minHeight = `${carrierFilterBar.offsetHeight}px`;
+  }
+
   function renderQueuePanel(title, panelRows, type, showProgress) {
     return `
       <section class="queue-panel ${type}">
