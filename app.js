@@ -3012,13 +3012,13 @@ function fetchDashSheet(asciiKey, sheetName, range, parsedNumHeaders) {
 }
 
 function fmtKrw(value) {
-  const n = Math.round(Number(value));
+  const n = Math.round(Number(String(value ?? "").replace(/[^\d.-]/g, "")));
   if (!n) return "-";
   return n.toLocaleString("ko-KR") + "원";
 }
 
 function fmtKrwSpaced(value) {
-  const n = Math.round(Number(value));
+  const n = Math.round(Number(String(value ?? "").replace(/[^\d.-]/g, "")));
   if (!n) return "-";
   return `${n.toLocaleString("ko-KR")} 원`;
 }
@@ -3176,6 +3176,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
   const amtStr   = dashCell(tRows[0]?.c || [], 2) || "-";  // N3
   const displayPltTotal = dashboardUnitTotal(album?.shippingPlt, pltTotal);
   const displayBoxTotal = dashboardUnitTotal(album?.shippingBox, boxTotal);
+  const displayAmtStr = fmtKrwSpaced(amtStr);
 
   // data: rows where col B (index 1) has IN번호
   const dataRows = rows.filter((row) => {
@@ -3221,7 +3222,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
     <div class="dash-stat stat-blue">${ICON_DOC}<span>출고</span><strong>${dataRows.length}건</strong></div>
     <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong>${displayPltTotal} PLT</strong></div>
     <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong>${displayBoxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(amtStr)}</strong></div>
+    <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${displayAmtStr}</strong></div>
   `;
 
   dashboardState.outgoing = {
@@ -3229,7 +3230,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
       count: dataRows.length,
       pltTotal: displayPltTotal,
       boxTotal: displayBoxTotal,
-      amtStr,
+      amtStr: displayAmtStr,
     },
     rows: dataRows.map((row) => {
       const cells = row.c || [];
