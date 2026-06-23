@@ -3268,6 +3268,8 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
   const tbody = document.querySelector("#dash-out-table tbody");
   tbody.replaceChildren();
   const fragment = document.createDocumentFragment();
+  let totalItem = 0;
+  let totalQty = 0;
 
   dataRows.forEach((row) => {
     const cells   = row.c || [];
@@ -3276,6 +3278,9 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
     const amt     = gvizCellValue(cells[10] ?? null);       // K col (dollar)
     const carrier = dashCell(cells, 11) || "-";             // L col
     const note    = dashCell(cells, 14) || "-";             // O col
+
+    totalItem += parseNumber(item);
+    totalQty += parseNumber(qty);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -3301,16 +3306,28 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
 
   document.querySelector("#dash-out-summary").innerHTML = `
     <div class="queue-summary-card"><span>출고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>PLT</span><strong class="dash-qty-value">${displayPltTotal}</strong></div>
-    <div class="queue-summary-card"><span>BOX</span><strong class="dash-qty-value">${displayBoxTotal}</strong></div>
-    <div class="queue-summary-card"><span>금액</span><strong>${displayAmtStr}</strong></div>
+    <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${totalQty.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>금액</span><strong class="dashboard-amount-value">${displayAmtStr}</strong></div>
   `;
+
+  const outgoingHero = document.querySelector("#dash-outgoing .dashboard-hero");
+  if (outgoingHero) {
+    outgoingHero.innerHTML = `
+      <div><h3>출고 현황</h3></div>
+      <div class="queue-complete-total" aria-label="출고 BOX PLT 합계">
+        <span>BOX <b>${fmtComma(displayBoxTotal)}</b></span>
+        <span>PLT <b>${fmtComma(displayPltTotal)}</b></span>
+      </div>`;
+  }
 
   dashboardState.outgoing = {
     summary: {
       count: dataRows.length,
       pltTotal: displayPltTotal,
       boxTotal: displayBoxTotal,
+      itemTotal: totalItem,
+      qtyTotal: totalQty,
       amtStr: displayAmtStr,
     },
     rows: dataRows.map((row) => {
