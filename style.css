@@ -4832,6 +4832,22 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   font-weight: 950;
 }
 
+.location-pick-stat-card .location-pick-remaining {
+  color: #cc0000;
+}
+
+.location-pick-stat-card .location-pick-total {
+  color: #1155cc;
+}
+
+.location-pick-stat-card .location-pick-slash {
+  color: #6b7280;
+}
+
+.location-pick-stat-card .location-pick-done {
+  color: #15803d;
+}
+
 .location-pick-stat-card.invoice {
   border-color: rgba(17, 85, 204, .18);
   background: color-mix(in srgb, #1155cc 7%, var(--surface));
