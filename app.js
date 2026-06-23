@@ -3152,6 +3152,8 @@ function renderIncoming(table, totalsTable) {
   });
 
   let totalAmt = 0;
+  let totalItem = 0;
+  let totalQty = 0;
   const vendorMap = new Map();
 
   const tbody = document.querySelector("#dash-in-table tbody");
@@ -3169,6 +3171,8 @@ function renderIncoming(table, totalsTable) {
     const baecha = dashCell(cells, 13) || "-";
 
     if (typeof box === "number") vendorMap.set(vendor, (vendorMap.get(vendor) || 0) + box);
+    totalItem += parseNumber(qty);
+    totalQty += parseNumber(box);
     if (typeof amt === "number") totalAmt += amt;
 
     const tr = document.createElement("tr");
@@ -3195,16 +3199,28 @@ function renderIncoming(table, totalsTable) {
 
   document.querySelector("#dash-in-summary").innerHTML = `
     <div class="queue-summary-card"><span>입고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>PLT</span><strong class="dash-qty-value">${pltTotal}</strong></div>
-    <div class="queue-summary-card"><span>BOX</span><strong class="dash-qty-value">${boxTotal}</strong></div>
+    <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${totalQty.toLocaleString("ko-KR")}</strong></div>
     <div class="queue-summary-card"><span>금액</span><strong class="dashboard-amount-value">${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
+
+  const incomingHero = document.querySelector("#dash-incoming .dashboard-hero");
+  if (incomingHero) {
+    incomingHero.innerHTML = `
+      <div><h3>입고 현황</h3></div>
+      <div class="queue-complete-total" aria-label="입고 BOX PLT 합계">
+        <span>BOX <b>${fmtComma(boxTotal)}</b></span>
+        <span>PLT <b>${fmtComma(pltTotal)}</b></span>
+      </div>`;
+  }
 
   dashboardState.incoming = {
     summary: {
       count: dataRows.length,
       pltTotal,
       boxTotal,
+      itemTotal: totalItem,
+      qtyTotal: totalQty,
       totalAmt,
     },
     rows: dataRows.map((row) => {
