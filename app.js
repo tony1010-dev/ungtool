@@ -1894,9 +1894,9 @@ function buildPickingWorkbook(data = pickingData) {
     { wch: 24 },
     { wch: 27 },
     { wch: 21 },
-    { wch: 17 },
+    { wch: 15 },
     { wch: 7 },
-    { wch: 8 },
+    { wch: 10 },
     { wch: 10 },
   ];
 
@@ -2029,7 +2029,7 @@ function buildPickingWorkbook(data = pickingData) {
         fill: { fgColor: { rgb: index % 2 ? "FAF9F6" : "FFFFFF" } },
         font: {
           name: "맑은 고딕",
-          sz: col === 6 ? 8 : col === 1 ? 8 : 9,
+          sz: col === 1 ? 8 : 9,
           bold: col === 2 || col === 6,
           color: { rgb: col === 6 ? (item.location ? "D6532F" : "C62828") : "222222" },
         },
@@ -2037,7 +2037,7 @@ function buildPickingWorkbook(data = pickingData) {
           horizontal: [0, 5, 6, 7].includes(col) ? "center" : "left",
           vertical: "center",
           wrapText: ![1, 4].includes(col),
-          shrinkToFit: [1, 4, 6].includes(col),
+          shrinkToFit: [1, 4].includes(col),
         },
         border: thinBorder,
       };
@@ -2255,9 +2255,9 @@ function buildPickingPdfCanvases(data = pickingData) {
         ["SKU", 210],
         ["DESCRIPTION", 270],
         ["BRAND", 145],
-        ["BARCODE", 145],
+        ["BARCODE", 120],
         ["QTY", 55],
-        ["LOC", 80],
+        ["LOC", 105],
         ["PACK", 81],
       ]
     : [
@@ -2265,9 +2265,9 @@ function buildPickingPdfCanvases(data = pickingData) {
         ["SKU", 205],
         ["DESCRIPTION", 540],
         ["BRAND", 120],
-        ["BARCODE", 150],
+        ["BARCODE", 130],
         ["QTY", 80],
-        ["LOCATION", 150],
+        ["LOCATION", 170],
         ["PACK", 150],
       ];
 
@@ -2322,7 +2322,7 @@ function buildPickingPdfCanvases(data = pickingData) {
         ctx.strokeRect(x, y, colWidth, rowHeight);
         ctx.fillStyle =
           colIndex === 6 ? (item.location ? "#d6532f" : "#c62828") : "#222222";
-        let fontSize = colIndex === 6 ? 12 : colIndex === 2 ? 16 : colIndex === 1 ? 14 : 15;
+        let fontSize = colIndex === 2 ? 16 : colIndex === 1 ? 14 : 15;
         const fontWeight = colIndex === 6 || colIndex === 2 ? 700 : 500;
         if (colIndex === 1) {
           ctx.font = `${fontWeight} ${fontSize}px 'Malgun Gothic', sans-serif`;
