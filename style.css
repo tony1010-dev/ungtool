@@ -3777,11 +3777,11 @@ html[data-theme="dark"] .queue-row {
   letter-spacing: -.03em;
 }
 
-.personnel-summary-card.male { --card-color: #3b82f6; }
-.personnel-summary-card.female { --card-color: #ec4899; }
-.personnel-summary-card.present { --card-color: #22c55e; }
-.personnel-summary-card.total { --card-color: var(--accent); }
-.personnel-summary-card.rest { --card-color: #8b5cf6; }
+.personnel-summary-card.male { --card-color: #4f7fcf; }
+.personnel-summary-card.female { --card-color: #d16b9c; }
+.personnel-summary-card.present { --card-color: #5c9f67; }
+.personnel-summary-card.total { --card-color: #e17845; }
+.personnel-summary-card.rest { --card-color: #8a78c7; }
 
 .personnel-card-grid {
   display: grid;

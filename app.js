@@ -3727,21 +3727,10 @@ function renderMaterials(matTable) {
     return;
   }
 
-  const materialTotalQty = [...boxItems, ...packItems].reduce((sum, item) => sum + parseNumber(item.qty), 0);
   const materialHero = document.createElement("div");
   materialHero.className = "queue-hero dashboard-hero";
   materialHero.innerHTML = `<div><h3>자재현황</h3></div>`;
   container.append(materialHero);
-
-  const materialSummary = document.createElement("div");
-  materialSummary.className = "queue-summary-grid";
-  materialSummary.innerHTML = `
-    <div class="queue-summary-card"><span>전체 항목</span><strong>${(boxItems.length + packItems.length).toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>박스 재고</span><strong class="dash-qty-value">${boxItems.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>포장용품</span><strong class="dash-qty-value">${packItems.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>총 수량</span><strong class="dash-qty-value">${materialTotalQty.toLocaleString("ko-KR")}</strong></div>
-  `;
-  container.append(materialSummary);
 
   function svgDataUri(svg) {
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
@@ -3828,6 +3817,18 @@ function renderPersonnel(rows = []) {
 
   const summaryItems = [];
   const employees = [];
+
+  function personnelStartDateKey(value = "") {
+    const text = String(value || "").trim();
+    const match = text.match(/(\d{2,4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/);
+    if (!match) return Number.MAX_SAFE_INTEGER;
+    let year = Number(match[1]);
+    if (year < 100) year += year >= 70 ? 1900 : 2000;
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    return year * 10000 + month * 100 + day;
+  }
+
   cleanRows.forEach((row) => {
     const [name, genderCount, gender, age, startDate, , label, value] = row;
     if ((name === "男" || name === "女") && genderCount) {
@@ -3854,6 +3855,11 @@ function renderPersonnel(rows = []) {
       });
     }
   });
+
+  employees.sort((a, b) =>
+    personnelStartDateKey(a.startDate) - personnelStartDateKey(b.startDate) ||
+    naturalCollator.compare(a.name, b.name)
+  );
 
   const uniqueSummary = [];
   const seenSummary = new Set();
