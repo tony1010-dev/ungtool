@@ -3932,17 +3932,38 @@ function renderPersonnel(rows = []) {
     return date;
   }
 
+  function personnelToday() {
+    const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }
+
   function personnelDday(value = "") {
     const start = personnelStartDate(value);
     if (!start) return "";
     const anniversary = new Date(start);
     anniversary.setFullYear(anniversary.getFullYear() + 1);
-    const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
-    today.setHours(0, 0, 0, 0);
+    const today = personnelToday();
     anniversary.setHours(0, 0, 0, 0);
     const diff = Math.ceil((anniversary - today) / 86400000);
     if (diff < 0 || diff > 366) return "";
     return diff === 0 ? "D-DAY" : `D-${diff}`;
+  }
+
+  function personnelTenureYear(value = "") {
+    const start = personnelStartDate(value);
+    if (!start) return "";
+    const today = personnelToday();
+    start.setHours(0, 0, 0, 0);
+    if (today < start) return "";
+
+    let completedYears = today.getFullYear() - start.getFullYear();
+    const anniversaryThisYear = new Date(start);
+    anniversaryThisYear.setFullYear(today.getFullYear());
+    anniversaryThisYear.setHours(0, 0, 0, 0);
+    if (today < anniversaryThisYear) completedYears -= 1;
+
+    return completedYears >= 1 ? `${completedYears}년차` : "";
   }
 
   cleanRows.forEach((row) => {
@@ -3968,6 +3989,7 @@ function renderPersonnel(rows = []) {
         age,
         startDate,
         dday: personnelDday(startDate),
+        tenure: personnelTenureYear(startDate),
         status: label || "",
       });
     }
@@ -4020,7 +4042,11 @@ function renderPersonnel(rows = []) {
               ${person.dday ? `<span class="person-dday">${escapeHtml(person.dday)}</span>` : ""}
             </div>
           </div>
-          ${person.status ? `<span class="person-status">${escapeHtml(person.status)}</span>` : ""}
+          ${person.tenure || person.status ? `
+            <div class="person-side-badges">
+              ${person.tenure ? `<span class="person-tenure">${escapeHtml(person.tenure)}</span>` : ""}
+              ${person.status ? `<span class="person-status">${escapeHtml(person.status)}</span>` : ""}
+            </div>` : ""}
         </article>`).join("")}
     </div>`;
 

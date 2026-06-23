@@ -4088,11 +4088,40 @@ html[data-theme="dark"] .queue-row {
   box-shadow: 0 6px 14px rgba(255, 107, 53, .09);
 }
 
+.person-side-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  justify-self: end;
+}
+
+.person-tenure {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border: 1px solid rgba(17, 85, 204, .18);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(17, 85, 204, .12), rgba(34, 197, 94, .12));
+  color: #1155cc;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
+
 .person-status {
   background: color-mix(in srgb, #ef4444 12%, var(--surface));
   color: #b91c1c;
   white-space: nowrap;
   font-weight: 900;
+}
+
+html[data-theme="dark"] .person-tenure {
+  border-color: rgba(96, 165, 250, .28);
+  background: rgba(59, 130, 246, .14);
+  color: #93c5fd;
 }
 
 @media (max-width: 700px) {
@@ -4148,6 +4177,14 @@ html[data-theme="dark"] .queue-row {
 
   .person-card {
     grid-template-columns: 38px 1fr;
+  }
+
+  .person-side-badges {
+    grid-column: 2;
+    justify-self: start;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .person-status {
