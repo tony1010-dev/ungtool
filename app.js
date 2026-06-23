@@ -2793,27 +2793,12 @@ const businessDom = {
   sendButton: document.querySelector("#business-send-button"),
   resetButton: document.querySelector("#business-reset-button"),
   message: document.querySelector("#business-message"),
-  status: document.querySelector("#business-ai-status"),
-  modelInputs: document.querySelectorAll('input[name="business-model"]'),
-  modelOptions: document.querySelectorAll(".ai-model-option"),
 };
 
 const BUSINESS_SYSTEM_MESSAGE =
   "당신은 웅툴의 한국어 AI 도우미입니다. 간단한 질문, 요약, 아이디어 정리, 번역, 물류·영업 업무 문장 작성을 돕습니다. 기본적으로 짧고 명확하게 한국어로 답하세요. 모르는 사실은 추측하지 말고 모른다고 말하세요. 사용자가 업무 문장을 요청하면 뜻, 업체명, 상품명, 수량, 날짜를 보존하면서 정중하고 자연스럽게 작성하세요.";
-const BUSINESS_OLLAMA_URL = "http://127.0.0.1:11434/api/chat";
-const BUSINESS_MODELS = {
-  "qwen3:8b": {
-    status: "qwen3:8b · 빠름",
-    maxTokens: 520,
-  },
-  "qwen3:14b": {
-    status: "qwen3:14b · 정밀 · 느림",
-    maxTokens: 1100,
-  },
-};
 let businessHistory = [];
 let businessBusy = false;
-let businessModel = "qwen3:8b";
 
 function showBusinessMessage(text, isError = false) {
   businessDom.message.textContent = text;
@@ -2836,51 +2821,6 @@ function addBusinessMessage(role, text, loading = false) {
   return row;
 }
 
-function updateBusinessModel(model) {
-  businessModel = BUSINESS_MODELS[model] ? model : "qwen3:8b";
-  businessDom.modelOptions.forEach((option) => {
-    const input = option.querySelector("input");
-    option.classList.toggle("is-active", input?.value === businessModel);
-  });
-  const info = BUSINESS_MODELS[businessModel];
-  if (businessDom.status) {
-    businessDom.status.innerHTML = `<i class="status-dot is-ready"></i> ${info.status}`;
-  }
-}
-
-async function requestLocalBusinessAi(messages) {
-  const modelInfo = BUSINESS_MODELS[businessModel] || BUSINESS_MODELS["qwen3:8b"];
-  const response = await fetch(BUSINESS_OLLAMA_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: businessModel,
-      stream: false,
-      think: false,
-      keep_alive: "10m",
-      messages: [
-        { role: "system", content: BUSINESS_SYSTEM_MESSAGE },
-        ...messages,
-      ],
-      options: {
-        temperature: 0.35,
-        top_p: 0.9,
-        num_predict: modelInfo.maxTokens,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`로컬 AI 연결 실패 (${response.status})`);
-  }
-  const data = await response.json();
-  const answer = String(data.message?.content || data.response || "").trim();
-  if (!answer) {
-    throw new Error("로컬 AI 답변이 비어 있습니다. 모델을 다시 선택하거나 Ollama 상태를 확인해 주세요.");
-  }
-  return answer;
-}
-
 async function sendBusinessMessage() {
   const content = businessDom.input.value.trim();
   if (!content || businessBusy) {
@@ -2898,7 +2838,23 @@ async function sendBusinessMessage() {
   const loadingRow = addBusinessMessage("assistant", "답변을 작성하고 있어요…", true);
 
   try {
-    const answer = await requestLocalBusinessAi(businessHistory.slice(-12));
+    const response = await fetch("/api/groq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system: BUSINESS_SYSTEM_MESSAGE,
+        messages: [
+          ...businessHistory.slice(-12),
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "AI 연결 실패");
+    }
+    const answer = String(data.text || "").trim();
+    if (!answer) throw new Error("답변 없음");
 
     loadingRow.remove();
     addBusinessMessage("assistant", answer);
@@ -2907,9 +2863,9 @@ async function sendBusinessMessage() {
     loadingRow.remove();
     addBusinessMessage(
       "assistant",
-      error.message || "로컬 AI에 연결할 수 없습니다. Ollama가 실행 중인지 확인해 주세요.",
+      error.message || "AI에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
     );
-    showBusinessMessage(error.message || "로컬 AI 연결을 확인해 주세요.", true);
+    showBusinessMessage(error.message || "AI 연결을 확인해 주세요.", true);
   } finally {
     businessBusy = false;
     businessDom.sendButton.disabled = false;
@@ -2917,15 +2873,6 @@ async function sendBusinessMessage() {
     businessDom.input.focus();
   }
 }
-
-businessDom.modelInputs.forEach((input) => {
-  input.addEventListener("change", () => {
-    if (!input.checked) return;
-    updateBusinessModel(input.value);
-    showBusinessMessage("");
-  });
-});
-updateBusinessModel(businessModel);
 
 businessDom.sendButton.addEventListener("click", sendBusinessMessage);
 businessDom.resetButton.addEventListener("click", () => {
@@ -2935,7 +2882,7 @@ businessDom.resetButton.addEventListener("click", () => {
   businessDom.messages.innerHTML = `
     <div class="chat-message assistant">
       <span class="chat-avatar">AI</span>
-      <div class="chat-bubble">새 대화를 시작했어요. 모델을 선택한 뒤 질문을 입력해 주세요.</div>
+      <div class="chat-bubble">새 대화를 시작했어요. 무엇을 도와드릴까요?</div>
     </div>
   `;
   showBusinessMessage("");

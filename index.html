@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=52" />
+    <link rel="stylesheet" href="style.css?v=51" />
   </head>
   <body>
     <header class="site-header">
@@ -604,37 +604,20 @@
               <path d="M4 4.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
               <path d="M6 8h8M6 11h5" />
             </svg>
-            Local AI
+            UNGTOOL AI
           </span>
         </div>
 
         <div class="local-chat">
           <div class="chat-topbar">
-            <span id="business-ai-status"><i class="status-dot is-ready"></i> Ollama Local</span>
+            <span><i class="status-dot is-ready"></i> Qwen3 32B</span>
             <button class="secondary-button" id="business-reset-button" type="button">새 대화</button>
-          </div>
-
-          <div class="ai-model-picker" role="radiogroup" aria-label="AI 모델 선택">
-            <label class="ai-model-option is-active">
-              <input type="radio" name="business-model" value="qwen3:8b" checked />
-              <span>
-                <strong>가벼운 질문</strong>
-                <small>qwen3:8b · 빠름 · 간단 답변</small>
-              </span>
-            </label>
-            <label class="ai-model-option">
-              <input type="radio" name="business-model" value="qwen3:14b" />
-              <span>
-                <strong>디테일한 질문</strong>
-                <small>qwen3:14b · 정밀 · 느림</small>
-              </span>
-            </label>
           </div>
 
           <div class="chat-messages" id="business-messages" role="log" aria-live="polite">
             <div class="chat-message assistant">
               <span class="chat-avatar">AI</span>
-              <div class="chat-bubble">안녕하세요. 내 컴퓨터의 로컬 AI로 간단한 질문, 업무 문장 작성, 요약을 도와드릴게요.</div>
+              <div class="chat-bubble">안녕하세요. 간단한 질문이나 업무 문장 작성, 요약을 도와드릴게요.</div>
             </div>
           </div>
 
@@ -834,6 +817,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=83"></script>
+  <script src="app.js?v=82"></script>
   </body>
 </html>
