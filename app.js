@@ -3452,11 +3452,9 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
           </div>
           <div class="carrier-stat carrier-stat-unit">
             <span class="dash-unit-badge is-box">${c.box ? `${c.box.toLocaleString("ko-KR")} BOX` : "- BOX"}</span>
-            <span class="cstat-label">BOX</span>
           </div>
           <div class="carrier-stat carrier-stat-unit">
             <span class="dash-unit-badge is-plt">${c.plt ? `${c.plt.toLocaleString("ko-KR")} PLT` : "- PLT"}</span>
-            <span class="cstat-label">PLT</span>
           </div>
         </div>
       </div>`;
