@@ -4685,7 +4685,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 /* ── Location Pick ───────────────────────────────────────────── */
 .location-pick-input-frame {
   position: relative;
-  min-height: 430px;
+  height: 560px;
   overflow: hidden;
   background:
     linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.82)),
@@ -4694,13 +4694,15 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 
 .location-pick-split {
   grid-template-columns: minmax(320px, .78fr) minmax(560px, 1.22fr);
+  align-items: stretch;
 }
 
 .location-pick-highlight,
 .location-pick-textarea {
   width: 100%;
-  min-height: 360px;
-  max-height: 430px;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 10.8px;
   line-height: 1.45;
@@ -4751,6 +4753,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-result-pane {
+  display: flex;
   gap: 12px;
 }
 
@@ -4769,7 +4772,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 
 .location-pick-stat-card {
   min-width: 0;
-  padding: 10px 12px;
+  padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
@@ -4778,9 +4781,9 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 
 .location-pick-stat-card span {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   color: var(--text-muted);
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 850;
 }
 
@@ -4788,7 +4791,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   display: block;
   overflow: hidden;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 950;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4810,8 +4813,10 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-result {
-  min-height: 500px;
-  max-height: 680px;
+  flex: 1 1 auto;
+  height: 560px;
+  min-height: 560px;
+  max-height: 560px;
   overflow: hidden;
   border: 1.5px dashed #cac7bf;
   border-radius: 18px;
@@ -4822,7 +4827,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 }
 
 .location-pick-empty {
-  min-height: 468px;
+  min-height: 100%;
   display: grid;
   place-items: center;
   color: var(--text-muted);
@@ -4933,7 +4938,7 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 
 .location-pick-table-wrap {
   height: 100%;
-  max-height: 648px;
+  max-height: none;
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: 14px;
