@@ -2790,6 +2790,7 @@ syncDom.dropZone.addEventListener("drop", (event) => inspectSyncFile(event.dataT
 
 const locationPickDom = {
   input: document.querySelector("#location-pick-input"),
+  highlight: document.querySelector("#location-pick-highlight"),
   button: document.querySelector("#location-pick-button"),
   result: document.querySelector("#location-pick-result"),
   message: document.querySelector("#location-pick-message"),
@@ -2835,6 +2836,49 @@ function extractLocationPickJson(text) {
       throw new Error("JSON 형식이 올바르지 않습니다.");
     }
   }
+}
+
+function locationPickHighlightedJson(text = "") {
+  const escaped = escapeHtml(text);
+  return escaped.replace(
+    /("(?:\\.|[^"\\])*"(?=\s*:))|("(?:\\.|[^"\\])*")|(\btrue\b|\bfalse\b)|(\bnull\b)|(-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b)/gi,
+    (match, key, string, booleanValue, nullValue, numberValue) => {
+      if (key) return `<span class="json-key">${key}</span>`;
+      if (string) return `<span class="json-string">${string}</span>`;
+      if (booleanValue) return `<span class="json-boolean">${booleanValue}</span>`;
+      if (nullValue) return `<span class="json-null">${nullValue}</span>`;
+      if (numberValue) return `<span class="json-number">${numberValue}</span>`;
+      return match;
+    },
+  );
+}
+
+function updateLocationPickHighlight() {
+  if (!locationPickDom.highlight || !locationPickDom.input) return;
+  const text = locationPickDom.input.value || "";
+  locationPickDom.highlight.innerHTML = text
+    ? `${locationPickHighlightedJson(text)}\n`
+    : "";
+  locationPickDom.highlight.scrollTop = locationPickDom.input.scrollTop;
+}
+
+function formatLocationPickInputIfJson() {
+  if (!locationPickDom.input) return;
+  const text = locationPickDom.input.value;
+  if (!text.trim()) {
+    updateLocationPickHighlight();
+    return;
+  }
+  try {
+    const parsed = extractLocationPickJson(text);
+    const formatted = JSON.stringify(parsed, null, 2);
+    if (formatted && formatted !== text) {
+      locationPickDom.input.value = formatted;
+    }
+  } catch (error) {
+    // 형식이 완성되지 않은 입력은 그대로 둡니다.
+  }
+  updateLocationPickHighlight();
 }
 
 function parseLocationPickRows(text) {
@@ -2937,9 +2981,22 @@ function analyzeLocationPick() {
 let locationPickTimer = null;
 locationPickDom.button?.addEventListener("click", analyzeLocationPick);
 locationPickDom.input?.addEventListener("input", () => {
+  updateLocationPickHighlight();
   clearTimeout(locationPickTimer);
   locationPickTimer = setTimeout(analyzeLocationPick, 250);
 });
+locationPickDom.input?.addEventListener("paste", () => {
+  setTimeout(() => {
+    formatLocationPickInputIfJson();
+    analyzeLocationPick();
+  }, 0);
+});
+locationPickDom.input?.addEventListener("scroll", () => {
+  if (!locationPickDom.highlight) return;
+  locationPickDom.highlight.scrollTop = locationPickDom.input.scrollTop;
+  locationPickDom.highlight.scrollLeft = locationPickDom.input.scrollLeft;
+});
+updateLocationPickHighlight();
 locationPickDom.result?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-location-pick-barcode]");
   if (!button) return;
