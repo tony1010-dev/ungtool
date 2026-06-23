@@ -2831,6 +2831,16 @@ html[data-theme="dark"] .license-note {
 
 .dash-stat.is-accent strong { color: var(--accent); }
 
+#dashboard-content .dash-item-header,
+#dashboard-content .dash-item-value {
+  color: #cc0000 !important;
+}
+
+#dashboard-content .dash-qty-header,
+#dashboard-content .dash-qty-value {
+  color: #1155cc !important;
+}
+
 .dash-table-wrap {
   overflow-x: auto;
   border-radius: 10px;
@@ -3062,11 +3072,17 @@ html[data-theme="dark"] .license-note {
   align-items: stretch;
 }
 
+.queue-active-column,
 .queue-packed-column {
   min-width: 0;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 10px;
+}
+
+.queue-panel-spacer {
+  min-height: 50px;
+  pointer-events: none;
 }
 
 .queue-packed-column .queue-carrier-pills {
@@ -3701,6 +3717,7 @@ html[data-theme="dark"] .queue-row {
   .queue-layout-grid,
   .queue-mini-board,
   .queue-split-grid,
+  .queue-active-column,
   .queue-packed-column {
     grid-template-columns: 1fr;
   }

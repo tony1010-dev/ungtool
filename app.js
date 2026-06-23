@@ -3161,8 +3161,8 @@ function renderIncoming(table, totalsTable) {
       <td class="tag-cell">${dashCell(cells, 0)}</td>
       <td>${dashCell(cells, 1)}</td>
       <td>${vendor}</td>
-      <td class="num-cell">${fmtNum(qty)}</td>
-      <td class="num-cell">${fmtNum(box)}</td>
+      <td class="num-cell dash-item-value">${fmtNum(qty)}</td>
+      <td class="num-cell dash-qty-value">${fmtNum(box)}</td>
       <td class="amount-cell">${fmtKrw(amt)}</td>
       <td class="tag-cell">${buri || "-"}</td>
       <td>${baecha}</td>
@@ -3180,8 +3180,8 @@ function renderIncoming(table, totalsTable) {
 
   document.querySelector("#dash-in-summary").innerHTML = `
     <div class="dash-stat stat-blue">${ICON_DOC}<span>입고</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>입고</span><strong>${pltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>입고</span><strong>${boxTotal} BOX</strong></div>
+    <div class="dash-stat stat-amber">${ICON_PLT}<span>입고</span><strong class="dash-qty-value">${pltTotal} PLT</strong></div>
+    <div class="dash-stat stat-orange">${ICON_BOX}<span>입고</span><strong class="dash-qty-value">${boxTotal} BOX</strong></div>
     <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
@@ -3249,8 +3249,8 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
       <td>${dashCell(cells, 1)}</td>
       <td>${dashCell(cells, 2).replace(/\r/g, "")}</td>
       <td>${dashCell(cells, 3)}</td>
-      <td class="num-cell">${item}</td>
-      <td class="num-cell">${qty}</td>
+      <td class="num-cell dash-item-value">${item}</td>
+      <td class="num-cell dash-qty-value">${qty}</td>
       <td class="amount-cell">${fmtUsd(amt)}</td>
       <td class="tag-cell">${carrierBadgeHtml(carrier)}</td>
       <td>${note}</td>
@@ -3267,8 +3267,8 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
 
   document.querySelector("#dash-out-summary").innerHTML = `
     <div class="dash-stat stat-blue">${ICON_DOC}<span>출고</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong>${displayPltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong>${displayBoxTotal} BOX</strong></div>
+    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong class="dash-qty-value">${displayPltTotal} PLT</strong></div>
+    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong class="dash-qty-value">${displayBoxTotal} BOX</strong></div>
     <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${displayAmtStr}</strong></div>
   `;
 
@@ -3345,11 +3345,11 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
         </div>
         <div class="carrier-card-body">
           <div class="carrier-stat">
-            <span class="cstat-num">${c.invoice || 0}</span>
+            <span class="cstat-num dash-item-value">${c.invoice || 0}</span>
             <span class="cstat-label">인보이스</span>
           </div>
           <div class="carrier-stat">
-            <span class="cstat-num">${c.box || 0}</span>
+            <span class="cstat-num dash-qty-value">${c.box || 0}</span>
             <span class="cstat-label">BOX</span>
           </div>
         </div>
@@ -3495,12 +3495,11 @@ function renderQueue(items = []) {
         <p class="personnel-eyebrow">SHIPPING QUEUE</p>
         <h3>출고대기 현황</h3>
       </div>
-      <div class="queue-total-pill">총 ${rows.length.toLocaleString("ko-KR")}건</div>
     </div>
     <div class="queue-summary-grid">
       <div class="queue-summary-card"><span>Invoice</span><strong>${rows.length.toLocaleString("ko-KR")}건</strong></div>
-      <div class="queue-summary-card"><span>Item</span><strong>${totalItem.toLocaleString("ko-KR")}</strong></div>
-      <div class="queue-summary-card"><span>수량</span><strong>${totalQty.toLocaleString("ko-KR")}</strong></div>
+      <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
+      <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${totalQty.toLocaleString("ko-KR")}</strong></div>
       <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}건</strong></div>
       <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}건</strong></div>
     </div>
@@ -3508,7 +3507,10 @@ function renderQueue(items = []) {
       ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
     </div>
     <div class="queue-split-grid">
-      ${renderQueuePanel("진행중", activeRows, "active", true)}
+      <div class="queue-active-column">
+        <div class="queue-panel-spacer" aria-hidden="true"></div>
+        ${renderQueuePanel("진행중", activeRows, "active", true)}
+      </div>
       <div class="queue-packed-column">
         <div class="queue-carrier-pills" aria-label="패킹완료 배송사 필터">
           <button class="queue-carrier-filter is-active" type="button" data-carrier="all"><span>전체</span><b>${packedRows.length}</b></button>
@@ -3660,7 +3662,7 @@ function renderMaterials(matTable) {
     card.innerHTML = `
       <h3>박스 재고</h3>
       <div class="mat-item-grid">
-        ${boxItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div></div>`).join("")}
+        ${boxItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty dash-qty-value">${m.qty}</strong></div></div>`).join("")}
       </div>`;
     container.append(card);
   }
@@ -3671,7 +3673,7 @@ function renderMaterials(matTable) {
     card.innerHTML = `
       <h3>포장용품</h3>
       <div class="mat-item-grid">
-        ${packItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty">${m.qty}</strong></div></div>`).join("")}
+        ${packItems.map((m) => `<div class="mat-item">${materialIcon(m.name)}<div class="mat-item-meta"><span class="mat-item-name">${m.name}</span><strong class="mat-item-qty dash-qty-value">${m.qty}</strong></div></div>`).join("")}
       </div>`;
     container.append(card);
   }
@@ -3756,7 +3758,7 @@ function renderPersonnel(rows = []) {
       ${uniqueSummary.slice(0, 4).map((item) => `
         <div class="personnel-summary-card ${item.tone}">
           <strong>${escapeHtml(item.label)}</strong>
-          <em>${escapeHtml(item.value)}</em>
+          <em class="dash-qty-value">${escapeHtml(item.value)}</em>
         </div>`).join("")}
     </div>
     <div class="personnel-card-grid">
