@@ -532,7 +532,6 @@
         <div class="license-download-card">
           <div class="license-file-icon" aria-hidden="true">XLS</div>
           <div class="license-download-copy">
-            <strong>Permit File</strong>
             <span id="license-summary">DHL 면허를 다운로드 합니다.</span>
           </div>
           <button class="merge-button picking-download-button" id="license-download-button" type="button">
@@ -544,6 +543,13 @@
           배터리 포함 내역이 있으면 해당 행을 노란색으로 표시하고 파일명 끝에 <strong>_배터리포함</strong>을 자동으로 붙입니다.
         </div>
         <div class="message" id="license-message" role="status" aria-live="polite" hidden></div>
+        <div class="license-delivery-copy" id="license-delivery-copy" hidden>
+          <div class="license-delivery-copy-head">
+            <strong>전달 문구</strong>
+            <button class="license-copy-button" id="license-copy-button" type="button">복사</button>
+          </div>
+          <pre id="license-delivery-text"></pre>
+        </div>
       </section>
 
       <section class="tool-card tool-panel" id="business-tool" aria-labelledby="business-title" hidden>

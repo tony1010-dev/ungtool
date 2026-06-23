@@ -1210,6 +1210,9 @@ const licenseDom = {
   summary: document.querySelector("#license-summary"),
   downloadButton: document.querySelector("#license-download-button"),
   message: document.querySelector("#license-message"),
+  deliveryCopy: document.querySelector("#license-delivery-copy"),
+  deliveryText: document.querySelector("#license-delivery-text"),
+  copyButton: document.querySelector("#license-copy-button"),
 };
 
 function setLicenseStatus(state, text) {
@@ -1245,6 +1248,49 @@ function makeLicenseRows(response) {
 
   if (!rows.length) throw new Error("면허 탭에서 출력할 데이터를 찾지 못했습니다.");
   return rows;
+}
+
+function licenseNumber(value) {
+  const number = Number(String(value ?? "").replace(/,/g, "").trim());
+  return Number.isFinite(number) ? number : 0;
+}
+
+function getLicenseStats(rows) {
+  const batteryRows = rows.filter((row) => row.batteryNote);
+  return {
+    b2bCount: rows.length,
+    b2cCount: 0,
+    totalBoxes: rows.reduce((sum, row) => sum + licenseNumber(row.values[15]), 0),
+    batteryCount: batteryRows.length,
+    batteryBoxes: batteryRows.length,
+  };
+}
+
+function makeLicenseDeliveryText(rows) {
+  const stats = getLicenseStats(rows);
+  const lines = [
+    "안녕하세요, 실리콘투 음반팀 주희영입니다.",
+    "",
+    "",
+    `B2B ${stats.b2bCount.toLocaleString()}건(${stats.totalBoxes.toLocaleString()}BOX) / B2C ${stats.b2cCount.toLocaleString()}건`,
+    "",
+    "면허파일 전달드립니다.",
+  ];
+
+  if (stats.batteryCount) {
+    lines.push(
+      "",
+      `금일 배터리포함 ${stats.batteryCount.toLocaleString()}건 ${stats.batteryBoxes.toLocaleString()}BOX있습니다, 참고바랍니다`,
+    );
+  }
+
+  lines.push("", "", "감사합니다", "", "", "주희영 드림.");
+  return lines.join("\n");
+}
+
+function showLicenseDeliveryCopy(rows) {
+  licenseDom.deliveryText.textContent = makeLicenseDeliveryText(rows);
+  licenseDom.deliveryCopy.hidden = false;
 }
 
 function loadLicenseRows(force = false) {
@@ -1382,6 +1428,7 @@ async function downloadLicenseWorkbook() {
     const fileName = `실리콘투 음반팀_종합 ${seoulDateString()}${suffix}.xlsx`;
     downloadFile(output, fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     showLicenseMessage(`${fileName} 파일을 저장했습니다.`);
+    showLicenseDeliveryCopy(rows);
   } catch (error) {
     showLicenseMessage(error.message || "면허 파일을 만들지 못했습니다.", true);
   } finally {
@@ -1391,6 +1438,31 @@ async function downloadLicenseWorkbook() {
 }
 
 licenseDom.downloadButton.addEventListener("click", downloadLicenseWorkbook);
+licenseDom.copyButton.addEventListener("click", async () => {
+  try {
+    const text = licenseDom.deliveryText.textContent;
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.append(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      if (!copied) throw new Error("copy failed");
+    }
+    licenseDom.copyButton.textContent = "복사 완료";
+    setTimeout(() => {
+      licenseDom.copyButton.textContent = "복사";
+    }, 1500);
+  } catch {
+    showLicenseMessage("전달 문구를 복사하지 못했습니다.", true);
+  }
+});
 
 function findPickingStructure(sheet) {
   const range = XLSX.utils.decode_range(sheet["!ref"]);
