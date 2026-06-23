@@ -4685,15 +4685,18 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 /* ── Location Pick ───────────────────────────────────────────── */
 .location-pick-textarea {
   min-height: 360px;
+  max-height: 430px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 10.8px;
   line-height: 1.45;
   color: color-mix(in srgb, var(--text) 62%, var(--text-muted));
   caret-color: var(--accent);
   letter-spacing: -.01em;
-  white-space: pre;
-  overflow-wrap: normal;
-  word-break: normal;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   tab-size: 2;
   -webkit-text-size-adjust: 100%;
   text-decoration: none;
@@ -4763,7 +4766,6 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 .location-pick-summary {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
   padding: 10px 12px;
@@ -4783,24 +4785,25 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   white-space: nowrap;
 }
 
-.location-pick-copy-button {
+.location-pick-barcode-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
-  padding: 0 12px;
+  min-height: 26px;
+  padding: 3px 8px;
   border: 1px solid rgba(17, 85, 204, .18);
-  border-radius: 11px;
+  border-radius: 9px;
   background: color-mix(in srgb, #1155cc 8%, var(--surface));
   color: #1155cc;
-  font-size: 12px;
+  font-family: var(--mono, monospace);
+  font-size: 11px;
   font-weight: 950;
   white-space: nowrap;
   cursor: pointer;
   transition: transform .14s ease, border-color .14s ease, background .14s ease;
 }
 
-.location-pick-copy-button:hover {
+.location-pick-barcode-button:hover {
   transform: translateY(-1px);
   border-color: rgba(17, 85, 204, .32);
   background: color-mix(in srgb, #1155cc 13%, var(--surface));
@@ -4881,7 +4884,7 @@ html[data-theme="dark"] .location-pick-textarea {
   color: rgba(226, 232, 240, .68);
 }
 
-html[data-theme="dark"] .location-pick-copy-button {
+html[data-theme="dark"] .location-pick-barcode-button {
   border-color: rgba(147, 197, 253, .22);
   background: rgba(59, 130, 246, .14);
   color: #93c5fd;

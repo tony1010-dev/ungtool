@@ -2873,9 +2873,6 @@ function renderLocationPickResult(data = null) {
         <span>총 ${data.rows.length.toLocaleString("ko-KR")}개 상품</span>
         <strong>${totalQty.toLocaleString("ko-KR")} EA</strong>
       </div>
-      <button class="location-pick-copy-button" type="button" data-location-pick-copy>
-        바코드·수량 복사
-      </button>
     </div>
     <div class="location-pick-table-wrap">
       <table class="location-pick-table">
@@ -2892,7 +2889,11 @@ function renderLocationPickResult(data = null) {
             <tr>
               <td>${row.no}</td>
               <td>${escapeHtml(row.productCode)}</td>
-              <td>${escapeHtml(row.barcode)}</td>
+              <td>
+                <button class="location-pick-barcode-button" type="button" data-location-pick-barcode="${escapeHtml(row.barcode)}">
+                  ${escapeHtml(row.barcode)}
+                </button>
+              </td>
               <td>${row.qty.toLocaleString("ko-KR")}</td>
             </tr>`).join("")}
         </tbody>
@@ -2900,18 +2901,15 @@ function renderLocationPickResult(data = null) {
     </div>`;
 }
 
-async function copyLocationPickBarcodeQty(button) {
-  if (!locationPickData?.rows?.length) {
+async function copyLocationPickBarcode(button, barcode) {
+  if (!barcode || barcode === "-") {
     showLocationPickMessage("복사할 데이터가 없습니다.", true);
     return;
   }
-  const text = locationPickData.rows
-    .map((row) => `${row.barcode}\t${row.qty}`)
-    .join("\n");
-  await writeClipboardText(text);
+  await writeClipboardText(barcode);
   const originalText = button.textContent;
-  button.textContent = "복사 완료";
-  showLocationPickMessage("바코드와 수량을 복사했어요.");
+  button.textContent = "복사됨";
+  showLocationPickMessage(`${barcode} 복사 완료`);
   setTimeout(() => {
     button.textContent = originalText;
   }, 1300);
@@ -2941,9 +2939,9 @@ locationPickDom.input?.addEventListener("input", () => {
   locationPickTimer = setTimeout(analyzeLocationPick, 250);
 });
 locationPickDom.result?.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-location-pick-copy]");
+  const button = event.target.closest("[data-location-pick-barcode]");
   if (!button) return;
-  copyLocationPickBarcodeQty(button).catch(() => {
+  copyLocationPickBarcode(button, button.dataset.locationPickBarcode).catch(() => {
     showLocationPickMessage("복사하지 못했습니다. 브라우저 권한을 확인해 주세요.", true);
   });
 });
