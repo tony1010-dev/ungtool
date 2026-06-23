@@ -2983,21 +2983,39 @@ html[data-theme="dark"] .license-note {
 }
 
 .queue-stage-pills span,
-.queue-carrier-pills span {
+.queue-carrier-filter {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 7px 10px;
+  border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
   color: var(--text);
   font-size: 12px;
   font-weight: 750;
+  cursor: pointer;
 }
 
 .queue-stage-pills b,
-.queue-carrier-pills b {
+.queue-carrier-filter b {
   color: var(--accent);
+}
+
+.queue-carrier-filter {
+  min-height: 34px;
+  border: 1.5px solid transparent;
+  background: color-mix(in srgb, var(--text-muted) 7%, var(--surface));
+}
+
+.queue-carrier-filter.is-active {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.queue-carrier-filter > span:not(.queue-carrier-icon) {
+  font-size: 12px;
+  font-weight: 850;
 }
 
 .queue-carrier-icon {
@@ -3087,9 +3105,14 @@ html[data-theme="dark"] .license-note {
 .queue-panel-head,
 .queue-panel .queue-row {
   display: grid;
-  grid-template-columns: 96px minmax(105px, 1fr) 54px 40px 48px 66px 64px;
+  grid-template-columns: minmax(82px, .8fr) minmax(88px, 1.2fr) 48px 36px 42px 58px 54px;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+}
+
+.queue-panel-head.no-progress,
+.queue-panel .queue-row.no-progress {
+  grid-template-columns: minmax(82px, .8fr) minmax(110px, 1.35fr) 48px 36px 42px 58px;
 }
 
 .queue-panel-head {
@@ -3106,6 +3129,7 @@ html[data-theme="dark"] .license-note {
   gap: 6px;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 3px;
 }
 
@@ -3116,7 +3140,7 @@ html[data-theme="dark"] .license-note {
 
 .queue-row {
   min-height: 42px;
-  padding: 7px 9px;
+  padding: 7px 8px;
   border: 1.5px solid var(--border);
   border-radius: 12px;
   background: rgba(255,255,255,.86);
@@ -3143,7 +3167,7 @@ html[data-theme="dark"] .license-note {
 
 .queue-invoice {
   color: var(--text);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 850;
   white-space: nowrap;
 }
@@ -3151,7 +3175,7 @@ html[data-theme="dark"] .license-note {
 .queue-row-customer {
   min-width: 0;
   color: var(--text);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 750;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3162,7 +3186,7 @@ html[data-theme="dark"] .license-note {
 .queue-row-number,
 .queue-row-worker {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 750;
   white-space: nowrap;
 }
@@ -3184,8 +3208,8 @@ html[data-theme="dark"] .license-note {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 24px;
-  padding: 3px 6px;
+  min-height: 22px;
+  padding: 3px 5px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--text-muted) 9%, var(--surface));
   color: var(--text);
@@ -3200,14 +3224,14 @@ html[data-theme="dark"] .license-note {
 .queue-stage-badge {
   display: inline-grid;
   place-items: center;
-  min-width: 46px;
-  min-height: 26px;
-  padding: 0 8px;
+  min-width: 42px;
+  min-height: 24px;
+  padding: 0 6px;
   border: 1.5px solid color-mix(in srgb, var(--accent) 35%, var(--border));
   border-radius: 7px;
   background: color-mix(in srgb, var(--accent) 10%, var(--surface));
   color: var(--accent);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 850;
   line-height: 1;
 }

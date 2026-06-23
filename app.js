@@ -3451,9 +3451,9 @@ function renderQueue(items = []) {
       const bi = stageOrder.indexOf(b[0]);
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     });
-  const carrierGroups = groupCount(rows, (row) => row.carrier).slice(0, 6);
   const activeRows = rows.filter((row) => ["출력", "피킹", "패킹"].includes(queueStage(row.progress)));
   const packedRows = rows.filter((row) => /\b\d+\s*(box|plt)\b/i.test(row.worker));
+  const carrierGroups = groupCount(packedRows, (row) => row.carrier).slice(0, 8);
 
   function progressPercent(stage) {
     const index = stageOrder.indexOf(stage);
@@ -3481,45 +3481,65 @@ function renderQueue(items = []) {
         ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
       </div>
       <div class="queue-carrier-pills">
-        ${carrierGroups.map(([name, count]) => `<span>${queueCarrierIconHtml(name)}${escapeHtml(name)} <b>${count}</b></span>`).join("")}
+        <button class="queue-carrier-filter is-active" type="button" data-carrier="all"><span>전체</span><b>${packedRows.length}</b></button>
+        ${carrierGroups.map(([name, count]) => `<button class="queue-carrier-filter" type="button" data-carrier="${escapeHtml(name)}">${queueCarrierIconHtml(name)}<b>${count}</b></button>`).join("")}
       </div>
     </div>
     <div class="queue-split-grid">
-      ${renderQueuePanel("진행중", activeRows, "active")}
-      ${renderQueuePanel("패킹완료", packedRows, "packed")}
+      ${renderQueuePanel("진행중", activeRows, "active", true)}
+      ${renderQueuePanel("패킹완료", packedRows, "packed", false)}
     </div>`;
 
-  function renderQueuePanel(title, panelRows, type) {
+  function renderQueuePanel(title, panelRows, type, showProgress) {
     return `
       <section class="queue-panel ${type}">
         <div class="queue-panel-title">
           <h3>${escapeHtml(title)}</h3>
-          <span>${panelRows.length.toLocaleString("ko-KR")}건</span>
+          <span class="queue-panel-count" data-panel-count="${type}">${panelRows.length.toLocaleString("ko-KR")}건</span>
         </div>
-        <div class="queue-panel-head">
-          <span>Invoice</span><span>거래처</span><span>배송</span><span>Item</span><span>수량</span><span>작업</span><span>진행</span>
+        <div class="queue-panel-head ${showProgress ? "" : "no-progress"}">
+          <span>Invoice</span><span>거래처</span><span>배송</span><span>Item</span><span>수량</span><span>작업</span>${showProgress ? "<span>진행</span>" : ""}
         </div>
         <div class="queue-panel-list">
       ${panelRows.length ? panelRows.map((row) => {
         const status = queueStatus(row.worker, row.progress);
         const stage = queueStage(row.progress);
         return `
-          <div class="queue-row ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}">
+          <div class="queue-row ${showProgress ? "" : "no-progress"} ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}" data-panel="${type}" data-carrier="${escapeHtml(row.carrier)}">
             <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
             <span class="queue-row-customer">${escapeHtml(row.customer)}</span>
             <span class="queue-row-carrier">${queueCarrierIconHtml(row.carrier)}</span>
             <span class="queue-row-number queue-row-item">${escapeHtml(row.item)}</span>
             <span class="queue-row-number queue-row-qty">${escapeHtml(row.qty)}</span>
             <span class="queue-row-worker">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
-            <div class="queue-row-progress">
+            ${showProgress ? `<div class="queue-row-progress">
               <span class="queue-stage-badge">${escapeHtml(stage)}</span>
               <i><b style="width:${progressPercent(stage)}%"></b></i>
-            </div>
+            </div>` : ""}
           </div>`;
       }).join("") : `<p class="queue-empty">표시할 데이터가 없습니다.</p>`}
         </div>
       </section>`;
   }
+
+  function applyCarrierFilter(carrier) {
+    const target = carrier || "all";
+    container.querySelectorAll(".queue-carrier-filter").forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.carrier === target);
+    });
+    container.querySelectorAll(".queue-row[data-carrier]").forEach((row) => {
+      row.hidden = target !== "all" && row.dataset.carrier !== target;
+    });
+    ["active", "packed"].forEach((panel) => {
+      const visibleCount = container.querySelectorAll(`.queue-row[data-panel="${panel}"]:not([hidden])`).length;
+      const countEl = container.querySelector(`[data-panel-count="${panel}"]`);
+      if (countEl) countEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
+    });
+  }
+
+  container.querySelectorAll(".queue-carrier-filter").forEach((button) => {
+    button.addEventListener("click", () => applyCarrierFilter(button.dataset.carrier));
+  });
 
   dashboardState.shippingQueue = {
     headers: ["Invoice No", "거래처", "배송사", "Item", "수량", "작업", "진행"],
