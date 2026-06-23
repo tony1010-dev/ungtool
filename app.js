@@ -3520,11 +3520,7 @@ function renderQueue(items = []) {
       </div>
     </div>`;
 
-  const carrierFilterBar = container.querySelector(".queue-packed-column .queue-carrier-pills");
-  const activeSpacer = container.querySelector(".queue-panel-spacer");
-  if (carrierFilterBar && activeSpacer) {
-    activeSpacer.style.minHeight = `${carrierFilterBar.offsetHeight}px`;
-  }
+  requestAnimationFrame(adjustQueuePanelAlignment);
 
   function renderQueuePanel(title, panelRows, type, showProgress) {
     return `
@@ -3588,6 +3584,17 @@ function renderQueue(items = []) {
       row.progress || queueStage(row.progress),
     ]),
   };
+}
+
+function adjustQueuePanelAlignment() {
+  const container = document.querySelector("#dash-queue-content");
+  const carrierFilterBar = container?.querySelector(".queue-packed-column .queue-carrier-pills");
+  const activeSpacer = container?.querySelector(".queue-panel-spacer");
+  if (!carrierFilterBar || !activeSpacer) return;
+  const filterHeight = carrierFilterBar.offsetHeight;
+  if (!filterHeight) return;
+  activeSpacer.style.height = `${filterHeight}px`;
+  activeSpacer.style.minHeight = `${filterHeight}px`;
 }
 
 // ── 자재현황 렌더 ───────────────────────────────────────────────
@@ -4294,7 +4301,12 @@ document.querySelectorAll(".dash-tab").forEach((tab) => {
     document.querySelectorAll(".dash-panel").forEach((panel) => {
       panel.hidden = panel.id !== `dash-${target}`;
     });
+    if (target === "queue") requestAnimationFrame(adjustQueuePanelAlignment);
   });
+});
+
+window.addEventListener("resize", () => {
+  if (!document.querySelector("#dash-queue")?.hidden) requestAnimationFrame(adjustQueuePanelAlignment);
 });
 
 if (dashboardDom.excelButton) {
