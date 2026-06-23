@@ -3256,13 +3256,9 @@ function renderIncoming(table, totalsTable) {
 function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoingRows = []) {
   const rows = table.rows;
 
-  // L3:N4 range 전용 fetch → col0=L, col2=N; row0=3행, row1=4행
+  // L3:N4 range 전용 fetch → 금액은 기존 요약값을 유지
   const tRows = totalsTable?.rows || [];
-  const pltTotal = dashCell(tRows[0]?.c || [], 0) || "0";  // L3
-  const boxTotal = dashCell(tRows[1]?.c || [], 0) || "0";  // L4
   const amtStr   = dashCell(tRows[0]?.c || [], 2) || "-";  // N3
-  const displayPltTotal = dashboardUnitTotal(album?.shippingPlt, pltTotal);
-  const displayBoxTotal = dashboardUnitTotal(album?.shippingBox, boxTotal);
   const displayAmtStr = fmtKrwSpaced(amtStr);
 
   // data: rows where col B (index 1) has IN번호
@@ -3334,6 +3330,8 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
   const visibleOutgoingCount = visibleOutgoingRows.length;
   const visibleTotalItem = visibleOutgoingRows.reduce((sum, row) => sum + parseNumber(row.item), 0);
   const visibleTotalQty = visibleOutgoingRows.reduce((sum, row) => sum + parseNumber(row.qty), 0);
+  const visibleBoxTotal = visibleOutgoingRows.reduce((sum, row) => sum + workerUnitCount(row.worker, "box"), 0);
+  const visiblePltTotal = visibleOutgoingRows.reduce((sum, row) => sum + workerUnitCount(row.worker, "plt"), 0);
 
   if (albumRows.length) {
     tbody.replaceChildren();
@@ -3368,16 +3366,16 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     outgoingHero.innerHTML = `
       <div><h3>출고 현황</h3></div>
       <div class="queue-complete-total" aria-label="출고 BOX PLT 합계">
-        <span>BOX <b>${fmtComma(displayBoxTotal)}</b></span>
-        <span>PLT <b>${fmtComma(displayPltTotal)}</b></span>
+        <span>BOX <b>${visibleBoxTotal.toLocaleString("ko-KR")}</b></span>
+        <span>PLT <b>${visiblePltTotal.toLocaleString("ko-KR")}</b></span>
       </div>`;
   }
 
   dashboardState.outgoing = {
     summary: {
       count: visibleOutgoingCount,
-      pltTotal: displayPltTotal,
-      boxTotal: displayBoxTotal,
+      pltTotal: visiblePltTotal.toLocaleString("ko-KR"),
+      boxTotal: visibleBoxTotal.toLocaleString("ko-KR"),
       itemTotal: visibleTotalItem,
       qtyTotal: visibleTotalQty,
       amtStr: displayAmtStr,

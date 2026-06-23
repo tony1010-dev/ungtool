@@ -3218,10 +3218,13 @@ html[data-theme="dark"] .license-note {
 
 .outgoing-list-panel {
   padding-bottom: 12px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .outgoing-list-panel .dash-table-wrap {
   min-height: 0;
+  height: min(56vh, 486px);
   overflow-x: hidden;
   overflow-y: auto;
   border-radius: 12px;
@@ -3242,11 +3245,16 @@ html[data-theme="dark"] .license-note {
 }
 
 .outgoing-list-panel .dash-table th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: color-mix(in srgb, var(--accent) 11%, var(--surface));
   color: var(--text);
   font-size: 11px;
   font-weight: 950;
   letter-spacing: .02em;
   border-bottom: 2px solid var(--accent);
+  box-shadow: 0 2px 0 var(--accent);
 }
 
 .outgoing-list-panel .dash-table th:nth-child(1) { width: 17%; }
