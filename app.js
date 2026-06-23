@@ -3127,6 +3127,11 @@ function normalizeCarrierName(text) {
   return text;
 }
 
+function workerUnitCount(worker = "", unit = "box") {
+  const match = String(worker || "").match(new RegExp(`\\b([\\d,]+)\\s*${unit}\\b`, "i"));
+  return match ? parseNumber(match[1]) : 0;
+}
+
 const MAT_UNITS = { "뽕뽕이": "봉지", "테이프": "BOX", "투명랩": "BOX" };
 
 function fmtMatQty(name, raw) {
@@ -3314,6 +3319,19 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     }))
     .filter((row) => row.invoiceNo);
 
+  const fallbackOutgoingRows = dataRows.map((row) => {
+    const cells = row.c || [];
+    return {
+      invoiceNo: dashCell(cells, 1),
+      customer: dashCell(cells, 3),
+      carrier: normalizeCarrierName(dashCell(cells, 11) || "-"),
+      item: dashCell(cells, 8) || "-",
+      qty: dashCell(cells, 9) || "-",
+      worker: dashCell(cells, 14) || "-",
+    };
+  });
+  const visibleOutgoingRows = albumRows.length ? albumRows : fallbackOutgoingRows;
+
   if (albumRows.length) {
     tbody.replaceChildren();
     const albumFragment = document.createDocumentFragment();
@@ -3333,7 +3351,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
   }
 
   const listCountEl = document.querySelector("#dash-out-list-count");
-  if (listCountEl) listCountEl.textContent = `${(albumRows.length || dataRows.length).toLocaleString("ko-KR")}건`;
+  if (listCountEl) listCountEl.textContent = `${visibleOutgoingRows.length.toLocaleString("ko-KR")}건`;
 
   document.querySelector("#dash-out-summary").innerHTML = `
     <div class="queue-summary-card"><span>출고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
@@ -3361,7 +3379,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
       qtyTotal: totalQty,
       amtStr: displayAmtStr,
     },
-    rows: (albumRows.length ? albumRows.map((row, index) => [
+    rows: (albumRows.length ? albumRows.map((row) => [
       row.invoiceNo,
       row.customer || "-",
       row.carrier || "-",
@@ -3382,40 +3400,31 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     carriers: [],
   };
 
-  // 배송사별 카드 — 고정 8개 항목, 항상 표시 (민호탭 rows[6-8] 기준)
-  const CARRIER_COLS = [
-    { col: 2,  name: "FedEx 코어", key: "fedex" },
-    { col: 3,  name: "UPS 코어",   key: "ups"   },
-    { col: 5,  name: "DHL 픽업",   key: "dhl"   },
-    { col: 6,  name: "FedEx 픽업", key: "fedex" },
-    { col: 7,  name: "UPS 픽업",   key: "ups"   },
-    { col: 8,  name: "CJ 택배",    key: "cj"    },
-    { col: 10, name: "포워드",      key: "forward"},
-    { col: 11, name: "퀵",         key: "quick" },
-  ];
-
   const chartWrap = document.querySelector("#dash-out-chart");
-  if (chartWrap && matRows) {
+  if (chartWrap) {
     chartWrap.hidden = false;
-    function matCell(idx) {
-      return (matRows[idx]?.c || []).map((cell) => String(gvizCellValue(cell ?? null) ?? "").trim());
-    }
-    const invoiceRowIndex = matRows.findIndex((row) => dashCell(row.c || [], 0) === "인보이스");
-    const boxRowIndex = matRows.findIndex((row, index) =>
-      index > invoiceRowIndex && dashCell(row.c || [], 0) === "BOX"
-    );
-    const cInvoice = matCell(invoiceRowIndex >= 0 ? invoiceRowIndex : 7);
-    const cBox     = matCell(boxRowIndex >= 0 ? boxRowIndex : 8);
 
-    const carriers = CARRIER_COLS.map(({ col, name, key }) => ({
-      name,
-      key,
-      invoice: Number(cInvoice[col]) || 0,
-      box:     Number(cBox[col])     || 0,
-    }));
+    const carrierMap = new Map();
+    visibleOutgoingRows.forEach((row) => {
+      const carrierName = normalizeCarrierName(row.carrier || "-") || "-";
+      const current = carrierMap.get(carrierName) || {
+        name: carrierName,
+        key: carrierKey(carrierName),
+        invoice: 0,
+        box: 0,
+      };
+      current.invoice += 1;
+      current.box += workerUnitCount(row.worker, "box");
+      carrierMap.set(carrierName, current);
+    });
 
-    const totalInv = carriers.reduce((s, c) => s + c.invoice, 0);
-    const totalBox = carriers.reduce((s, c) => s + c.box, 0);
+    const order = ["DHL", "DHL 픽업", "픽업UPS", "UPS 코어", "FedEx 코어", "픽업 FedEx", "FedEx", "포워드", "CJ 택배", "퀵", "3층전달"];
+    const carriers = Array.from(carrierMap.values()).sort((a, b) => {
+      const aIndex = order.indexOf(a.name);
+      const bIndex = order.indexOf(b.name);
+      if (aIndex !== -1 || bIndex !== -1) return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+      return a.name.localeCompare(b.name, "ko-KR");
+    });
 
     dashboardState.outgoing.carriers = carriers.map((c) => ({
       name: normalizeCarrierName(c.name),
@@ -3443,7 +3452,9 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
       </div>`;
     }).join("");
 
-    chartWrap.innerHTML = `<div class="carrier-cards-grid">${cards}</div>`;
+    chartWrap.innerHTML = cards
+      ? `<div class="carrier-cards-grid">${cards}</div>`
+      : `<div class="dash-empty-card">출고 리스트 데이터가 없습니다.</div>`;
   }
 }
 
@@ -4025,7 +4036,7 @@ function buildDashboardWorkbook() {
   const outgoingSheet = dashboardBuildWorkbookSheet(
     "웅툴 - 출고",
     [18, 24, 16, 10, 10, 16],
-    ["Invoice No", "거래처", "배송사", "item", "수량", "작업"],
+    ["Invoice", "거래처", "배송사", "item", "수량", "작업"],
     outgoing.rows,
     outgoingSummary,
   );
@@ -4226,7 +4237,7 @@ async function downloadDashboardPdf() {
         `총 출고 PLT : ${dashboardState.outgoing.summary.pltTotal} / 총 출고 BOX : ${dashboardState.outgoing.summary.boxTotal}`,
         `총 출고 금액 : ${dashboardState.outgoing.summary.amtStr}`,
       ],
-      ["Invoice No", "거래처", "배송사", "item", "수량", "작업"],
+      ["Invoice", "거래처", "배송사", "item", "수량", "작업"],
       dashboardState.outgoing.rows,
       [150, 240, 150, 80, 90, 150],
     );
