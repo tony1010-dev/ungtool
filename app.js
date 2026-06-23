@@ -3338,6 +3338,9 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     tbody.append(albumFragment);
   }
 
+  const listCountEl = document.querySelector("#dash-out-list-count");
+  if (listCountEl) listCountEl.textContent = `${(albumRows.length || dataRows.length).toLocaleString("ko-KR")}건`;
+
   document.querySelector("#dash-out-summary").innerHTML = `
     <div class="queue-summary-card"><span>출고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
     <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
@@ -3452,9 +3455,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
       </div>`;
     }).join("");
 
-    chartWrap.innerHTML = `
-      <p class="chart-title">배송사별 출고 현황</p>
-      <div class="carrier-cards-grid">${cards}</div>`;
+    chartWrap.innerHTML = `<div class="carrier-cards-grid">${cards}</div>`;
   }
 }
 
