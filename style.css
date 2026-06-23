@@ -1162,6 +1162,7 @@ html[data-theme="dark"] .unit-button.is-active {
   line-height: 1.6;
 }
 
+.license-mail-preview,
 .license-delivery-copy {
   margin-top: 12px;
   overflow: hidden;
@@ -1170,6 +1171,7 @@ html[data-theme="dark"] .unit-button.is-active {
   background: #fbfaf7;
 }
 
+.license-mail-preview-head,
 .license-delivery-copy-head {
   display: flex;
   align-items: center;
@@ -1178,6 +1180,7 @@ html[data-theme="dark"] .unit-button.is-active {
   border-bottom: 1px solid var(--line);
 }
 
+.license-mail-preview-head strong,
 .license-delivery-copy-head strong {
   font-size: 13px;
 }
@@ -1192,6 +1195,40 @@ html[data-theme="dark"] .unit-button.is-active {
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.license-mail-fields {
+  margin: 0;
+}
+
+.license-mail-fields > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  border-bottom: 1px solid var(--line);
+}
+
+.license-mail-fields > div:last-child {
+  border-bottom: 0;
+}
+
+.license-mail-fields dt,
+.license-mail-fields dd {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.license-mail-fields dt {
+  color: var(--muted);
+  border-right: 1px solid var(--line);
+  background: #f5f2ec;
+  font-weight: 800;
+}
+
+.license-mail-fields dd {
+  color: var(--text);
+  word-break: break-word;
 }
 
 .license-delivery-copy pre {
@@ -2410,8 +2447,13 @@ html[data-theme="dark"] .license-download-card {
   background: #222;
 }
 
+html[data-theme="dark"] .license-mail-preview,
 html[data-theme="dark"] .license-delivery-copy {
   background: #222;
+}
+
+html[data-theme="dark"] .license-mail-fields dt {
+  background: #292929;
 }
 
 html[data-theme="dark"] .license-copy-button {
@@ -2539,6 +2581,19 @@ html[data-theme="dark"] .license-note {
   .license-download-card .merge-button {
     width: 100%;
     grid-column: 1 / -1;
+  }
+
+  .license-mail-fields > div {
+    grid-template-columns: 1fr;
+  }
+
+  .license-mail-fields dt {
+    padding-bottom: 5px;
+    border-right: 0;
+  }
+
+  .license-mail-fields dd {
+    padding-top: 7px;
   }
 
   .label-workspaces {

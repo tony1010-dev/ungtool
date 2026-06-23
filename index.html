@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=16" />
+    <link rel="stylesheet" href="style.css?v=17" />
   </head>
   <body>
     <header class="site-header">
@@ -543,9 +543,29 @@
           배터리 포함 내역이 있으면 해당 행을 노란색으로 표시하고 파일명 끝에 <strong>_배터리포함</strong>을 자동으로 붙입니다.
         </div>
         <div class="message" id="license-message" role="status" aria-live="polite" hidden></div>
+        <div class="license-mail-preview" id="license-mail-preview" hidden>
+          <div class="license-mail-preview-head">
+            <strong>메일 정보 (자동생성 - 웅툴)</strong>
+            <button class="license-copy-button" id="license-mail-copy-button" type="button">전체 복사</button>
+          </div>
+          <dl class="license-mail-fields">
+            <div>
+              <dt>제목</dt>
+              <dd id="license-mail-subject"></dd>
+            </div>
+            <div>
+              <dt>받는 사람</dt>
+              <dd id="license-mail-to"></dd>
+            </div>
+            <div>
+              <dt>참조</dt>
+              <dd id="license-mail-cc"></dd>
+            </div>
+          </dl>
+        </div>
         <div class="license-delivery-copy" id="license-delivery-copy" hidden>
           <div class="license-delivery-copy-head">
-            <strong>전달 문구</strong>
+            <strong>전달 문구 (자동생성 - 웅툴)</strong>
             <button class="license-copy-button" id="license-copy-button" type="button">복사</button>
           </div>
           <pre id="license-delivery-text"></pre>
@@ -707,6 +727,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=39"></script>
+  <script src="app.js?v=40"></script>
   </body>
 </html>

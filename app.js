@@ -1213,7 +1213,16 @@ const licenseDom = {
   deliveryCopy: document.querySelector("#license-delivery-copy"),
   deliveryText: document.querySelector("#license-delivery-text"),
   copyButton: document.querySelector("#license-copy-button"),
+  mailPreview: document.querySelector("#license-mail-preview"),
+  mailSubject: document.querySelector("#license-mail-subject"),
+  mailTo: document.querySelector("#license-mail-to"),
+  mailCc: document.querySelector("#license-mail-cc"),
+  mailCopyButton: document.querySelector("#license-mail-copy-button"),
 };
+
+const LICENSE_MAIL_TO = '"MinJi Ryu (DHL KR)" <minji.ryu@dhl.com>';
+const LICENSE_MAIL_CC =
+  '"Jongbeom Lim (DHL KR)" <jongbeom.lim@dhl.com>, SELSWSC@DHL.COM, selsnmstn@dhl.com, EXPKROPS-SWSVC@DHL.COM, 이웅장 <tony@siliconii.net>, 홍은선 <sunny77@siliconii.net>';
 
 function setLicenseStatus(state, text) {
   licenseDom.status.className = `sheet-badge ${state ? `is-${state}` : ""}`;
@@ -1288,9 +1297,50 @@ function makeLicenseDeliveryText(rows) {
   return lines.join("\n");
 }
 
+function seoulShortDateString() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const value = (type) => parts.find((part) => part.type === type)?.value || "";
+  return `${value("year")}.${value("month")}.${value("day")}`;
+}
+
+function makeLicenseMailSubject(rows) {
+  const suffix = rows.some((row) => row.batteryNote) ? "_배터리포함" : "";
+  return `실리콘투 음반팀 면허파일 전달의 건_${seoulShortDateString()}${suffix}`;
+}
+
 function showLicenseDeliveryCopy(rows) {
   licenseDom.deliveryText.textContent = makeLicenseDeliveryText(rows);
+  licenseDom.mailSubject.textContent = makeLicenseMailSubject(rows);
+  licenseDom.mailTo.textContent = LICENSE_MAIL_TO;
+  licenseDom.mailCc.textContent = LICENSE_MAIL_CC;
+  licenseDom.mailPreview.hidden = false;
   licenseDom.deliveryCopy.hidden = false;
+}
+
+async function copyLicenseText(text, button) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+  } else {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.append(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  button.textContent = "복사 완료";
+  setTimeout(() => {
+    button.textContent = button === licenseDom.mailCopyButton ? "전체 복사" : "복사";
+  }, 1500);
 }
 
 function loadLicenseRows(force = false) {
@@ -1440,27 +1490,29 @@ async function downloadLicenseWorkbook() {
 licenseDom.downloadButton.addEventListener("click", downloadLicenseWorkbook);
 licenseDom.copyButton.addEventListener("click", async () => {
   try {
-    const text = licenseDom.deliveryText.textContent;
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.append(textarea);
-      textarea.select();
-      const copied = document.execCommand("copy");
-      textarea.remove();
-      if (!copied) throw new Error("copy failed");
-    }
-    licenseDom.copyButton.textContent = "복사 완료";
-    setTimeout(() => {
-      licenseDom.copyButton.textContent = "복사";
-    }, 1500);
+    await copyLicenseText(licenseDom.deliveryText.textContent, licenseDom.copyButton);
   } catch {
     showLicenseMessage("전달 문구를 복사하지 못했습니다.", true);
+  }
+});
+
+licenseDom.mailCopyButton.addEventListener("click", async () => {
+  const mailText = [
+    `제목 : ${licenseDom.mailSubject.textContent}`,
+    "",
+    "받는 사람 :",
+    licenseDom.mailTo.textContent,
+    "",
+    "참조 :",
+    licenseDom.mailCc.textContent,
+    "",
+    licenseDom.deliveryText.textContent,
+  ].join("\n");
+
+  try {
+    await copyLicenseText(mailText, licenseDom.mailCopyButton);
+  } catch {
+    showLicenseMessage("메일 정보를 복사하지 못했습니다.", true);
   }
 });
 
