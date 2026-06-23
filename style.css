@@ -3161,7 +3161,7 @@ html[data-theme="dark"] .license-note {
 
 .dashboard-split-grid {
   display: grid;
-  grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(310px, .9fr) minmax(0, 1.1fr);
   gap: 16px;
   align-items: stretch;
 }
@@ -3194,7 +3194,7 @@ html[data-theme="dark"] .license-note {
 }
 
 .outgoing-carrier-panel .carrier-cards-grid {
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(122px, 1fr));
 }
 
 .queue-active-column,
