@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=19" />
+    <link rel="stylesheet" href="style.css?v=20" />
   </head>
   <body>
     <header class="site-header">
@@ -654,6 +654,7 @@
         <nav class="dash-tabs" aria-label="대시보드 탭">
           <button class="dash-tab is-active" type="button" data-dash="incoming">입고</button>
           <button class="dash-tab" type="button" data-dash="outgoing">출고</button>
+          <button class="dash-tab" type="button" data-dash="personnel">인원</button>
           <button class="dash-tab" type="button" data-dash="materials">자재현황</button>
         </nav>
 
@@ -689,6 +690,21 @@
             </table>
           </div>
           <div class="message" id="dash-outgoing-message" role="status" aria-live="polite" hidden></div>
+        </div>
+
+        <div class="dash-panel" id="dash-personnel" hidden>
+          <div class="dash-table-wrap">
+            <table class="dash-table dash-personnel-table" id="dash-personnel-table">
+              <thead>
+                <tr>
+                  <th>구분</th><th>수량</th><th>팀·성별</th><th>나이</th>
+                  <th>입사일</th><th>비고</th><th>항목</th><th>내용</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="message" id="dash-personnel-message" role="status" aria-live="polite" hidden></div>
         </div>
 
         <div class="dash-panel" id="dash-materials" hidden>
@@ -748,6 +764,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=45"></script>
+  <script src="app.js?v=46"></script>
   </body>
 </html>

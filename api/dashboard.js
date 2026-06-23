@@ -96,6 +96,14 @@ function valueAt(values, rowIndex, colIndex) {
   return values?.[rowIndex]?.[colIndex] ?? "";
 }
 
+function firstFilled(values, rowIndexes, colIndex = 0) {
+  for (const rowIndex of rowIndexes) {
+    const value = String(valueAt(values, rowIndex, colIndex) ?? "").trim();
+    if (value) return value;
+  }
+  return "";
+}
+
 async function fetchSheetValues(token, spreadsheetId, ranges) {
   const params = new URLSearchParams();
   ranges.forEach((range) => params.append("ranges", range));
@@ -115,16 +123,26 @@ async function fetchSheetValues(token, spreadsheetId, ranges) {
 async function readAlbumValues(token) {
   try {
     const albumSheetId = process.env.DASH_ALBUM_SHEET_ID || DASH_SHEET_ID;
-    const [album] = await fetchSheetValues(token, albumSheetId, ["음반!D3:F5"]);
+    const [album] = await fetchSheetValues(token, albumSheetId, ["음반!D3:D6"]);
     const values = album?.values || [];
     return {
-      shippingPlt: valueAt(values, 0, 0),
-      completedPlt: valueAt(values, 0, 2),
-      shippingBox: valueAt(values, 2, 0),
-      completedBox: valueAt(values, 2, 2),
+      shippingPlt: firstFilled(values, [0, 1]),
+      shippingBox: firstFilled(values, [2, 3]),
     };
   } catch {
     return null;
+  }
+}
+
+async function readPersonnelValues(token) {
+  try {
+    const albumSheetId = process.env.DASH_ALBUM_SHEET_ID || DASH_SHEET_ID;
+    const [personnel] = await fetchSheetValues(token, albumSheetId, ["인원!AC15:AJ97"]);
+    return (personnel?.values || [])
+      .map((row) => Array.from({ length: 8 }, (_, index) => String(row?.[index] ?? "").trim()))
+      .filter((row) => row.some(Boolean));
+  } catch {
+    return [];
   }
 }
 
@@ -151,6 +169,7 @@ async function readDashboardValues() {
     incomingTotals: valuesToTable(incomingTotals?.values || []),
     outgoingTotals: valuesToTable(outgoingTotals?.values || []),
     album: await readAlbumValues(token),
+    personnel: await readPersonnelValues(token),
   };
 }
 

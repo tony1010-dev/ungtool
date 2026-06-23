@@ -202,6 +202,7 @@ let labelUnit = "BOX";
 const dashboardState = {
   incoming: null,
   outgoing: null,
+  personnel: null,
   materials: null,
 };
 
@@ -3050,6 +3051,15 @@ function dashboardUnitTotal(value, fallback = "0") {
   return fmtComma(fallback);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function dashCell(cells, idx) {
   return String(gvizCellValue(cells[idx] ?? null) ?? "").trim();
 }
@@ -3415,8 +3425,40 @@ function renderMaterials(matTable) {
   };
 }
 
+function renderPersonnel(rows = []) {
+  const tbody = document.querySelector("#dash-personnel-table tbody");
+  if (!tbody) return;
+
+  const cleanRows = rows
+    .map((row) => Array.from({ length: 8 }, (_, index) => String(row?.[index] ?? "").trim()))
+    .filter((row) => row.some(Boolean));
+
+  tbody.replaceChildren();
+
+  if (!cleanRows.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">인원 데이터를 찾지 못했습니다.</td>`;
+    tbody.append(tr);
+  } else {
+    const fragment = document.createDocumentFragment();
+    cleanRows.forEach((row) => {
+      const tr = document.createElement("tr");
+      const isSection = row.filter(Boolean).length <= 3 && (row[0] || row[6]);
+      if (isSection) tr.className = "personnel-section-row";
+      tr.innerHTML = row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("");
+      fragment.append(tr);
+    });
+    tbody.append(fragment);
+  }
+
+  dashboardState.personnel = {
+    headers: ["구분", "수량", "팀·성별", "나이", "입사일", "비고", "항목", "내용"],
+    rows: cleanRows,
+  };
+}
+
 function dashboardExportReady() {
-  if (!dashboardState.incoming || !dashboardState.outgoing || !dashboardState.materials) {
+  if (!dashboardState.incoming || !dashboardState.outgoing || !dashboardState.personnel || !dashboardState.materials) {
     throw new Error("대시보드 데이터를 아직 불러오지 못했어요.");
   }
 }
@@ -3518,6 +3560,14 @@ function buildDashboardWorkbook() {
     outgoingSummary,
   );
   XLSX.utils.book_append_sheet(workbook, outgoingSheet.sheet, outgoingSheet.workbookSheetName);
+
+  const personnelSheet = dashboardBuildWorkbookSheet(
+    "웅툴 - 인원",
+    [18, 12, 16, 10, 14, 14, 16, 18],
+    dashboardState.personnel.headers,
+    dashboardState.personnel.rows,
+  );
+  XLSX.utils.book_append_sheet(workbook, personnelSheet.sheet, personnelSheet.workbookSheetName);
 
   const materials = dashboardState.materials;
   const materialRows = [
@@ -3715,6 +3765,13 @@ async function downloadDashboardPdf() {
       ...dashboardState.materials.boxItems.map((item) => ["박스 재고", item.name, item.qty]),
       ...dashboardState.materials.packItems.map((item) => ["포장용품", item.name, item.qty]),
     ];
+    const personnelPages = buildDashboardSectionCanvases(
+      "인원",
+      ["인원 탭 AC15:AJ97"],
+      dashboardState.personnel.headers,
+      dashboardState.personnel.rows,
+      [150, 100, 130, 90, 120, 120, 130, 140],
+    );
     const materialPages = buildDashboardSectionCanvases(
       "자재현황",
       ["박스 재고 / 포장용품"],
@@ -3726,7 +3783,7 @@ async function downloadDashboardPdf() {
     const pageWidth = 841.8898;
     const pageHeight = 595.2756;
 
-    for (const canvas of [...incomingPages, ...outgoingPages, ...materialPages]) {
+    for (const canvas of [...incomingPages, ...outgoingPages, ...personnelPages, ...materialPages]) {
       const image = await pdf.embedPng(canvas.toDataURL("image/png"));
       const page = pdf.addPage([pageWidth, pageHeight]);
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
@@ -3750,6 +3807,7 @@ async function loadDashboardFromServer() {
   if (!response.ok) throw new Error(data.error || "대시보드 API 연결 실패");
   renderIncoming(data.incoming, data.incomingTotals);
   renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals, data.album);
+  renderPersonnel(data.personnel);
   renderMaterials(data.minho);
 }
 
@@ -3767,6 +3825,7 @@ async function loadDashboardFromPublicSheet() {
 
   renderIncoming(inTable, inTotals);
   renderOutgoing(outTable, matTable.rows, outTotals);
+  renderPersonnel([]);
   renderMaterials(matTable);
 }
 
@@ -3790,6 +3849,7 @@ async function loadDashboard() {
       const el = document.querySelector(`#${id}`);
       if (el) el.innerHTML = errHtml;
     });
+    renderPersonnel([]);
   }
 }
 

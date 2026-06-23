@@ -2877,6 +2877,15 @@ html[data-theme="dark"] .license-note {
 
 .dash-table tbody tr:hover td { background: color-mix(in srgb, var(--accent) 8%, transparent) !important; }
 
+.dash-personnel-table td:first-child,
+.dash-personnel-table td:nth-child(7) {
+  font-weight: 700;
+}
+
+.dash-personnel-table .personnel-section-row td {
+  background: var(--accent-soft);
+}
+
 .dash-table .num-cell { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .dash-table .tag-cell {
