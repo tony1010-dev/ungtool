@@ -3314,7 +3314,7 @@ html[data-theme="dark"] .license-note {
 
 .outgoing-table-head {
   display: grid;
-  grid-template-columns: 17% 24% 15% 10% 11% 23%;
+  grid-template-columns: 6% 16% 23% 14% 10% 11% 20%;
   align-items: center;
   padding: 9px 8px;
   border: 1.5px solid var(--border);
@@ -3353,6 +3353,13 @@ html[data-theme="dark"] .license-note {
 }
 
 .outgoing-list-panel .dash-table td:first-child {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 900;
+}
+
+.outgoing-list-panel .dash-table td:nth-child(2) {
   color: var(--text);
   font-size: 11.5px;
   font-weight: 950;
@@ -3466,14 +3473,14 @@ html[data-theme="dark"] .license-note {
 .queue-panel-head,
 .queue-panel .queue-row {
   display: grid;
-  grid-template-columns: minmax(78px, .8fr) minmax(78px, 1.1fr) minmax(58px, 68px) 34px 40px 56px 56px;
+  grid-template-columns: 24px minmax(70px, .78fr) minmax(72px, 1fr) minmax(54px, 64px) 32px 38px 52px 54px;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .queue-panel-head.no-progress,
 .queue-panel .queue-row.no-progress {
-  grid-template-columns: minmax(78px, .8fr) minmax(96px, 1.25fr) minmax(58px, 72px) 34px 40px 56px;
+  grid-template-columns: 24px minmax(70px, .78fr) minmax(86px, 1.13fr) minmax(54px, 66px) 32px 38px 52px;
 }
 
 .queue-panel-head {
@@ -3501,7 +3508,7 @@ html[data-theme="dark"] .license-note {
 
 .queue-row {
   min-height: 42px;
-  padding: 7px 8px;
+  padding: 7px 7px;
   border: 1.5px solid var(--border);
   border-radius: 12px;
   background: rgba(255,255,255,.86);
@@ -3522,19 +3529,24 @@ html[data-theme="dark"] .license-note {
   text-transform: uppercase;
 }
 
-.queue-row.is-working {
-  border-left: 4px solid var(--accent);
-}
-
-.queue-row.is-done {
-  border-left: 4px solid #22c55e;
-}
-
+.queue-row-index,
 .queue-invoice {
   color: var(--text);
   font-size: 11px;
   font-weight: 850;
   white-space: nowrap;
+}
+
+.queue-row-index {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 7px;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-muted) 9%, var(--surface));
+  font-size: 10px;
+  font-weight: 900;
 }
 
 .queue-row-customer {

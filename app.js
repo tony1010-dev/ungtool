@@ -3304,7 +3304,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
   let totalItem = 0;
   let totalQty = 0;
 
-  dataRows.forEach((row) => {
+  dataRows.forEach((row, index) => {
     const cells   = row.c || [];
     const item    = dashCell(cells, 8) || "-";              // I col
     const qty     = dashCell(cells, 9) || "-";              // J col
@@ -3317,6 +3317,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td class="row-index-cell">${index + 1}</td>
       <td>${dashCell(cells, 1)}</td>
       <td>${dashCell(cells, 3)}</td>
       <td class="tag-cell">${carrierBadgeHtml(carrier)}</td>
@@ -3330,7 +3331,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
 
   if (!dataRows.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">데이터가 없습니다.</td>`;
+    tr.innerHTML = `<td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">데이터가 없습니다.</td>`;
     tbody.append(tr);
   }
 
@@ -3370,6 +3371,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     albumRows.forEach((row, index) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
+        <td class="row-index-cell">${index + 1}</td>
         <td>${escapeHtml(row.invoiceNo)}</td>
         <td>${escapeHtml(row.customer || "-")}</td>
         <td class="tag-cell">${row.carrier ? carrierBadgeHtml(row.carrier) : "-"}</td>
@@ -3411,16 +3413,18 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
       qtyTotal: visibleTotalQty,
       amtStr: displayAmtStr,
     },
-    rows: (albumRows.length ? albumRows.map((row) => [
+    rows: (albumRows.length ? albumRows.map((row, index) => [
+      index + 1,
       row.invoiceNo,
       row.customer || "-",
       row.carrier || "-",
       row.item || "-",
       row.qty || "-",
       row.worker || "-",
-    ]) : dataRows.map((row) => {
+    ]) : dataRows.map((row, index) => {
       const cells = row.c || [];
       return [
+        index + 1,
         dashCell(cells, 1),
         dashCell(cells, 3),
         normalizeCarrierName(dashCell(cells, 11) || "-"),
@@ -3675,15 +3679,16 @@ function renderQueue(items = []) {
           <span class="queue-panel-count" data-panel-count="${type}">${panelRows.length.toLocaleString("ko-KR")}건</span>
         </div>
         <div class="queue-panel-head ${showProgress ? "" : "no-progress"}">
-          <span>Invoice</span><span>거래처</span><span>배송</span><span>Item</span><span>수량</span><span>작업</span>${showProgress ? "<span>진행</span>" : ""}
+          <span>No</span><span>Invoice</span><span>거래처</span><span>배송</span><span>Item</span><span>수량</span><span>작업</span>${showProgress ? "<span>진행</span>" : ""}
         </div>
         <div class="queue-panel-list">
-      ${panelRows.length ? panelRows.map((row) => {
+      ${panelRows.length ? panelRows.map((row, index) => {
         const status = queueStatus(row.worker, row.progress);
         const stage = queueStage(row.progress);
         const progressLabel = queueProgressLabel(row.progress);
         return `
           <div class="queue-row ${showProgress ? "" : "no-progress"} ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}" data-panel="${type}" data-carrier="${escapeHtml(row.carrier)}" data-stage="${escapeHtml(stage)}">
+            <span class="queue-row-index">${index + 1}</span>
             <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
             <span class="queue-row-customer">${escapeHtml(row.customer)}</span>
             <span class="queue-row-carrier">${queueCarrierIconHtml(row.carrier)}</span>
@@ -3711,6 +3716,7 @@ function renderQueue(items = []) {
     const visibleCount = container.querySelectorAll('.queue-row[data-panel="packed"]:not([hidden])').length;
     const packedCountEl = container.querySelector('[data-panel-count="packed"]');
     if (packedCountEl) packedCountEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
+    updateVisibleQueueIndexes("packed");
   }
 
   function applyStageFilter(stage) {
@@ -3724,6 +3730,13 @@ function renderQueue(items = []) {
     const visibleCount = container.querySelectorAll('.queue-row[data-panel="active"]:not([hidden])').length;
     const activeCountEl = container.querySelector('[data-panel-count="active"]');
     if (activeCountEl) activeCountEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
+    updateVisibleQueueIndexes("active");
+  }
+
+  function updateVisibleQueueIndexes(panel) {
+    container.querySelectorAll(`.queue-row[data-panel="${panel}"]:not([hidden]) .queue-row-index`).forEach((indexEl, index) => {
+      indexEl.textContent = String(index + 1);
+    });
   }
 
   container.querySelectorAll(".queue-carrier-filter").forEach((button) => {
@@ -3734,8 +3747,9 @@ function renderQueue(items = []) {
   });
 
   dashboardState.shippingQueue = {
-    headers: ["Invoice No", "거래처", "배송사", "Item", "수량", "작업", "진행"],
-    rows: rows.map((row) => [
+    headers: ["No", "Invoice No", "거래처", "배송사", "Item", "수량", "작업", "진행"],
+    rows: rows.map((row, index) => [
+      index + 1,
       row.invoiceNo,
       row.customer,
       row.carrier,
@@ -4087,21 +4101,21 @@ function buildDashboardWorkbook() {
 
   const queueSheet = dashboardBuildWorkbookSheet(
     "웅툴 - 출고대기",
-    [18, 24, 16, 10, 10, 16, 14],
+    [8, 18, 24, 16, 10, 10, 16, 14],
     dashboardState.shippingQueue.headers,
     dashboardState.shippingQueue.rows,
-    [["요약", `${dashboardState.shippingQueue.rows.length}건`, "", "", "", "", ""]],
+    [["요약", `${dashboardState.shippingQueue.rows.length}건`, "", "", "", "", "", ""]],
   );
   XLSX.utils.book_append_sheet(workbook, queueSheet.sheet, queueSheet.workbookSheetName);
 
   const outgoing = dashboardState.outgoing;
   const outgoingSummary = [
-    ["요약", `${outgoing.summary.count}건`, `${outgoing.summary.itemTotal} item`, `${outgoing.summary.qtyTotal} EA`, outgoing.summary.amtStr, "", ""],
+    ["요약", `${outgoing.summary.count}건`, `${outgoing.summary.itemTotal} item`, `${outgoing.summary.qtyTotal} EA`, outgoing.summary.amtStr, "", "", ""],
   ];
   const outgoingSheet = dashboardBuildWorkbookSheet(
     "웅툴 - 출고",
-    [18, 24, 16, 10, 10, 16],
-    ["Invoice", "거래처", "배송사", "item", "수량", "작업"],
+    [8, 18, 24, 16, 10, 10, 16],
+    ["No", "Invoice", "거래처", "배송사", "item", "수량", "작업"],
     outgoing.rows,
     outgoingSummary,
   );
@@ -4309,9 +4323,9 @@ async function downloadDashboardPdf() {
         `총 출고 PLT : ${dashboardState.outgoing.summary.pltTotal} / 총 출고 BOX : ${dashboardState.outgoing.summary.boxTotal}`,
         `총 출고 금액 : ${dashboardState.outgoing.summary.amtStr}`,
       ],
-      ["Invoice", "거래처", "배송사", "item", "수량", "작업"],
+      ["No", "Invoice", "거래처", "배송사", "item", "수량", "작업"],
       dashboardState.outgoing.rows,
-      [150, 240, 150, 80, 90, 150],
+      [60, 150, 220, 140, 80, 90, 150],
     );
 
     const queuePages = buildDashboardSectionCanvases(
@@ -4319,7 +4333,7 @@ async function downloadDashboardPdf() {
       [`총 출고대기 : ${dashboardState.shippingQueue.rows.length}건`],
       dashboardState.shippingQueue.headers,
       dashboardState.shippingQueue.rows,
-      [150, 240, 150, 80, 90, 150, 120],
+      [60, 150, 220, 140, 80, 90, 150, 120],
     );
 
     const materialRows = [
