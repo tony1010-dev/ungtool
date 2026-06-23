@@ -3956,7 +3956,11 @@ function renderPersonnel(rows = []) {
     const today = personnelToday();
     start.setHours(0, 0, 0, 0);
     if (today < start) return "";
-    const tenureYear = Math.max(1, today.getFullYear() - start.getFullYear());
+    const firstAnniversary = new Date(start);
+    firstAnniversary.setFullYear(firstAnniversary.getFullYear() + 1);
+    firstAnniversary.setHours(0, 0, 0, 0);
+    if (today < firstAnniversary) return "";
+    const tenureYear = today.getFullYear() - start.getFullYear() + 1;
     return `${tenureYear}년차`;
   }
 
