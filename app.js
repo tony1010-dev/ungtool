@@ -3041,42 +3041,13 @@ function fmtComma(value) {
   return n.toLocaleString("ko-KR");
 }
 
-function fmtDashboardUnit(value, unit) {
+function dashboardUnitTotal(value, fallback = "0") {
   const text = String(value ?? "").trim();
-  if (!text) return `- ${unit}`;
-  if (text.toUpperCase() === unit.toUpperCase()) return `- ${unit}`;
-  if (new RegExp(`${unit}$`, "i").test(text.replace(/\s+/g, ""))) return text;
-  return `${fmtComma(text)} ${unit}`;
-}
-
-function renderAlbumSummary(album = {}) {
-  const container = document.querySelector("#dash-album-summary");
-  if (!container) return;
-
-  const hasData = Object.values(album).some((value) => String(value ?? "").trim());
-  if (!hasData) {
-    container.hidden = true;
-    container.replaceChildren();
-    dashboardState.album = null;
-    return;
+  const numericText = text.replace(/[^\d.-]/g, "");
+  if (numericText && Number.isFinite(Number(numericText))) {
+    return Number(numericText).toLocaleString("ko-KR");
   }
-
-  container.hidden = false;
-  container.innerHTML = `
-    <div class="dash-album-title">음반 작업 현황</div>
-    <div class="dash-album-cards">
-      <div class="dash-album-card">${ICON_PLT}<span>출고 PLT</span><strong>${fmtDashboardUnit(album.shippingPlt, "PLT")}</strong></div>
-      <div class="dash-album-card">${ICON_BOX}<span>출고 BOX</span><strong>${fmtDashboardUnit(album.shippingBox, "BOX")}</strong></div>
-      <div class="dash-album-card is-done">${ICON_PLT}<span>작업 완료 PLT</span><strong>${fmtDashboardUnit(album.completedPlt, "PLT")}</strong></div>
-      <div class="dash-album-card is-done">${ICON_BOX}<span>작업 완료 BOX</span><strong>${fmtDashboardUnit(album.completedBox, "BOX")}</strong></div>
-    </div>`;
-
-  dashboardState.album = {
-    shippingPlt: fmtDashboardUnit(album.shippingPlt, "PLT"),
-    shippingBox: fmtDashboardUnit(album.shippingBox, "BOX"),
-    completedPlt: fmtDashboardUnit(album.completedPlt, "PLT"),
-    completedBox: fmtDashboardUnit(album.completedBox, "BOX"),
-  };
+  return fmtComma(fallback);
 }
 
 function dashCell(cells, idx) {
@@ -3195,7 +3166,7 @@ function renderIncoming(table, totalsTable) {
 }
 
 // ── 출고 렌더 ──────────────────────────────────────────────────
-function renderOutgoing(table, matRows, totalsTable) {
+function renderOutgoing(table, matRows, totalsTable, album = null) {
   const rows = table.rows;
 
   // L3:N4 range 전용 fetch → col0=L, col2=N; row0=3행, row1=4행
@@ -3203,6 +3174,8 @@ function renderOutgoing(table, matRows, totalsTable) {
   const pltTotal = dashCell(tRows[0]?.c || [], 0) || "0";  // L3
   const boxTotal = dashCell(tRows[1]?.c || [], 0) || "0";  // L4
   const amtStr   = dashCell(tRows[0]?.c || [], 2) || "-";  // N3
+  const displayPltTotal = dashboardUnitTotal(album?.shippingPlt, pltTotal);
+  const displayBoxTotal = dashboardUnitTotal(album?.shippingBox, boxTotal);
 
   // data: rows where col B (index 1) has IN번호
   const dataRows = rows.filter((row) => {
@@ -3246,16 +3219,16 @@ function renderOutgoing(table, matRows, totalsTable) {
 
   document.querySelector("#dash-out-summary").innerHTML = `
     <div class="dash-stat stat-blue">${ICON_DOC}<span>출고</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong>${pltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong>${boxTotal} BOX</strong></div>
+    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong>${displayPltTotal} PLT</strong></div>
+    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong>${displayBoxTotal} BOX</strong></div>
     <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(amtStr)}</strong></div>
   `;
 
   dashboardState.outgoing = {
     summary: {
       count: dataRows.length,
-      pltTotal,
-      boxTotal,
+      pltTotal: displayPltTotal,
+      boxTotal: displayBoxTotal,
       amtStr,
     },
     rows: dataRows.map((row) => {
@@ -3558,21 +3531,6 @@ function buildDashboardWorkbook() {
   );
   XLSX.utils.book_append_sheet(workbook, materialsSheet.sheet, materialsSheet.workbookSheetName);
 
-  if (dashboardState.album) {
-    const albumSheet = dashboardBuildWorkbookSheet(
-      "웅툴 - 음반현황",
-      [20, 18],
-      ["구분", "수량"],
-      [
-        ["출고 PLT", dashboardState.album.shippingPlt],
-        ["출고 BOX", dashboardState.album.shippingBox],
-        ["작업 완료 PLT", dashboardState.album.completedPlt],
-        ["작업 완료 BOX", dashboardState.album.completedBox],
-      ],
-    );
-    XLSX.utils.book_append_sheet(workbook, albumSheet.sheet, albumSheet.workbookSheetName);
-  }
-
   return workbook;
 }
 
@@ -3763,26 +3721,11 @@ async function downloadDashboardPdf() {
       materialRows,
       [220, 780, 180],
     );
-    const albumPages = dashboardState.album
-      ? buildDashboardSectionCanvases(
-          "음반 작업 현황",
-          ["음반탭 D3 · D5 · F3 · F5"],
-          ["구분", "수량"],
-          [
-            ["출고 PLT", dashboardState.album.shippingPlt],
-            ["출고 BOX", dashboardState.album.shippingBox],
-            ["작업 완료 PLT", dashboardState.album.completedPlt],
-            ["작업 완료 BOX", dashboardState.album.completedBox],
-          ],
-          [420, 300],
-        )
-      : [];
-
     const pdf = await PDFDocument.create();
     const pageWidth = 841.8898;
     const pageHeight = 595.2756;
 
-    for (const canvas of [...incomingPages, ...outgoingPages, ...materialPages, ...albumPages]) {
+    for (const canvas of [...incomingPages, ...outgoingPages, ...materialPages]) {
       const image = await pdf.embedPng(canvas.toDataURL("image/png"));
       const page = pdf.addPage([pageWidth, pageHeight]);
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
@@ -3805,9 +3748,8 @@ async function loadDashboardFromServer() {
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "대시보드 API 연결 실패");
   renderIncoming(data.incoming, data.incomingTotals);
-  renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals);
+  renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals, data.album);
   renderMaterials(data.minho);
-  renderAlbumSummary(data.album);
 }
 
 async function loadDashboardFromPublicSheet() {
@@ -3817,22 +3759,14 @@ async function loadDashboardFromPublicSheet() {
     fetchDashSheet("Mat", "민호", null, 0),
   ]);
 
-  const [inTotals, outTotals, albumTable] = await Promise.all([
+  const [inTotals, outTotals] = await Promise.all([
     fetchDashSheet("InT",  "입고", "M3:M4"),
     fetchDashSheet("OutT", "출고", "L3:N4"),
-    fetchDashSheet("Alb", "음반", "D3:F5", 0),
   ]);
 
   renderIncoming(inTable, inTotals);
   renderOutgoing(outTable, matTable.rows, outTotals);
   renderMaterials(matTable);
-  const albumRows = albumTable?.rows || [];
-  renderAlbumSummary({
-    shippingPlt: dashCell(albumRows[0]?.c || [], 0),
-    completedPlt: dashCell(albumRows[0]?.c || [], 2),
-    shippingBox: dashCell(albumRows[2]?.c || [], 0),
-    completedBox: dashCell(albumRows[2]?.c || [], 2),
-  });
 }
 
 async function loadDashboard() {
