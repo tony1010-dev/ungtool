@@ -3247,7 +3247,7 @@ function renderIncoming(table, totalsTable) {
 }
 
 // ── 출고 렌더 ──────────────────────────────────────────────────
-function renderOutgoing(table, matRows, totalsTable, album = null) {
+function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoingRows = []) {
   const rows = table.rows;
 
   // L3:N4 range 전용 fetch → col0=L, col2=N; row0=3행, row1=4행
@@ -3304,6 +3304,39 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
     tbody.append(tr);
   }
 
+  const albumRows = (albumOutgoingRows || [])
+    .map((row) => ({
+      invoiceNo: String(row.invoiceNo || "").trim(),
+      customer: String(row.customer || "").trim(),
+      carrier: normalizeCarrierName(String(row.carrier || "").trim()),
+      item: fmtComma(row.item),
+      qty: fmtComma(row.qty),
+      worker: String(row.worker || "").trim(),
+      progress: String(row.progress || "").trim(),
+    }))
+    .filter((row) => row.invoiceNo);
+
+  if (albumRows.length) {
+    tbody.replaceChildren();
+    const albumFragment = document.createDocumentFragment();
+    albumRows.forEach((row, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="tag-cell">${(index + 1).toLocaleString("ko-KR")}</td>
+        <td>${escapeHtml(row.invoiceNo)}</td>
+        <td>${escapeHtml(row.worker || "-")}</td>
+        <td>${escapeHtml(row.customer || "-")}</td>
+        <td class="num-cell dash-item-value">${escapeHtml(row.item || "-")}</td>
+        <td class="num-cell dash-qty-value">${escapeHtml(row.qty || "-")}</td>
+        <td class="amount-cell">-</td>
+        <td class="tag-cell">${row.carrier ? carrierBadgeHtml(row.carrier) : "-"}</td>
+        <td>${escapeHtml(row.progress || "-")}</td>
+      `;
+      albumFragment.append(tr);
+    });
+    tbody.append(albumFragment);
+  }
+
   document.querySelector("#dash-out-summary").innerHTML = `
     <div class="queue-summary-card"><span>출고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
     <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
@@ -3330,7 +3363,17 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
       qtyTotal: totalQty,
       amtStr: displayAmtStr,
     },
-    rows: dataRows.map((row) => {
+    rows: (albumRows.length ? albumRows.map((row, index) => [
+      String(index + 1),
+      row.invoiceNo,
+      row.worker || "-",
+      row.customer || "-",
+      row.item || "-",
+      row.qty || "-",
+      "-",
+      row.carrier || "-",
+      row.progress || "-",
+    ]) : dataRows.map((row) => {
       const cells = row.c || [];
       return [
         dashCell(cells, 0),
@@ -3343,7 +3386,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
         normalizeCarrierName(dashCell(cells, 11) || "-"),
         dashCell(cells, 14) || "-",
       ];
-    }),
+    })),
     carriers: [],
   };
 
@@ -4246,7 +4289,7 @@ async function loadDashboardFromServer() {
   if (!response.ok) throw new Error(data.error || "대시보드 API 연결 실패");
   renderIncoming(data.incoming, data.incomingTotals);
   renderQueue(data.shippingQueue);
-  renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals, data.album);
+  renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals, data.album, data.albumOutgoing);
   renderPersonnel(data.personnel);
   renderMaterials(data.minho);
 }

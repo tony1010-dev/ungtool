@@ -187,6 +187,45 @@ async function readShippingQueueValues(token) {
   }
 }
 
+function normalizeAlbumOutgoingRow(row = [], range = "") {
+  const cells = Array.from({ length: 7 }, (_, index) => String(row?.[index] ?? "").trim());
+  const [invoiceNo, customer, carrier, item, qty, worker, progress] = cells;
+  if (!invoiceNo || !/^((IN|PI)\d+)/i.test(invoiceNo)) return null;
+  if (!customer && !carrier && !item && !qty) return null;
+  return {
+    invoiceNo,
+    customer,
+    carrier,
+    item,
+    qty,
+    worker,
+    progress,
+    range,
+  };
+}
+
+async function readAlbumOutgoingValues(token) {
+  try {
+    const albumSheetId = process.env.DASH_ALBUM_SHEET_ID || DASH_SHEET_ID;
+    const ranges = [
+      "음반!C98:I140",
+      "음반!M98:S140",
+      "음반!W98:AC117",
+      "음반!AG98:AM117",
+      "음반!W123:AC140",
+      "음반!AG123:AM140",
+    ];
+    const blocks = await fetchSheetValues(token, albumSheetId, ranges);
+    return blocks.flatMap((block, blockIndex) =>
+      (block?.values || [])
+        .map((row) => normalizeAlbumOutgoingRow(row, ranges[blockIndex]))
+        .filter(Boolean),
+    );
+  } catch {
+    return [];
+  }
+}
+
 async function readDashboardValues() {
   const token = await getAccessToken();
   const ranges = [
@@ -211,6 +250,7 @@ async function readDashboardValues() {
     outgoingTotals: valuesToTable(outgoingTotals?.values || []),
     album: await readAlbumValues(token),
     shippingQueue: await readShippingQueueValues(token),
+    albumOutgoing: await readAlbumOutgoingValues(token),
     personnel: await readPersonnelValues(token),
   };
 }
