@@ -4923,7 +4923,13 @@ function renderLocCheckResults(barcodes, targetLoc) {
   });
 }
 
-document.querySelector("#loc-check-button")?.addEventListener("click", () => {
+const LOC_CHECK_SAMPLE_TEXT = `8809973501185
+8804775367045
+8809810217712
+8809810217333
+D-01`;
+
+function runLocCheck() {
   const raw = (document.querySelector("#loc-check-input")?.value || "").trim();
   const lines = raw.split(/\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length < 2) {
@@ -4943,6 +4949,15 @@ document.querySelector("#loc-check-button")?.addEventListener("click", () => {
   } else {
     renderLocCheckResults(barcodes, targetLoc);
   }
+}
+
+document.querySelector("#loc-check-button")?.addEventListener("click", runLocCheck);
+document.querySelector("#loc-check-sample-button")?.addEventListener("click", () => {
+  const input = document.querySelector("#loc-check-input");
+  if (!input) return;
+  input.value = LOC_CHECK_SAMPLE_TEXT;
+  runLocCheck();
+  input.focus();
 });
 
 document.querySelectorAll(".dash-tab").forEach((tab) => {

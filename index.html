@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=76" />
+    <link rel="stylesheet" href="style.css?v=77" />
   </head>
   <body>
     <header class="site-header">
@@ -507,7 +507,12 @@
 
           <!-- Right: 로케이션 파악 -->
           <div class="sync-pane loc-pane">
-            <h3 class="sync-pane-title">로케이션 파악</h3>
+            <div class="location-pick-title-row">
+              <h3 class="sync-pane-title">로케이션 파악</h3>
+              <button class="location-pick-mini-button" id="loc-check-sample-button" type="button">
+                예시입력
+              </button>
+            </div>
             <p class="sync-pane-desc">바코드 목록을 붙여넣고 마지막 줄에 로케이션 코드를 입력하세요.</p>
 
             <div class="loc-input-frame">
@@ -880,6 +885,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=104"></script>
+  <script src="app.js?v=105"></script>
   </body>
 </html>
