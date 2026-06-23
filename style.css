@@ -2755,6 +2755,68 @@ html[data-theme="dark"] .license-note {
   margin-bottom: 20px;
 }
 
+.dash-album-summary {
+  display: grid;
+  grid-template-columns: minmax(140px, .8fr) minmax(0, 3.2fr);
+  gap: 12px;
+  align-items: stretch;
+  margin: 0 0 18px;
+  padding: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 78%, var(--accent-soft));
+}
+
+.dash-album-summary[hidden] { display: none; }
+
+.dash-album-title {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.dash-album-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dash-album-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.dash-album-card .stat-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+  opacity: 1;
+}
+
+.dash-album-card.is-done .stat-icon { color: #16a34a; }
+
+.dash-album-card span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.dash-album-card strong {
+  display: block;
+  font-size: 17px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
 .dash-stat {
   display: flex;
   align-items: center;

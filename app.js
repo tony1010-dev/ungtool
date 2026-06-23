@@ -3041,6 +3041,43 @@ function fmtComma(value) {
   return n.toLocaleString("ko-KR");
 }
 
+function fmtDashboardUnit(value, unit) {
+  const text = String(value ?? "").trim();
+  if (!text) return `- ${unit}`;
+  if (new RegExp(`${unit}$`, "i").test(text.replace(/\s+/g, ""))) return text;
+  return `${fmtComma(text)} ${unit}`;
+}
+
+function renderAlbumSummary(album = {}) {
+  const container = document.querySelector("#dash-album-summary");
+  if (!container) return;
+
+  const hasData = Object.values(album).some((value) => String(value ?? "").trim());
+  if (!hasData) {
+    container.hidden = true;
+    container.replaceChildren();
+    dashboardState.album = null;
+    return;
+  }
+
+  container.hidden = false;
+  container.innerHTML = `
+    <div class="dash-album-title">음반 작업 현황</div>
+    <div class="dash-album-cards">
+      <div class="dash-album-card">${ICON_PLT}<span>출고 PLT</span><strong>${fmtDashboardUnit(album.shippingPlt, "PLT")}</strong></div>
+      <div class="dash-album-card">${ICON_BOX}<span>출고 BOX</span><strong>${fmtDashboardUnit(album.shippingBox, "BOX")}</strong></div>
+      <div class="dash-album-card is-done">${ICON_PLT}<span>작업 완료 PLT</span><strong>${fmtDashboardUnit(album.completedPlt, "PLT")}</strong></div>
+      <div class="dash-album-card is-done">${ICON_BOX}<span>작업 완료 BOX</span><strong>${fmtDashboardUnit(album.completedBox, "BOX")}</strong></div>
+    </div>`;
+
+  dashboardState.album = {
+    shippingPlt: fmtDashboardUnit(album.shippingPlt, "PLT"),
+    shippingBox: fmtDashboardUnit(album.shippingBox, "BOX"),
+    completedPlt: fmtDashboardUnit(album.completedPlt, "PLT"),
+    completedBox: fmtDashboardUnit(album.completedBox, "BOX"),
+  };
+}
+
 function dashCell(cells, idx) {
   return String(gvizCellValue(cells[idx] ?? null) ?? "").trim();
 }
@@ -3520,6 +3557,21 @@ function buildDashboardWorkbook() {
   );
   XLSX.utils.book_append_sheet(workbook, materialsSheet.sheet, materialsSheet.workbookSheetName);
 
+  if (dashboardState.album) {
+    const albumSheet = dashboardBuildWorkbookSheet(
+      "웅툴 - 음반현황",
+      [20, 18],
+      ["구분", "수량"],
+      [
+        ["출고 PLT", dashboardState.album.shippingPlt],
+        ["출고 BOX", dashboardState.album.shippingBox],
+        ["작업 완료 PLT", dashboardState.album.completedPlt],
+        ["작업 완료 BOX", dashboardState.album.completedBox],
+      ],
+    );
+    XLSX.utils.book_append_sheet(workbook, albumSheet.sheet, albumSheet.workbookSheetName);
+  }
+
   return workbook;
 }
 
@@ -3710,12 +3762,26 @@ async function downloadDashboardPdf() {
       materialRows,
       [220, 780, 180],
     );
+    const albumPages = dashboardState.album
+      ? buildDashboardSectionCanvases(
+          "음반 작업 현황",
+          ["음반탭 D3 · D5 · F3 · F5"],
+          ["구분", "수량"],
+          [
+            ["출고 PLT", dashboardState.album.shippingPlt],
+            ["출고 BOX", dashboardState.album.shippingBox],
+            ["작업 완료 PLT", dashboardState.album.completedPlt],
+            ["작업 완료 BOX", dashboardState.album.completedBox],
+          ],
+          [420, 300],
+        )
+      : [];
 
     const pdf = await PDFDocument.create();
     const pageWidth = 841.8898;
     const pageHeight = 595.2756;
 
-    for (const canvas of [...incomingPages, ...outgoingPages, ...materialPages]) {
+    for (const canvas of [...incomingPages, ...outgoingPages, ...materialPages, ...albumPages]) {
       const image = await pdf.embedPng(canvas.toDataURL("image/png"));
       const page = pdf.addPage([pageWidth, pageHeight]);
       page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
@@ -3733,28 +3799,52 @@ async function downloadDashboardPdf() {
 
 let dashLoaded = false;
 
+async function loadDashboardFromServer() {
+  const response = await fetch(`/api/dashboard?t=${Date.now()}`, { cache: "no-store" });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "대시보드 API 연결 실패");
+  renderIncoming(data.incoming, data.incomingTotals);
+  renderOutgoing(data.outgoing, data.minho?.rows, data.outgoingTotals);
+  renderMaterials(data.minho);
+  renderAlbumSummary(data.album);
+}
+
+async function loadDashboardFromPublicSheet() {
+  const [inTable, outTable, matTable] = await Promise.all([
+    fetchDashSheet("In",  "입고"),
+    fetchDashSheet("Out", "출고"),
+    fetchDashSheet("Mat", "민호", null, 0),
+  ]);
+
+  const [inTotals, outTotals, albumTable] = await Promise.all([
+    fetchDashSheet("InT",  "입고", "M3:M4"),
+    fetchDashSheet("OutT", "출고", "L3:N4"),
+    fetchDashSheet("Alb", "음반", "D3:F5", 0),
+  ]);
+
+  renderIncoming(inTable, inTotals);
+  renderOutgoing(outTable, matTable.rows, outTotals);
+  renderMaterials(matTable);
+  const albumRows = albumTable?.rows || [];
+  renderAlbumSummary({
+    shippingPlt: dashCell(albumRows[0]?.c || [], 0),
+    completedPlt: dashCell(albumRows[0]?.c || [], 2),
+    shippingBox: dashCell(albumRows[2]?.c || [], 0),
+    completedBox: dashCell(albumRows[2]?.c || [], 2),
+  });
+}
+
 async function loadDashboard() {
   if (dashLoaded) return;
   setDashStatus("loading", "데이터 불러오는 중");
 
   try {
-    // 메인 데이터 먼저, 이후 합계 셀만 별도 range 요청
-    const [inTable, outTable, matTable] = await Promise.all([
-      fetchDashSheet("In",  "입고"),
-      fetchDashSheet("Out", "출고"),
-      fetchDashSheet("Mat", "민호", null, 0),
-    ]);
-
-    // gviz가 전체 시트 응답 시 빈 열을 압축하므로 M3:M4 / L3:N4 를 별도 range로 가져옴
-    const [inTotals, outTotals] = await Promise.all([
-      fetchDashSheet("InT",  "입고", "M3:M4"),
-      fetchDashSheet("OutT", "출고", "L3:N4"),
-    ]);
-
-    renderIncoming(inTable, inTotals);
-    renderOutgoing(outTable, matTable.rows, outTotals);
-    renderMaterials(matTable);
-
+    try {
+      await loadDashboardFromServer();
+    } catch (serverError) {
+      console.warn("Dashboard API fallback:", serverError);
+      await loadDashboardFromPublicSheet();
+    }
     setDashStatus("ready", "데이터 연결 완료");
     dashLoaded = true;
   } catch (error) {
