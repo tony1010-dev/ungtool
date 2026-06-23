@@ -2895,6 +2895,14 @@ html[data-theme="dark"] .license-note {
 .dash-queue-wrap {
   display: grid;
   gap: 18px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 12%, var(--border));
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 28%),
+    radial-gradient(circle at 94% 18%, color-mix(in srgb, #22c55e 12%, transparent), transparent 26%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), color-mix(in srgb, #22c55e 4%, var(--surface)) 52%, var(--surface));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
 }
 
 .queue-hero {
@@ -2906,8 +2914,10 @@ html[data-theme="dark"] .license-note {
   border: 1.5px solid var(--border);
   border-radius: 18px;
   background:
-    radial-gradient(circle at top left, color-mix(in srgb, #ff6b35 16%, transparent), transparent 34%),
-    var(--surface);
+    linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.76)),
+    radial-gradient(circle at top left, color-mix(in srgb, #ff6b35 22%, transparent), transparent 36%),
+    color-mix(in srgb, var(--surface) 84%, var(--accent) 16%);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, .06);
 }
 
 .queue-hero h3 {
@@ -2979,7 +2989,8 @@ html[data-theme="dark"] .license-note {
   padding: 12px;
   border: 1.5px solid var(--border);
   border-radius: 16px;
-  background: var(--surface);
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, .045);
 }
 
 .queue-stage-pills span,
@@ -3050,6 +3061,19 @@ html[data-theme="dark"] .license-note {
   align-items: stretch;
 }
 
+.queue-packed-column {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+}
+
+.queue-packed-column .queue-carrier-pills {
+  align-content: center;
+  min-height: 50px;
+  padding: 8px 10px;
+}
+
 .queue-panel {
   min-width: 0;
   min-height: 360px;
@@ -3061,17 +3085,25 @@ html[data-theme="dark"] .license-note {
   border: 1.5px dashed color-mix(in srgb, var(--text-muted) 36%, transparent);
   border-radius: 18px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .92)),
+    linear-gradient(135deg, rgba(255, 255, 255, .76), rgba(255, 255, 255, .94)),
     repeating-linear-gradient(135deg, rgba(23,23,23,.025) 0, rgba(23,23,23,.025) 7px, transparent 7px, transparent 14px);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.68);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.68),
+    0 14px 28px rgba(15, 23, 42, .055);
 }
 
 .queue-panel.active {
   border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #fff 82%, var(--accent) 18%), rgba(255,255,255,.92)),
+    repeating-linear-gradient(135deg, rgba(255,107,53,.045) 0, rgba(255,107,53,.045) 7px, transparent 7px, transparent 14px);
 }
 
 .queue-panel.packed {
   border-color: color-mix(in srgb, #22c55e 42%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #fff 84%, #22c55e 16%), rgba(255,255,255,.94)),
+    repeating-linear-gradient(135deg, rgba(34,197,94,.045) 0, rgba(34,197,94,.045) 7px, transparent 7px, transparent 14px);
 }
 
 .queue-panel-title {
@@ -3286,6 +3318,20 @@ html[data-theme="dark"] .queue-panel {
     linear-gradient(135deg, color-mix(in srgb, var(--surface) 88%, #fff 4%), var(--surface)),
     repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0, rgba(255,255,255,.035) 7px, transparent 7px, transparent 14px);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+html[data-theme="dark"] .dash-queue-wrap {
+  background:
+    radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 30%),
+    radial-gradient(circle at 94% 18%, color-mix(in srgb, #22c55e 14%, transparent), transparent 28%),
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 90%, var(--accent) 10%), var(--surface));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+html[data-theme="dark"] .queue-hero,
+html[data-theme="dark"] .queue-stage-pills,
+html[data-theme="dark"] .queue-carrier-pills {
+  background: color-mix(in srgb, var(--surface) 92%, #fff 5%);
 }
 
 html[data-theme="dark"] .queue-row {
@@ -3650,7 +3696,8 @@ html[data-theme="dark"] .queue-row {
   .queue-summary-grid,
   .queue-layout-grid,
   .queue-mini-board,
-  .queue-split-grid {
+  .queue-split-grid,
+  .queue-packed-column {
     grid-template-columns: 1fr;
   }
 

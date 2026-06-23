@@ -3504,18 +3504,18 @@ function renderQueue(items = []) {
       <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}건</strong></div>
       <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}건</strong></div>
     </div>
-    <div class="queue-mini-board">
-      <div class="queue-stage-pills">
-        ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
-      </div>
-      <div class="queue-carrier-pills">
-        <button class="queue-carrier-filter is-active" type="button" data-carrier="all"><span>전체</span><b>${packedRows.length}</b></button>
-        ${carrierGroups.map(([name, count]) => `<button class="queue-carrier-filter" type="button" data-carrier="${escapeHtml(name)}">${queueCarrierIconHtml(name)}<b>${count}</b></button>`).join("")}
-      </div>
+    <div class="queue-stage-pills">
+      ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
     </div>
     <div class="queue-split-grid">
       ${renderQueuePanel("진행중", activeRows, "active", true)}
-      ${renderQueuePanel("패킹완료", packedRows, "packed", false)}
+      <div class="queue-packed-column">
+        <div class="queue-carrier-pills" aria-label="패킹완료 배송사 필터">
+          <button class="queue-carrier-filter is-active" type="button" data-carrier="all"><span>전체</span><b>${packedRows.length}</b></button>
+          ${carrierGroups.map(([name, count]) => `<button class="queue-carrier-filter" type="button" data-carrier="${escapeHtml(name)}">${queueCarrierIconHtml(name)}<b>${count}</b></button>`).join("")}
+        </div>
+        ${renderQueuePanel("패킹완료", packedRows, "packed", false)}
+      </div>
     </div>`;
 
   function renderQueuePanel(title, panelRows, type, showProgress) {
@@ -3556,14 +3556,12 @@ function renderQueue(items = []) {
     container.querySelectorAll(".queue-carrier-filter").forEach((button) => {
       button.classList.toggle("is-active", button.dataset.carrier === target);
     });
-    container.querySelectorAll(".queue-row[data-carrier]").forEach((row) => {
+    container.querySelectorAll('.queue-row[data-panel="packed"][data-carrier]').forEach((row) => {
       row.hidden = target !== "all" && row.dataset.carrier !== target;
     });
-    ["active", "packed"].forEach((panel) => {
-      const visibleCount = container.querySelectorAll(`.queue-row[data-panel="${panel}"]:not([hidden])`).length;
-      const countEl = container.querySelector(`[data-panel-count="${panel}"]`);
-      if (countEl) countEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
-    });
+    const visibleCount = container.querySelectorAll('.queue-row[data-panel="packed"]:not([hidden])').length;
+    const packedCountEl = container.querySelector('[data-panel-count="packed"]');
+    if (packedCountEl) packedCountEl.textContent = `${visibleCount.toLocaleString("ko-KR")}건`;
   }
 
   container.querySelectorAll(".queue-carrier-filter").forEach((button) => {
