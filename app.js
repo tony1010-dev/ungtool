@@ -3888,7 +3888,7 @@ function renderPersonnel(rows = []) {
       ${uniqueSummary.slice(0, 4).map((item) => `
         <div class="personnel-summary-card ${item.tone}">
           <strong>${escapeHtml(item.label)}</strong>
-          <em class="dash-qty-value">${escapeHtml(item.value)}</em>
+          <em>${escapeHtml(item.value)}</em>
         </div>`).join("")}
     </div>
     <div class="personnel-card-grid">
