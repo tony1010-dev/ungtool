@@ -3919,6 +3919,32 @@ function renderPersonnel(rows = []) {
     return year * 10000 + month * 100 + day;
   }
 
+  function personnelStartDate(value = "") {
+    const text = String(value || "").trim();
+    const match = text.match(/(\d{2,4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/);
+    if (!match) return null;
+    let year = Number(match[1]);
+    if (year < 100) year += year >= 70 ? 1900 : 2000;
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = new Date(year, month - 1, day);
+    if (Number.isNaN(date.getTime())) return null;
+    return date;
+  }
+
+  function personnelDday(value = "") {
+    const start = personnelStartDate(value);
+    if (!start) return "";
+    const anniversary = new Date(start);
+    anniversary.setFullYear(anniversary.getFullYear() + 1);
+    const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+    today.setHours(0, 0, 0, 0);
+    anniversary.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((anniversary - today) / 86400000);
+    if (diff < 0 || diff > 366) return "";
+    return diff === 0 ? "D-DAY" : `D-${diff}`;
+  }
+
   cleanRows.forEach((row) => {
     const [name, genderCount, gender, age, startDate, , label, value] = row;
     if ((name === "男" || name === "女") && genderCount) {
@@ -3941,6 +3967,7 @@ function renderPersonnel(rows = []) {
         gender,
         age,
         startDate,
+        dday: personnelDday(startDate),
         status: label || "",
       });
     }
@@ -3990,6 +4017,7 @@ function renderPersonnel(rows = []) {
             <div class="person-meta">
               ${person.age ? `<span>${escapeHtml(person.age)}세</span>` : ""}
               ${person.startDate ? `<span>입사일 ${escapeHtml(person.startDate)}</span>` : ""}
+              ${person.dday ? `<span class="person-dday">${escapeHtml(person.dday)}</span>` : ""}
             </div>
           </div>
           ${person.status ? `<span class="person-status">${escapeHtml(person.status)}</span>` : ""}
