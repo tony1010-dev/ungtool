@@ -3044,6 +3044,7 @@ function fmtComma(value) {
 function fmtDashboardUnit(value, unit) {
   const text = String(value ?? "").trim();
   if (!text) return `- ${unit}`;
+  if (text.toUpperCase() === unit.toUpperCase()) return `- ${unit}`;
   if (new RegExp(`${unit}$`, "i").test(text.replace(/\s+/g, ""))) return text;
   return `${fmtComma(text)} ${unit}`;
 }
