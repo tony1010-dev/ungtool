@@ -4685,6 +4685,23 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
 /* ── Location Pick ───────────────────────────────────────────── */
 .location-pick-textarea {
   min-height: 360px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 10.8px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--text) 62%, var(--text-muted));
+  caret-color: var(--accent);
+  letter-spacing: -.01em;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+  tab-size: 2;
+  -webkit-text-size-adjust: 100%;
+  text-decoration: none;
+  text-decoration-color: transparent;
+}
+
+.location-pick-textarea::placeholder {
+  color: color-mix(in srgb, var(--text-muted) 58%, transparent);
 }
 
 .location-pick-result {
@@ -4766,6 +4783,29 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   white-space: nowrap;
 }
 
+.location-pick-copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(17, 85, 204, .18);
+  border-radius: 11px;
+  background: color-mix(in srgb, #1155cc 8%, var(--surface));
+  color: #1155cc;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform .14s ease, border-color .14s ease, background .14s ease;
+}
+
+.location-pick-copy-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(17, 85, 204, .32);
+  background: color-mix(in srgb, #1155cc 13%, var(--surface));
+}
+
 .location-pick-table-wrap {
   max-height: 430px;
   overflow: auto;
@@ -4837,9 +4877,24 @@ html[data-theme="dark"] .location-pick-input-frame {
     repeating-linear-gradient(-45deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .035) 8px, rgba(255, 255, 255, .02) 8px, rgba(255, 255, 255, .02) 16px);
 }
 
+html[data-theme="dark"] .location-pick-textarea {
+  color: rgba(226, 232, 240, .68);
+}
+
+html[data-theme="dark"] .location-pick-copy-button {
+  border-color: rgba(147, 197, 253, .22);
+  background: rgba(59, 130, 246, .14);
+  color: #93c5fd;
+}
+
 @media (max-width: 700px) {
   .location-pick-fixed {
     grid-template-columns: 1fr;
+  }
+
+  .location-pick-summary {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

@@ -2794,12 +2794,30 @@ const locationPickDom = {
   result: document.querySelector("#location-pick-result"),
   message: document.querySelector("#location-pick-message"),
 };
+let locationPickData = null;
 
 function showLocationPickMessage(text, isError = false) {
   if (!locationPickDom.message) return;
   locationPickDom.message.textContent = text;
   locationPickDom.message.classList.toggle("error", isError);
   locationPickDom.message.hidden = !text;
+}
+
+async function writeClipboardText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("copy failed");
 }
 
 function extractLocationPickJson(text) {
@@ -2838,6 +2856,7 @@ function parseLocationPickRows(text) {
 
 function renderLocationPickResult(data = null) {
   if (!locationPickDom.result) return;
+  locationPickData = data;
   if (!data) {
     locationPickDom.result.innerHTML = `<div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>`;
     return;
@@ -2850,8 +2869,13 @@ function renderLocationPickResult(data = null) {
       <div><span>거래처</span><strong>${escapeHtml(data.customer)}</strong></div>
     </div>
     <div class="location-pick-summary">
-      <span>총 ${data.rows.length.toLocaleString("ko-KR")}개 상품</span>
-      <strong>${totalQty.toLocaleString("ko-KR")} EA</strong>
+      <div>
+        <span>총 ${data.rows.length.toLocaleString("ko-KR")}개 상품</span>
+        <strong>${totalQty.toLocaleString("ko-KR")} EA</strong>
+      </div>
+      <button class="location-pick-copy-button" type="button" data-location-pick-copy>
+        바코드·수량 복사
+      </button>
     </div>
     <div class="location-pick-table-wrap">
       <table class="location-pick-table">
@@ -2876,6 +2900,23 @@ function renderLocationPickResult(data = null) {
     </div>`;
 }
 
+async function copyLocationPickBarcodeQty(button) {
+  if (!locationPickData?.rows?.length) {
+    showLocationPickMessage("복사할 데이터가 없습니다.", true);
+    return;
+  }
+  const text = locationPickData.rows
+    .map((row) => `${row.barcode}\t${row.qty}`)
+    .join("\n");
+  await writeClipboardText(text);
+  const originalText = button.textContent;
+  button.textContent = "복사 완료";
+  showLocationPickMessage("바코드와 수량을 복사했어요.");
+  setTimeout(() => {
+    button.textContent = originalText;
+  }, 1300);
+}
+
 function analyzeLocationPick() {
   const text = locationPickDom.input?.value || "";
   if (!text.trim()) {
@@ -2898,6 +2939,13 @@ locationPickDom.button?.addEventListener("click", analyzeLocationPick);
 locationPickDom.input?.addEventListener("input", () => {
   clearTimeout(locationPickTimer);
   locationPickTimer = setTimeout(analyzeLocationPick, 250);
+});
+locationPickDom.result?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-location-pick-copy]");
+  if (!button) return;
+  copyLocationPickBarcodeQty(button).catch(() => {
+    showLocationPickMessage("복사하지 못했습니다. 브라우저 권한을 확인해 주세요.", true);
+  });
 });
 
 const businessDom = {
