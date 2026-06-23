@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=35" />
+    <link rel="stylesheet" href="style.css?v=36" />
   </head>
   <body>
     <header class="site-header">
@@ -677,18 +677,23 @@
         </nav>
 
         <div class="dash-panel" id="dash-incoming">
-          <div class="dash-summary" id="dash-in-summary"></div>
-          <div class="dash-chart-wrap" id="dash-in-chart"></div>
-          <div class="dash-table-wrap">
-            <table class="dash-table" id="dash-in-table">
-              <thead>
-                <tr>
-                  <th>번호</th><th>서류번호</th><th>거래처</th><th class="dash-item-header">Item</th><th class="dash-qty-header">수량</th>
-                  <th>금액</th><th>부피</th><th>배차</th><th>특이사항</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="dashboard-board">
+            <div class="queue-hero dashboard-hero">
+              <div><h3>입고 현황</h3></div>
+            </div>
+            <div class="dash-summary queue-summary-grid" id="dash-in-summary"></div>
+            <div class="dash-chart-wrap dashboard-content-card" id="dash-in-chart"></div>
+            <div class="dash-table-wrap dashboard-content-card">
+              <table class="dash-table" id="dash-in-table">
+                <thead>
+                  <tr>
+                    <th>번호</th><th>서류번호</th><th>거래처</th><th class="dash-item-header">Item</th><th class="dash-qty-header">수량</th>
+                    <th>금액</th><th>부피</th><th>배차</th><th>특이사항</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
           <div class="message" id="dash-incoming-message" role="status" aria-live="polite" hidden></div>
         </div>
@@ -699,29 +704,34 @@
         </div>
 
         <div class="dash-panel" id="dash-outgoing" hidden>
-          <div class="dash-summary" id="dash-out-summary"></div>
-          <div class="dash-chart-wrap" id="dash-out-chart"></div>
-          <div class="dash-table-wrap">
-            <table class="dash-table" id="dash-out-table">
-              <thead>
-                <tr>
-                  <th>번호</th><th>인보이스</th><th>영업사원</th><th>거래처</th>
-                  <th class="dash-item-header">Item</th><th class="dash-qty-header">수량</th><th>금액($)</th><th>배송사</th><th>특이사항</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="dashboard-board">
+            <div class="queue-hero dashboard-hero">
+              <div><h3>출고 현황</h3></div>
+            </div>
+            <div class="dash-summary queue-summary-grid" id="dash-out-summary"></div>
+            <div class="dash-chart-wrap dashboard-content-card" id="dash-out-chart"></div>
+            <div class="dash-table-wrap dashboard-content-card">
+              <table class="dash-table" id="dash-out-table">
+                <thead>
+                  <tr>
+                    <th>번호</th><th>인보이스</th><th>영업사원</th><th>거래처</th>
+                    <th class="dash-item-header">Item</th><th class="dash-qty-header">수량</th><th>금액($)</th><th>배송사</th><th>특이사항</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
           <div class="message" id="dash-outgoing-message" role="status" aria-live="polite" hidden></div>
         </div>
 
         <div class="dash-panel" id="dash-personnel" hidden>
-          <div class="dash-personnel-graphic" id="dash-personnel-content"></div>
+          <div class="dash-personnel-graphic dashboard-board" id="dash-personnel-content"></div>
           <div class="message" id="dash-personnel-message" role="status" aria-live="polite" hidden></div>
         </div>
 
         <div class="dash-panel" id="dash-materials" hidden>
-          <div class="dash-materials-grid" id="dash-materials-content"></div>
+          <div class="dash-materials-grid dashboard-board" id="dash-materials-content"></div>
           <div class="message" id="dash-materials-message" role="status" aria-live="polite" hidden></div>
         </div>
         </div>
@@ -778,6 +788,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=62"></script>
+  <script src="app.js?v=63"></script>
   </body>
 </html>

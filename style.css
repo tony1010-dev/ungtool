@@ -2902,6 +2902,7 @@ html[data-theme="dark"] .license-note {
   gap: 18px;
 }
 
+.dashboard-board,
 .dash-queue-wrap {
   display: grid;
   gap: 18px;
@@ -2914,6 +2915,15 @@ html[data-theme="dark"] .license-note {
     radial-gradient(circle at 94% 18%, rgba(34, 197, 94, .10), transparent 26%),
     linear-gradient(135deg, rgba(255, 107, 53, .05), rgba(34, 197, 94, .04) 52%, rgba(255, 255, 255, .88));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
+}
+
+.dashboard-board .dashboard-content-card {
+  margin: 0;
+}
+
+.dashboard-board .dash-summary,
+.dashboard-board .dash-chart-wrap {
+  margin-bottom: 0;
 }
 
 .queue-hero {
@@ -2937,6 +2947,10 @@ html[data-theme="dark"] .license-note {
   font-size: 21px;
   font-weight: 800;
   letter-spacing: -.025em;
+}
+
+.dashboard-hero h3 {
+  color: var(--accent);
 }
 
 .queue-complete-total {
@@ -2970,7 +2984,7 @@ html[data-theme="dark"] .license-note {
 
 .queue-summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 12px;
 }
 
@@ -3005,6 +3019,23 @@ html[data-theme="dark"] .license-note {
 
 .queue-summary-card.is-working strong { color: var(--accent); }
 .queue-summary-card.is-done strong { color: #16a34a; }
+
+.dashboard-board .dash-table-wrap,
+.dashboard-board .dash-chart-wrap,
+.dashboard-board .dash-materials-card {
+  border: 1.5px dashed color-mix(in srgb, var(--text-muted) 32%, transparent);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .94)),
+    repeating-linear-gradient(135deg, rgba(23,23,23,.025) 0, rgba(23,23,23,.025) 7px, transparent 7px, transparent 14px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.68),
+    0 14px 28px rgba(15, 23, 42, .045);
+}
+
+.dashboard-board .dash-table-wrap {
+  overflow: auto;
+}
 
 .queue-mini-board {
   display: grid;
@@ -3360,6 +3391,7 @@ html[data-theme="dark"] .queue-panel {
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
 }
 
+html[data-theme="dark"] .dashboard-board,
 html[data-theme="dark"] .dash-queue-wrap {
   background-color: #151719;
   background-image:
@@ -3373,6 +3405,15 @@ html[data-theme="dark"] .queue-hero,
 html[data-theme="dark"] .queue-stage-pills,
 html[data-theme="dark"] .queue-carrier-pills {
   background: color-mix(in srgb, var(--surface) 92%, #fff 5%);
+}
+
+html[data-theme="dark"] .dashboard-board .dash-table-wrap,
+html[data-theme="dark"] .dashboard-board .dash-chart-wrap,
+html[data-theme="dark"] .dashboard-board .dash-materials-card {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 88%, #fff 4%), var(--surface)),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0, rgba(255,255,255,.035) 7px, transparent 7px, transparent 14px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
 }
 
 html[data-theme="dark"] .queue-row {
@@ -3587,12 +3628,18 @@ html[data-theme="dark"] .queue-row {
 }
 
 .personnel-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding: 18px 20px;
   border: 1.5px solid var(--border);
   border-radius: 18px;
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 15%, transparent), transparent 34%),
-    var(--surface);
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.76)),
+    radial-gradient(circle at top left, rgba(255, 107, 53, .20), transparent 36%);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, .06);
 }
 
 .personnel-eyebrow {
@@ -3605,6 +3652,7 @@ html[data-theme="dark"] .queue-row {
 
 .personnel-hero h3 {
   margin: 0;
+  color: var(--accent);
   font-size: 21px;
   font-weight: 800;
   letter-spacing: -.025em;

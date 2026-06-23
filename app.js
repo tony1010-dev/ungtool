@@ -3179,10 +3179,10 @@ function renderIncoming(table, totalsTable) {
   }
 
   document.querySelector("#dash-in-summary").innerHTML = `
-    <div class="dash-stat stat-blue">${ICON_DOC}<span>입고</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>입고</span><strong class="dash-qty-value">${pltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>입고</span><strong class="dash-qty-value">${boxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${fmtKrwSpaced(totalAmt)}</strong></div>
+    <div class="queue-summary-card"><span>입고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>PLT</span><strong class="dash-qty-value">${pltTotal}</strong></div>
+    <div class="queue-summary-card"><span>BOX</span><strong class="dash-qty-value">${boxTotal}</strong></div>
+    <div class="queue-summary-card"><span>금액</span><strong>${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
   dashboardState.incoming = {
@@ -3209,7 +3209,10 @@ function renderIncoming(table, totalsTable) {
   };
 
   const chartWrap = document.querySelector("#dash-in-chart");
-  if (chartWrap) chartWrap.innerHTML = "";
+  if (chartWrap) {
+    chartWrap.innerHTML = "";
+    chartWrap.hidden = true;
+  }
 }
 
 // ── 출고 렌더 ──────────────────────────────────────────────────
@@ -3266,10 +3269,10 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
   }
 
   document.querySelector("#dash-out-summary").innerHTML = `
-    <div class="dash-stat stat-blue">${ICON_DOC}<span>출고</span><strong>${dataRows.length}건</strong></div>
-    <div class="dash-stat stat-amber">${ICON_PLT}<span>출고</span><strong class="dash-qty-value">${displayPltTotal} PLT</strong></div>
-    <div class="dash-stat stat-orange">${ICON_BOX}<span>출고</span><strong class="dash-qty-value">${displayBoxTotal} BOX</strong></div>
-    <div class="dash-stat stat-green is-accent amount-only">${ICON_MONEY}<strong>${displayAmtStr}</strong></div>
+    <div class="queue-summary-card"><span>출고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>PLT</span><strong class="dash-qty-value">${displayPltTotal}</strong></div>
+    <div class="queue-summary-card"><span>BOX</span><strong class="dash-qty-value">${displayBoxTotal}</strong></div>
+    <div class="queue-summary-card"><span>금액</span><strong>${displayAmtStr}</strong></div>
   `;
 
   dashboardState.outgoing = {
@@ -3310,6 +3313,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null) {
 
   const chartWrap = document.querySelector("#dash-out-chart");
   if (chartWrap && matRows) {
+    chartWrap.hidden = false;
     function matCell(idx) {
       return (matRows[idx]?.c || []).map((cell) => String(gvizCellValue(cell ?? null) ?? "").trim());
     }
@@ -3642,6 +3646,22 @@ function renderMaterials(matTable) {
     return;
   }
 
+  const materialTotalQty = [...boxItems, ...packItems].reduce((sum, item) => sum + parseNumber(item.qty), 0);
+  const materialHero = document.createElement("div");
+  materialHero.className = "queue-hero dashboard-hero";
+  materialHero.innerHTML = `<div><h3>자재현황</h3></div>`;
+  container.append(materialHero);
+
+  const materialSummary = document.createElement("div");
+  materialSummary.className = "queue-summary-grid";
+  materialSummary.innerHTML = `
+    <div class="queue-summary-card"><span>전체 항목</span><strong>${(boxItems.length + packItems.length).toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>박스 재고</span><strong class="dash-qty-value">${boxItems.length.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>포장용품</span><strong class="dash-qty-value">${packItems.length.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>총 수량</span><strong class="dash-qty-value">${materialTotalQty.toLocaleString("ko-KR")}</strong></div>
+  `;
+  container.append(materialSummary);
+
   function svgDataUri(svg) {
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   }
@@ -3772,9 +3792,8 @@ function renderPersonnel(rows = []) {
   });
 
   container.innerHTML = `
-    <div class="personnel-hero">
+    <div class="personnel-hero dashboard-hero">
       <div>
-        <p class="personnel-eyebrow">PERSONNEL</p>
         <h3>음반팀 인원 현황</h3>
       </div>
     </div>
