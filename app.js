@@ -2955,6 +2955,7 @@ async function copyLocationPickBarcode(button, barcode) {
   }
   await writeClipboardText(barcode);
   const originalText = button.textContent;
+  button.closest("tr")?.classList.add("is-copied");
   button.classList.add("is-copied");
   button.setAttribute("aria-label", `${barcode} 복사 완료`);
   button.textContent = "복사됨";
