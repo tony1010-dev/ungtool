@@ -3401,7 +3401,7 @@ function queueCarrierIconHtml(name = "") {
           : text.includes("3층")
             ? "3F"
             : key === "forward"
-              ? "FWD"
+              ? "포워드"
               : escapeHtml(text.slice(0, 4));
   return `<span class="queue-carrier-icon ${key}" title="${escapeHtml(text)}">${label}</span>`;
 }
@@ -3508,8 +3508,8 @@ function renderQueue(items = []) {
             <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
             <span class="queue-row-customer">${escapeHtml(row.customer)}</span>
             <span class="queue-row-carrier">${queueCarrierIconHtml(row.carrier)}</span>
-            <span class="queue-row-number">${escapeHtml(row.item)}</span>
-            <span class="queue-row-number">${escapeHtml(row.qty)}</span>
+            <span class="queue-row-number queue-row-item">${escapeHtml(row.item)}</span>
+            <span class="queue-row-number queue-row-qty">${escapeHtml(row.qty)}</span>
             <span class="queue-row-worker">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
             <div class="queue-row-progress">
               <span class="queue-stage-badge">${escapeHtml(stage)}</span>
