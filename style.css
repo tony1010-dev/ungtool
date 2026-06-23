@@ -2753,7 +2753,7 @@ html[data-theme="dark"] .license-note {
 /* ── Dashboard ─────────────────────────────────────────────── */
 .dash-tabs {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 7px;
   margin-bottom: 20px;
   padding: 7px;
@@ -2800,6 +2800,7 @@ html[data-theme="dark"] .license-note {
 .dash-tab[data-dash="outgoing"]::before { content: "🚚"; }
 .dash-tab[data-dash="personnel"]::before { content: "👥"; }
 .dash-tab[data-dash="materials"]::before { content: "📦"; }
+.dash-tab[data-dash="library"]::before { content: "📚"; }
 .dash-tab[data-dash^="future"]::before { content: "＋"; }
 
 .dash-tab:hover {
@@ -4160,6 +4161,10 @@ html[data-theme="dark"] .person-tenure.tenure-decade {
     font-size: 12px;
   }
 
+  .dash-library-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .queue-hero {
     align-items: flex-start;
     flex-direction: column;
@@ -4265,6 +4270,96 @@ html[data-theme="dark"] .person-tenure.tenure-decade {
   background: linear-gradient(90deg, rgba(14, 165, 233, .14), transparent);
 }
 
+.dash-library-card h3 {
+  color: #4338ca;
+  background: linear-gradient(90deg, rgba(99, 102, 241, .14), transparent);
+}
+
+.dash-library-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.dash-library-item {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+  text-decoration: none;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.dash-library-item.is-active {
+  border-color: rgba(99, 102, 241, .28);
+  background:
+    linear-gradient(135deg, rgba(99, 102, 241, .11), rgba(14, 165, 233, .08)),
+    var(--surface);
+  box-shadow: 0 10px 26px rgba(79, 70, 229, .08);
+}
+
+.dash-library-item.is-active:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, .44);
+  box-shadow: 0 14px 32px rgba(79, 70, 229, .12);
+}
+
+.dash-library-item.is-disabled {
+  color: var(--text-muted);
+  filter: grayscale(1);
+  opacity: .52;
+  pointer-events: none;
+}
+
+.dash-library-icon {
+  width: 46px;
+  height: 46px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--text-muted) 10%, var(--surface));
+  font-size: 22px;
+}
+
+.dash-library-item.is-active .dash-library-icon {
+  color: #4f46e5;
+  background: linear-gradient(135deg, rgba(79, 70, 229, .18), rgba(14, 165, 233, .16));
+}
+
+.dash-library-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dash-library-item strong {
+  display: block;
+  color: currentColor;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1.32;
+  word-break: keep-all;
+}
+
+.dash-library-item small {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
 #dashboard-content .dash-materials-card.is-box-stock .mat-item-name {
   color: #7c4a03;
 }
@@ -4312,6 +4407,28 @@ html[data-theme="dark"] .dash-materials-card.is-box-stock h3 {
 html[data-theme="dark"] .dash-materials-card.is-pack-stock h3 {
   color: #38bdf8;
   background: linear-gradient(90deg, rgba(14, 165, 233, .18), transparent);
+}
+
+html[data-theme="dark"] .dash-library-card h3 {
+  color: #a5b4fc;
+  background: linear-gradient(90deg, rgba(99, 102, 241, .2), transparent);
+}
+
+html[data-theme="dark"] .dash-library-item.is-active {
+  border-color: rgba(129, 140, 248, .34);
+  background:
+    linear-gradient(135deg, rgba(99, 102, 241, .16), rgba(14, 165, 233, .12)),
+    var(--surface);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .dash-library-item.is-active .dash-library-icon {
+  color: #c4b5fd;
+  background: rgba(99, 102, 241, .18);
+}
+
+html[data-theme="dark"] .dash-library-item.is-disabled {
+  opacity: .42;
 }
 
 html[data-theme="dark"] #dashboard-content .dash-materials-card.is-box-stock .mat-item-name {

@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=77" />
+    <link rel="stylesheet" href="style.css?v=78" />
   </head>
   <body>
     <header class="site-header">
@@ -742,6 +742,7 @@
           <button class="dash-tab" type="button" data-dash="outgoing">출고</button>
           <button class="dash-tab" type="button" data-dash="personnel">인원</button>
           <button class="dash-tab" type="button" data-dash="materials">자재</button>
+          <button class="dash-tab" type="button" data-dash="library">자료실</button>
           <button class="dash-tab dash-tab-soon" type="button" data-dash="future-1" disabled>준비중</button>
           <button class="dash-tab dash-tab-soon" type="button" data-dash="future-2" disabled>준비중</button>
           <button class="dash-tab dash-tab-soon" type="button" data-dash="future-3" disabled>준비중</button>
@@ -830,6 +831,32 @@
         <div class="dash-panel" id="dash-materials" hidden>
           <div class="dash-materials-grid dashboard-board" id="dash-materials-content"></div>
           <div class="message" id="dash-materials-message" role="status" aria-live="polite" hidden></div>
+        </div>
+
+        <div class="dash-panel" id="dash-library" hidden>
+          <div class="dash-materials-grid dashboard-board">
+            <section class="dash-materials-card dash-library-card">
+              <h3>자료실</h3>
+              <div class="dash-library-grid">
+                <a class="dash-library-item is-active" href="https://drive.google.com/file/d/12OiTYSSy5F_saoBeAck5rhLmbrcHA2Y4/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+                  <span class="dash-library-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /><path d="M14 3v5h5" /><path d="M8.5 14.5h7M8.5 17.5h5" /></svg>
+                  </span>
+                  <strong>웅툴즈 자동피킹처리기</strong>
+                  <small>Google Drive</small>
+                </a>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">📄</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">📊</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">🧾</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">📦</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">🔖</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">🗂️</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">📁</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">🧩</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+                <div class="dash-library-item is-disabled"><span class="dash-library-icon" aria-hidden="true">⚙️</span><strong>자료 준비중</strong><small>Coming soon</small></div>
+              </div>
+            </section>
+          </div>
         </div>
         </div>
       </section>
