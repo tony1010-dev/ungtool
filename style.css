@@ -4809,6 +4809,26 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   background: color-mix(in srgb, #1155cc 13%, var(--surface));
 }
 
+.location-pick-barcode-button.is-copied {
+  border-color: rgba(22, 163, 74, .24);
+  background: color-mix(in srgb, #16a34a 13%, var(--surface));
+  color: #15803d;
+  opacity: .72;
+}
+
+.location-pick-barcode-button.is-copied::before {
+  content: "✓";
+  margin-right: 5px;
+  font-family: inherit;
+  font-weight: 950;
+}
+
+.location-pick-barcode-button.is-copied:hover {
+  transform: none;
+  border-color: rgba(22, 163, 74, .24);
+  background: color-mix(in srgb, #16a34a 13%, var(--surface));
+}
+
 .location-pick-table-wrap {
   max-height: 430px;
   overflow: auto;
@@ -4888,6 +4908,12 @@ html[data-theme="dark"] .location-pick-barcode-button {
   border-color: rgba(147, 197, 253, .22);
   background: rgba(59, 130, 246, .14);
   color: #93c5fd;
+}
+
+html[data-theme="dark"] .location-pick-barcode-button.is-copied {
+  border-color: rgba(74, 222, 128, .24);
+  background: rgba(34, 197, 94, .14);
+  color: #86efac;
 }
 
 @media (max-width: 700px) {
