@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=61" />
+    <link rel="stylesheet" href="style.css?v=62" />
   </head>
   <body>
     <header class="site-header">
@@ -57,12 +57,16 @@
             <span class="tab-number">06</span>
             <span><strong>Location Sync</strong><small>재고 · DB 비교</small></span>
           </button>
-          <button class="tool-tab" type="button" data-tool="business">
+          <button class="tool-tab" type="button" data-tool="locationPick">
             <span class="tab-number">07</span>
+            <span><strong>Location Pick</strong><small>JSON 피킹 정리</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="business">
+            <span class="tab-number">08</span>
             <span><strong>AI</strong><small>간단한 질문과 업무 도움</small></span>
           </button>
           <button class="tool-tab" type="button" data-tool="dashboard">
-            <span class="tab-number">08</span>
+            <span class="tab-number">09</span>
             <span><strong>Dashboard</strong><small>입고 · 출고 · 자재현황</small></span>
           </button>
         </nav>
@@ -520,6 +524,42 @@
         </div>
       </section>
 
+      <section class="tool-card tool-panel" id="location-pick-tool" aria-labelledby="location-pick-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="location-pick-title">Location Pick</h2>
+            <p>피킹 JSON 데이터를 붙여넣으면 Invoice · 거래처 · 상품 목록을 정리합니다.</p>
+          </div>
+        </div>
+
+        <div class="sync-split location-pick-split">
+          <div class="sync-pane">
+            <h3 class="sync-pane-title">데이터 붙여넣기</h3>
+            <p class="sync-pane-desc">CMS에서 복사한 JSON 문구를 그대로 붙여넣어 주세요.</p>
+
+            <div class="loc-input-frame location-pick-input-frame">
+              <textarea id="location-pick-input" class="loc-check-textarea location-pick-textarea" placeholder='{"err":0,"data":[{"invc_no":"IN00450298","cust_nm":"Oh Seoul Happy","prod_cd":"KP8800320198928AP-A","bar_code":"8800320198928","qty":30}]}'></textarea>
+            </div>
+
+            <button class="merge-button" id="location-pick-button" type="button">
+              <span>분석</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M9 15A6 6 0 1 0 9 3a6 6 0 0 0 0 12zm0 0 6 6" /></svg>
+            </button>
+
+            <div class="message" id="location-pick-message" role="status" aria-live="polite" hidden></div>
+          </div>
+
+          <div class="sync-pane">
+            <h3 class="sync-pane-title">분석 결과</h3>
+            <p class="sync-pane-desc">Invoice No · 거래처는 상단에 고정하고, 목록은 순서대로 정리합니다.</p>
+
+            <div class="location-pick-result" id="location-pick-result">
+              <div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="tool-card tool-panel" id="license-tool" aria-labelledby="license-title" hidden>
         <div class="tool-heading">
           <div>
@@ -818,6 +858,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=91"></script>
+  <script src="app.js?v=92"></script>
   </body>
 </html>

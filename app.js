@@ -824,6 +824,7 @@ const upsDom = {
     ups: document.querySelector("#ups-tool"),
     picking: document.querySelector("#picking-tool"),
     sync: document.querySelector("#sync-tool"),
+    locationPick: document.querySelector("#location-pick-tool"),
     license: document.querySelector("#license-tool"),
     business: document.querySelector("#business-tool"),
     dashboard: document.querySelector("#dashboard-tool"),
@@ -2786,6 +2787,118 @@ syncDom.downloadButton.addEventListener("click", downloadSyncReport);
   });
 });
 syncDom.dropZone.addEventListener("drop", (event) => inspectSyncFile(event.dataTransfer.files[0]));
+
+const locationPickDom = {
+  input: document.querySelector("#location-pick-input"),
+  button: document.querySelector("#location-pick-button"),
+  result: document.querySelector("#location-pick-result"),
+  message: document.querySelector("#location-pick-message"),
+};
+
+function showLocationPickMessage(text, isError = false) {
+  if (!locationPickDom.message) return;
+  locationPickDom.message.textContent = text;
+  locationPickDom.message.classList.toggle("error", isError);
+  locationPickDom.message.hidden = !text;
+}
+
+function extractLocationPickJson(text) {
+  const source = String(text || "").trim();
+  if (!source) throw new Error("붙여넣은 데이터가 없습니다.");
+  try {
+    return JSON.parse(source);
+  } catch (firstError) {
+    const start = source.indexOf("{");
+    const end = source.lastIndexOf("}");
+    if (start < 0 || end <= start) throw new Error("JSON 데이터를 찾지 못했습니다.");
+    try {
+      return JSON.parse(source.slice(start, end + 1));
+    } catch (error) {
+      throw new Error("JSON 형식이 올바르지 않습니다.");
+    }
+  }
+}
+
+function parseLocationPickRows(text) {
+  const parsed = extractLocationPickJson(text);
+  const rows = Array.isArray(parsed?.data) ? parsed.data : Array.isArray(parsed) ? parsed : [];
+  if (!rows.length) throw new Error("data 목록을 찾지 못했습니다.");
+  const firstRow = rows[0] || {};
+  return {
+    invoiceNo: String(firstRow.invc_no ?? "").trim() || "-",
+    customer: String(firstRow.cust_nm ?? "").trim() || "-",
+    rows: rows.map((row, index) => ({
+      no: index + 1,
+      productCode: String(row?.prod_cd ?? "").trim() || "-",
+      barcode: String(row?.bar_code ?? "").trim() || "-",
+      qty: parseNumber(row?.qty),
+    })),
+  };
+}
+
+function renderLocationPickResult(data = null) {
+  if (!locationPickDom.result) return;
+  if (!data) {
+    locationPickDom.result.innerHTML = `<div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>`;
+    return;
+  }
+
+  const totalQty = data.rows.reduce((sum, row) => sum + row.qty, 0);
+  locationPickDom.result.innerHTML = `
+    <div class="location-pick-fixed">
+      <div><span>Invoice No</span><strong>${escapeHtml(data.invoiceNo)}</strong></div>
+      <div><span>거래처</span><strong>${escapeHtml(data.customer)}</strong></div>
+    </div>
+    <div class="location-pick-summary">
+      <span>총 ${data.rows.length.toLocaleString("ko-KR")}개 상품</span>
+      <strong>${totalQty.toLocaleString("ko-KR")} EA</strong>
+    </div>
+    <div class="location-pick-table-wrap">
+      <table class="location-pick-table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>상품코드</th>
+            <th>바코드</th>
+            <th>수량</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.rows.map((row) => `
+            <tr>
+              <td>${row.no}</td>
+              <td>${escapeHtml(row.productCode)}</td>
+              <td>${escapeHtml(row.barcode)}</td>
+              <td>${row.qty.toLocaleString("ko-KR")}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function analyzeLocationPick() {
+  const text = locationPickDom.input?.value || "";
+  if (!text.trim()) {
+    renderLocationPickResult(null);
+    showLocationPickMessage("");
+    return;
+  }
+  try {
+    const data = parseLocationPickRows(text);
+    renderLocationPickResult(data);
+    showLocationPickMessage(`${data.rows.length.toLocaleString("ko-KR")}개 상품을 정리했어요.`);
+  } catch (error) {
+    renderLocationPickResult(null);
+    showLocationPickMessage(error.message || "분석 중 문제가 발생했습니다.", true);
+  }
+}
+
+let locationPickTimer = null;
+locationPickDom.button?.addEventListener("click", analyzeLocationPick);
+locationPickDom.input?.addEventListener("input", () => {
+  clearTimeout(locationPickTimer);
+  locationPickTimer = setTimeout(analyzeLocationPick, 250);
+});
 
 const businessDom = {
   input: document.querySelector("#business-input"),
