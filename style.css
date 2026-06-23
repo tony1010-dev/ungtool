@@ -855,6 +855,15 @@ html[data-theme="dark"] .unit-button.is-active {
   font-size: 14px;
 }
 
+.dashboard-subtitle {
+  max-width: 520px;
+  margin-top: 6px !important;
+  color: color-mix(in srgb, var(--text-muted) 86%, var(--accent));
+  font-size: 13px !important;
+  font-weight: 750;
+  letter-spacing: -.02em;
+}
+
 .dashboard-header-right {
   display: flex;
   flex-direction: column;
@@ -2744,10 +2753,10 @@ html[data-theme="dark"] .license-note {
 /* ── Dashboard ─────────────────────────────────────────────── */
 .dash-tabs {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 7px;
   margin-bottom: 20px;
-  padding: 8px;
+  padding: 7px;
   border: 1.5px solid color-mix(in srgb, var(--border) 86%, transparent);
   border-radius: 18px;
   background:
@@ -2761,15 +2770,15 @@ html[data-theme="dark"] .license-note {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  min-height: 42px;
+  gap: 5px;
+  min-height: 34px;
   background: color-mix(in srgb, var(--surface) 86%, transparent);
   border: 1.5px solid color-mix(in srgb, var(--border) 82%, transparent);
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
-  font: 850 13px/1 var(--font);
+  font: 850 12px/1 var(--font);
   color: var(--text-muted);
-  padding: 9px 12px;
+  padding: 7px 8px;
   transition: color .15s, border-color .15s, background .15s, box-shadow .15s, transform .15s;
 }
 
@@ -2777,12 +2786,12 @@ html[data-theme="dark"] .license-note {
   content: "";
   display: inline-grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 9px;
+  width: 20px;
+  height: 20px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--text-muted) 10%, var(--surface));
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1;
 }
 
@@ -2791,6 +2800,7 @@ html[data-theme="dark"] .license-note {
 .dash-tab[data-dash="outgoing"]::before { content: "🚚"; }
 .dash-tab[data-dash="personnel"]::before { content: "👥"; }
 .dash-tab[data-dash="materials"]::before { content: "📦"; }
+.dash-tab[data-dash^="future"]::before { content: "＋"; }
 
 .dash-tab:hover {
   color: var(--text);
@@ -2808,6 +2818,22 @@ html[data-theme="dark"] .license-note {
 .dash-tab.is-active::before {
   background: rgba(255,255,255,.2);
   color: #fff;
+}
+
+.dash-tab:disabled,
+.dash-tab-soon {
+  cursor: default;
+  opacity: .58;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  border-style: dashed;
+}
+
+.dash-tab:disabled:hover,
+.dash-tab-soon:hover {
+  transform: none;
+  color: var(--text-muted);
+  border-color: color-mix(in srgb, var(--border) 82%, transparent);
 }
 
 .dash-summary {
@@ -3657,6 +3683,13 @@ html[data-theme="dark"] .dash-tab::before {
 html[data-theme="dark"] .dash-tab.is-active {
   border-color: rgba(255, 122, 73, .58);
   background: linear-gradient(135deg, #ff6b35, #f97316);
+}
+
+html[data-theme="dark"] .dash-tab:disabled,
+html[data-theme="dark"] .dash-tab-soon {
+  background: rgba(255,255,255,.025);
+  border-color: #3a3834;
+  color: #7b756d;
 }
 
 html[data-theme="dark"] .dashboard-board .dash-table-wrap,

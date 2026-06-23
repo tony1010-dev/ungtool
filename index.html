@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=50" />
+    <link rel="stylesheet" href="style.css?v=51" />
   </head>
   <body>
     <header class="site-header">
@@ -652,6 +652,7 @@
         <div class="tool-heading">
           <div>
             <h2 id="dashboard-title">Dashboard</h2>
+            <p class="dashboard-subtitle">오늘의 물류 흐름을 한 화면에서 읽고, 입고부터 출고까지 빠르게 판단합니다.</p>
           </div>
           <div class="dashboard-header-right">
             <div class="dashboard-export-actions" aria-label="대시보드 내보내기">
@@ -674,6 +675,9 @@
           <button class="dash-tab" type="button" data-dash="outgoing">출고</button>
           <button class="dash-tab" type="button" data-dash="personnel">인원</button>
           <button class="dash-tab" type="button" data-dash="materials">자재</button>
+          <button class="dash-tab dash-tab-soon" type="button" data-dash="future-1" disabled>준비중</button>
+          <button class="dash-tab dash-tab-soon" type="button" data-dash="future-2" disabled>준비중</button>
+          <button class="dash-tab dash-tab-soon" type="button" data-dash="future-3" disabled>준비중</button>
         </nav>
 
         <div class="dash-panel" id="dash-incoming">
@@ -813,6 +817,6 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="app.js?v=81"></script>
+  <script src="app.js?v=82"></script>
   </body>
 </html>
