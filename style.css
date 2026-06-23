@@ -4797,6 +4797,37 @@ html[data-theme="dark"] #dashboard-content .dash-materials-card.is-pack-stock .m
   white-space: nowrap;
 }
 
+.location-pick-qty-progress {
+  display: flex !important;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.location-pick-remaining {
+  color: #cc0000;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.location-pick-slash {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.location-pick-total {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.location-pick-qty-progress small {
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 950;
+}
+
 .location-pick-stat-card.invoice {
   border-color: rgba(17, 85, 204, .18);
   background: color-mix(in srgb, #1155cc 7%, var(--surface));
@@ -5056,6 +5087,18 @@ html[data-theme="dark"] .location-pick-table tbody tr.is-copied td:last-child {
 
 html[data-theme="dark"] .location-pick-stat-card {
   box-shadow: none;
+}
+
+html[data-theme="dark"] .location-pick-remaining {
+  color: #fca5a5;
+}
+
+html[data-theme="dark"] .location-pick-total {
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .location-pick-qty-progress small {
+  color: #fdba74;
 }
 
 .location-pick-highlight .json-key {
