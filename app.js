@@ -3956,14 +3956,8 @@ function renderPersonnel(rows = []) {
     const today = personnelToday();
     start.setHours(0, 0, 0, 0);
     if (today < start) return "";
-
-    let completedYears = today.getFullYear() - start.getFullYear();
-    const anniversaryThisYear = new Date(start);
-    anniversaryThisYear.setFullYear(today.getFullYear());
-    anniversaryThisYear.setHours(0, 0, 0, 0);
-    if (today < anniversaryThisYear) completedYears -= 1;
-
-    return completedYears >= 1 ? `${completedYears}년차` : "";
+    const tenureYear = Math.max(1, today.getFullYear() - start.getFullYear());
+    return `${tenureYear}년차`;
   }
 
   cleanRows.forEach((row) => {
@@ -4039,13 +4033,13 @@ function renderPersonnel(rows = []) {
             <div class="person-meta">
               ${person.age ? `<span>${escapeHtml(person.age)}세</span>` : ""}
               ${person.startDate ? `<span>입사일 ${escapeHtml(person.startDate)}</span>` : ""}
+              ${person.tenure ? `<span class="person-tenure">${escapeHtml(person.tenure)}</span>` : ""}
               ${person.dday ? `<span class="person-dday">${escapeHtml(person.dday)}</span>` : ""}
             </div>
           </div>
-          ${person.tenure || person.status ? `
+          ${person.status ? `
             <div class="person-side-badges">
-              ${person.tenure ? `<span class="person-tenure">${escapeHtml(person.tenure)}</span>` : ""}
-              ${person.status ? `<span class="person-status">${escapeHtml(person.status)}</span>` : ""}
+              <span class="person-status">${escapeHtml(person.status)}</span>
             </div>` : ""}
         </article>`).join("")}
     </div>`;
