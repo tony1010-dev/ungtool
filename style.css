@@ -3288,7 +3288,7 @@ html[data-theme="dark"] .license-note {
 }
 
 .outgoing-carrier-panel .carrier-cards-grid {
-  grid-template-columns: repeat(auto-fill, minmax(122px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
 }
 
 .dash-empty-card {
@@ -4178,20 +4178,22 @@ html[data-theme="dark"] .dash-materials-card.is-pack-stock h3 {
 
 .carrier-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 12px;
 }
 
 .carrier-card {
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid color-mix(in srgb, var(--border) 82%, transparent);
+  background: var(--surface);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, .055);
 }
 
 .carrier-card-header {
-  padding: 10px 8px;
+  padding: 11px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4199,7 +4201,7 @@ html[data-theme="dark"] .dash-materials-card.is-pack-stock h3 {
 
 .carrier-card-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: .72fr 1fr 1fr;
   background: var(--surface);
   border-top: 1px solid rgba(255,255,255,.12);
 }
@@ -4208,8 +4210,10 @@ html[data-theme="dark"] .dash-materials-card.is-pack-stock h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 6px 9px;
-  gap: 3px;
+  justify-content: center;
+  min-width: 0;
+  padding: 10px 5px 9px;
+  gap: 5px;
 }
 
 .carrier-stat + .carrier-stat {
@@ -4217,8 +4221,8 @@ html[data-theme="dark"] .dash-materials-card.is-pack-stock h3 {
 }
 
 .cstat-num {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 950;
   color: var(--text);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -4231,6 +4235,14 @@ html[data-theme="dark"] .dash-materials-card.is-pack-stock h3 {
   text-transform: uppercase;
   letter-spacing: .03em;
   white-space: nowrap;
+}
+
+.carrier-stat-unit .dash-unit-badge {
+  width: 100%;
+  max-width: 72px;
+  min-height: 24px;
+  padding: 4px 5px;
+  font-size: 11px;
 }
 
 .cstat-val {

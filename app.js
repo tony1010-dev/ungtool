@@ -3331,6 +3331,9 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
     };
   });
   const visibleOutgoingRows = albumRows.length ? albumRows : fallbackOutgoingRows;
+  const visibleOutgoingCount = visibleOutgoingRows.length;
+  const visibleTotalItem = visibleOutgoingRows.reduce((sum, row) => sum + parseNumber(row.item), 0);
+  const visibleTotalQty = visibleOutgoingRows.reduce((sum, row) => sum + parseNumber(row.qty), 0);
 
   if (albumRows.length) {
     tbody.replaceChildren();
@@ -3351,12 +3354,12 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
   }
 
   const listCountEl = document.querySelector("#dash-out-list-count");
-  if (listCountEl) listCountEl.textContent = `${visibleOutgoingRows.length.toLocaleString("ko-KR")}건`;
+  if (listCountEl) listCountEl.textContent = `${visibleOutgoingCount.toLocaleString("ko-KR")}건`;
 
   document.querySelector("#dash-out-summary").innerHTML = `
-    <div class="queue-summary-card"><span>출고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${totalQty.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>출고</span><strong>${visibleOutgoingCount.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${visibleTotalItem.toLocaleString("ko-KR")}</strong></div>
+    <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${visibleTotalQty.toLocaleString("ko-KR")}</strong></div>
     <div class="queue-summary-card"><span>금액</span><strong class="dashboard-amount-value">${displayAmtStr}</strong></div>
   `;
 
@@ -3372,11 +3375,11 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
 
   dashboardState.outgoing = {
     summary: {
-      count: dataRows.length,
+      count: visibleOutgoingCount,
       pltTotal: displayPltTotal,
       boxTotal: displayBoxTotal,
-      itemTotal: totalItem,
-      qtyTotal: totalQty,
+      itemTotal: visibleTotalItem,
+      qtyTotal: visibleTotalQty,
       amtStr: displayAmtStr,
     },
     rows: (albumRows.length ? albumRows.map((row) => [
@@ -3412,9 +3415,11 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
         key: carrierKey(carrierName),
         invoice: 0,
         box: 0,
+        plt: 0,
       };
       current.invoice += 1;
       current.box += workerUnitCount(row.worker, "box");
+      current.plt += workerUnitCount(row.worker, "plt");
       carrierMap.set(carrierName, current);
     });
 
@@ -3430,6 +3435,7 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
       name: normalizeCarrierName(c.name),
       invoice: c.invoice || 0,
       box: c.box || 0,
+      plt: c.plt || 0,
     }));
 
     const cards = carriers.map((c) => {
@@ -3442,11 +3448,15 @@ function renderOutgoing(table, matRows, totalsTable, album = null, albumOutgoing
         <div class="carrier-card-body">
           <div class="carrier-stat">
             <span class="cstat-num dash-item-value">${c.invoice || 0}</span>
-            <span class="cstat-label">인보이스</span>
+            <span class="cstat-label">건</span>
           </div>
-          <div class="carrier-stat">
-            <span class="cstat-num dash-qty-value">${c.box || 0}</span>
+          <div class="carrier-stat carrier-stat-unit">
+            <span class="dash-unit-badge is-box">${c.box ? `${c.box.toLocaleString("ko-KR")} BOX` : "- BOX"}</span>
             <span class="cstat-label">BOX</span>
+          </div>
+          <div class="carrier-stat carrier-stat-unit">
+            <span class="dash-unit-badge is-plt">${c.plt ? `${c.plt.toLocaleString("ko-KR")} PLT` : "- PLT"}</span>
+            <span class="cstat-label">PLT</span>
           </div>
         </div>
       </div>`;
