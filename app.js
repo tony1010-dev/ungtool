@@ -3482,6 +3482,14 @@ function renderQueue(items = []) {
   const activeRows = rows.filter((row) => ["출력", "피킹", "패킹"].includes(queueStage(row.progress)));
   const packedRows = rows.filter((row) => /\b\d+\s*(box|plt)\b/i.test(row.worker));
   const carrierGroups = groupCount(packedRows, (row) => row.carrier).slice(0, 8);
+  const packedBoxTotal = packedRows.reduce((sum, row) => {
+    const match = String(row.worker || "").match(/\b(\d+)\s*box\b/i);
+    return sum + (match ? Number(match[1]) : 0);
+  }, 0);
+  const packedPltTotal = packedRows.reduce((sum, row) => {
+    const match = String(row.worker || "").match(/\b(\d+)\s*plt\b/i);
+    return sum + (match ? Number(match[1]) : 0);
+  }, 0);
 
   function progressPercent(stage) {
     const index = stageOrder.indexOf(stage);
@@ -3492,16 +3500,19 @@ function renderQueue(items = []) {
   container.innerHTML = `
     <div class="queue-hero">
       <div>
-        <p class="personnel-eyebrow">SHIPPING QUEUE</p>
         <h3>출고대기 현황</h3>
+      </div>
+      <div class="queue-complete-total" aria-label="작업완료 BOX PLT 합계">
+        <span>BOX <b>${packedBoxTotal.toLocaleString("ko-KR")}</b></span>
+        <span>PLT <b>${packedPltTotal.toLocaleString("ko-KR")}</b></span>
       </div>
     </div>
     <div class="queue-summary-grid">
-      <div class="queue-summary-card"><span>Invoice</span><strong>${rows.length.toLocaleString("ko-KR")}건</strong></div>
+      <div class="queue-summary-card"><span>Invoice</span><strong>${rows.length.toLocaleString("ko-KR")}</strong></div>
       <div class="queue-summary-card"><span>Item</span><strong class="dash-item-value">${totalItem.toLocaleString("ko-KR")}</strong></div>
       <div class="queue-summary-card"><span>수량</span><strong class="dash-qty-value">${totalQty.toLocaleString("ko-KR")}</strong></div>
-      <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}건</strong></div>
-      <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}건</strong></div>
+      <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}</strong></div>
+      <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}</strong></div>
     </div>
     <div class="queue-stage-pills">
       ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}

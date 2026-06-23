@@ -2933,19 +2933,39 @@ html[data-theme="dark"] .license-note {
 
 .queue-hero h3 {
   margin: 0;
+  color: var(--accent);
   font-size: 21px;
   font-weight: 800;
   letter-spacing: -.025em;
 }
 
-.queue-total-pill {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
+.queue-complete-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.queue-complete-total span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  background: rgba(255,255,255,.76);
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 850;
   white-space: nowrap;
+}
+
+.queue-complete-total b {
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 950;
 }
 
 .queue-summary-grid {
@@ -3026,13 +3046,14 @@ html[data-theme="dark"] .license-note {
 
 .queue-carrier-filter {
   min-height: 34px;
-  border: 1.5px solid transparent;
-  background: color-mix(in srgb, var(--text-muted) 7%, var(--surface));
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .queue-carrier-filter.is-active {
-  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+  background: transparent;
 }
 
 .queue-carrier-filter > span:not(.queue-carrier-icon) {
