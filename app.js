@@ -3432,8 +3432,13 @@ function renderQueue(items = []) {
       const bi = stageOrder.indexOf(b[0]);
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     });
-  const customerGroups = groupCount(rows, (row) => row.customer).slice(0, 8);
-  const carrierGroups = groupCount(rows, (row) => row.carrier).slice(0, 8);
+  const carrierGroups = groupCount(rows, (row) => row.carrier).slice(0, 6);
+
+  function progressPercent(stage) {
+    const index = stageOrder.indexOf(stage);
+    if (index < 0) return 12;
+    return Math.min(100, Math.max(12, Math.round(((index + 1) / (stageOrder.length - 1)) * 100)));
+  }
 
   container.innerHTML = `
     <div class="queue-hero">
@@ -3450,52 +3455,40 @@ function renderQueue(items = []) {
       <div class="queue-summary-card is-working"><span>작업중</span><strong>${workingCount.toLocaleString("ko-KR")}건</strong></div>
       <div class="queue-summary-card is-done"><span>완료</span><strong>${doneCount.toLocaleString("ko-KR")}건</strong></div>
     </div>
-    <div class="queue-layout-grid">
-      <section class="queue-section queue-stage-section">
-        <h3>진행 단계</h3>
-        <div class="queue-stage-list">
-          ${stageGroups.map(([stage, count]) => `
-            <div class="queue-stage-row">
-              <span>${escapeHtml(stage)}</span>
-              <div class="queue-stage-bar"><i style="width:${Math.max(8, Math.round((count / rows.length) * 100))}%"></i></div>
-              <strong>${count}건</strong>
-            </div>`).join("")}
-        </div>
-      </section>
-      <section class="queue-section">
-        <h3>거래처별</h3>
-        <div class="queue-chip-list">
-          ${customerGroups.map(([name, count]) => `<span class="queue-chip">${escapeHtml(name)} <b>${count}</b></span>`).join("")}
-        </div>
-      </section>
-      <section class="queue-section">
-        <h3>배송사별</h3>
-        <div class="queue-carrier-grid">
-          ${carrierGroups.map(([name, count]) => `<div class="queue-carrier-card">${carrierBadgeHtml(name)}<strong>${escapeHtml(name)}</strong><span>${count}건</span></div>`).join("")}
-        </div>
-      </section>
+    <div class="queue-mini-board">
+      <div class="queue-stage-pills">
+        ${stageGroups.map(([stage, count]) => `<span>${escapeHtml(stage)} <b>${count}</b></span>`).join("")}
+      </div>
+      <div class="queue-carrier-pills">
+        ${carrierGroups.map(([name, count]) => `<span>${escapeHtml(name)} <b>${count}</b></span>`).join("")}
+      </div>
     </div>
-    <div class="queue-card-grid">
+    <div class="queue-row-list">
+      <div class="queue-row queue-row-head">
+        <span>Invoice No</span>
+        <span>거래처</span>
+        <span>배송사</span>
+        <span>Item</span>
+        <span>수량</span>
+        <span>작업</span>
+        <span>진행</span>
+      </div>
       ${rows.map((row) => {
         const status = queueStatus(row.worker, row.progress);
         const stage = queueStage(row.progress);
         return `
-          <article class="queue-card ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}">
-            <div class="queue-card-top">
-              <strong>${escapeHtml(row.invoiceNo)}</strong>
-              <span class="queue-status">${escapeHtml(status)}</span>
+          <div class="queue-row ${status === "완료" ? "is-done" : status === "작업중" ? "is-working" : ""}">
+            <strong class="queue-invoice">${escapeHtml(row.invoiceNo)}</strong>
+            <span class="queue-row-customer">${escapeHtml(row.customer)}</span>
+            <span class="queue-row-carrier">${escapeHtml(row.carrier)}</span>
+            <span class="queue-row-number">${escapeHtml(row.item)}</span>
+            <span class="queue-row-number">${escapeHtml(row.qty)}</span>
+            <span class="queue-row-worker">${row.worker ? escapeHtml(row.worker) : "대기"}</span>
+            <div class="queue-row-progress">
+              <span>${escapeHtml(stage)}</span>
+              <i><b style="width:${progressPercent(stage)}%"></b></i>
             </div>
-            <p class="queue-customer">${escapeHtml(row.customer)}</p>
-            <div class="queue-card-meta">
-              <span>${escapeHtml(row.carrier)}</span>
-              <span>Item ${escapeHtml(row.item)}</span>
-              <span>수량 ${escapeHtml(row.qty)}</span>
-            </div>
-            <div class="queue-workline">
-              ${row.worker ? `<span class="queue-worker">${escapeHtml(row.worker)}</span>` : `<span class="queue-worker is-empty">작업자 대기</span>`}
-              <span class="queue-progress">${escapeHtml(stage)}</span>
-            </div>
-          </article>`;
+          </div>`;
       }).join("")}
     </div>`;
 
