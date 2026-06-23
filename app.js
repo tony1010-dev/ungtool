@@ -3195,8 +3195,8 @@ function renderIncoming(table, totalsTable) {
 
   document.querySelector("#dash-in-summary").innerHTML = `
     <div class="queue-summary-card"><span>입고</span><strong>${dataRows.length.toLocaleString("ko-KR")}</strong></div>
-    <div class="queue-summary-card"><span>PLT</span><strong><span class="dash-unit-badge is-plt">${pltTotal}</span></strong></div>
-    <div class="queue-summary-card"><span>BOX</span><strong><span class="dash-unit-badge is-box">${boxTotal}</span></strong></div>
+    <div class="queue-summary-card"><span>PLT</span><strong class="dash-qty-value">${pltTotal}</strong></div>
+    <div class="queue-summary-card"><span>BOX</span><strong class="dash-qty-value">${boxTotal}</strong></div>
     <div class="queue-summary-card"><span>금액</span><strong class="dashboard-amount-value">${fmtKrwSpaced(totalAmt)}</strong></div>
   `;
 
