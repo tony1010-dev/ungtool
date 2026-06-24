@@ -1,5 +1,5 @@
 {
-  "enabled": false,
-  "message": "현재 사용할 수 없습니다.",
+  "enabled": true,
+  "message": "사용 가능",
   "updatedAt": "2026-06-24"
 }
