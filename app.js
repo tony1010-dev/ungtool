@@ -833,6 +833,7 @@ const upsDom = {
     locationPick: document.querySelector("#location-pick-tool"),
     license: document.querySelector("#license-tool"),
     business: document.querySelector("#business-tool"),
+    tempStorage: document.querySelector("#temp-storage-tool"),
     dashboard: document.querySelector("#dashboard-tool"),
     admin: document.querySelector("#admin-tool"),
   },

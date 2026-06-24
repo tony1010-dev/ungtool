@@ -18,7 +18,7 @@
     </script>
     <title>웅툴</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="style.css?v=82" />
+    <link rel="stylesheet" href="style.css?v=83" />
   </head>
   <body>
     <header class="site-header">
@@ -61,12 +61,16 @@
             <span class="tab-number">07</span>
             <span><strong>로케이션 피킹</strong><small>JSON 변환</small></span>
           </button>
-          <button class="tool-tab" type="button" data-tool="dashboard">
+          <button class="tool-tab" type="button" data-tool="tempStorage">
             <span class="tab-number">08</span>
+            <span><strong>파일 임시저장</strong><small>임시 저장</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="dashboard">
+            <span class="tab-number">09</span>
             <span><strong>대시보드</strong><small>입고 · 출고 현황</small></span>
           </button>
           <button class="tool-tab" type="button" data-tool="admin">
-            <span class="tab-number">09</span>
+            <span class="tab-number">10</span>
             <span><strong>관리</strong><small>기능없음</small></span>
           </button>
         </nav>
@@ -695,6 +699,26 @@
             </button>
           </div>
           <div class="message" id="business-message" role="status" aria-live="polite" hidden></div>
+        </div>
+      </section>
+
+      <section class="tool-card tool-panel temp-storage-panel" id="temp-storage-tool" aria-labelledby="temp-storage-title" hidden>
+        <div class="tool-heading">
+          <div>
+            <h2 id="temp-storage-title">파일 임시저장</h2>
+            <p>임시 저장 페이지를 아래에서 바로 사용합니다.</p>
+          </div>
+          <a class="secondary-button temp-storage-open" href="https://stinging-unsuited-pectin.ngrok-free.dev/" target="_blank" rel="noopener noreferrer">새 창으로 열기</a>
+        </div>
+
+        <div class="temp-storage-frame-wrap">
+          <iframe
+            class="temp-storage-frame"
+            title="파일 임시저장"
+            src="https://stinging-unsuited-pectin.ngrok-free.dev/"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          ></iframe>
         </div>
       </section>
 
