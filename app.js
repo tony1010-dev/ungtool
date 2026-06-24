@@ -1098,6 +1098,7 @@ const GOOGLE_DB_GID = "1060200137";
 const GOOGLE_LICENSE_GID = "820278293";
 const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
 const DASHBOARD_PASSWORD_HASH = "03aaef0fd45d47ee37afee60b41f0a80010f58f95d3d34e9b7dc253c8558bf2a";
+const ADMIN_PASSWORD_HASH = "877db6ca4d30e8807e913118ffc6fc505b33573224266eb83ef6084785845d58";
 
 const pickingDom = {
   content: document.querySelector("#picking-content"),
@@ -3284,22 +3285,103 @@ businessDom.input.addEventListener("keydown", (event) => {
 
 const adminDom = {
   passwordGate: document.querySelector("#admin-password-gate"),
+  content: document.querySelector("#admin-content"),
   passwordForm: document.querySelector("#admin-password-form"),
   password: document.querySelector("#admin-password"),
   passwordError: document.querySelector("#admin-password-error"),
+  pickingSwitch: document.querySelector("#admin-picking-switch"),
+  pickingPreview: document.querySelector("#admin-picking-status-preview"),
+  refreshButton: document.querySelector("#admin-picking-refresh-button"),
+  message: document.querySelector("#admin-message"),
 };
 
 let adminUnlocked = sessionStorage.getItem("woongtoolAdminUnlocked") === "yes";
+let adminPickingStatusBusy = false;
+let adminPickingStatusReady = false;
+
+function showAdminMessage(text, isError = false) {
+  if (!adminDom.message) return;
+  adminDom.message.textContent = text;
+  adminDom.message.classList.toggle("error", isError);
+  adminDom.message.hidden = !text;
+}
+
+function renderAdminPickingStatus(status) {
+  const enabled = Boolean(status?.enabled);
+  const message = String(status?.message || (enabled ? "사용 가능" : "현재 사용할 수 없습니다."));
+  const updatedAt = String(status?.updatedAt || "-");
+  if (adminDom.pickingSwitch) adminDom.pickingSwitch.checked = enabled;
+  if (adminDom.pickingPreview) {
+    adminDom.pickingPreview.classList.toggle("is-enabled", enabled);
+    adminDom.pickingPreview.classList.toggle("is-disabled", !enabled);
+    adminDom.pickingPreview.innerHTML = `
+      <span class="admin-status-dot"></span>
+      <strong>${enabled ? "사용" : "불가능"}</strong>
+      <small>${escapeHtml(message)} · ${escapeHtml(updatedAt)}</small>
+    `;
+  }
+}
+
+async function loadAdminPickingStatus() {
+  if (!adminDom.pickingPreview) return;
+  if (adminPickingStatusBusy) return;
+  adminPickingStatusBusy = true;
+  showAdminMessage("");
+  try {
+    const response = await fetch(`/ungtool-picking-status.json?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("상태 파일을 읽지 못했습니다.");
+    const status = await response.json();
+    renderAdminPickingStatus(status);
+    adminPickingStatusReady = true;
+  } catch (error) {
+    adminPickingStatusReady = false;
+    showAdminMessage(error.message || "상태를 불러오지 못했습니다.", true);
+  } finally {
+    adminPickingStatusBusy = false;
+  }
+}
+
+async function saveAdminPickingStatus(enabled) {
+  if (adminPickingStatusBusy) return;
+  adminPickingStatusBusy = true;
+  if (adminDom.pickingSwitch) adminDom.pickingSwitch.disabled = true;
+  if (adminDom.refreshButton) adminDom.refreshButton.disabled = true;
+  showAdminMessage("저장 중입니다…");
+  try {
+    const response = await fetch("/api/picking-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Token": ADMIN_PASSWORD_HASH,
+      },
+      body: JSON.stringify({ enabled }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "상태 저장에 실패했습니다.");
+    renderAdminPickingStatus(result.status);
+    adminPickingStatusReady = true;
+    showAdminMessage("저장했습니다. 사이트 반영까지 잠시 걸릴 수 있습니다.");
+  } catch (error) {
+    if (adminDom.pickingSwitch) adminDom.pickingSwitch.checked = !enabled;
+    showAdminMessage(error.message || "상태 저장에 실패했습니다.", true);
+  } finally {
+    adminPickingStatusBusy = false;
+    if (adminDom.pickingSwitch) adminDom.pickingSwitch.disabled = false;
+    if (adminDom.refreshButton) adminDom.refreshButton.disabled = false;
+  }
+}
 
 function updateAdminLock() {
   adminDom.passwordGate.hidden = adminUnlocked;
+  if (adminDom.content) adminDom.content.hidden = !adminUnlocked;
   if (!adminUnlocked) requestAnimationFrame(() => adminDom.password.focus());
+  if (adminUnlocked) loadAdminPickingStatus();
 }
 
 async function unlockAdmin(event) {
   event.preventDefault();
   const enteredHash = await sha256(adminDom.password.value);
-  if (enteredHash !== PICKING_PASSWORD_HASH) {
+  if (enteredHash !== ADMIN_PASSWORD_HASH) {
     adminDom.passwordError.hidden = false;
     adminDom.password.select();
     return;
@@ -3314,6 +3396,10 @@ async function unlockAdmin(event) {
 adminDom.passwordForm.addEventListener("submit", unlockAdmin);
 adminDom.password.addEventListener("input", () => {
   adminDom.passwordError.hidden = true;
+});
+adminDom.refreshButton?.addEventListener("click", loadAdminPickingStatus);
+adminDom.pickingSwitch?.addEventListener("change", () => {
+  saveAdminPickingStatus(adminDom.pickingSwitch.checked);
 });
 
 function updateDashboardLock(forceRefresh = false) {

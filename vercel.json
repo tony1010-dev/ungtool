@@ -16,6 +16,13 @@
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     },
     {
+      "source": "/ungtool-picking-status.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
       "source": "/vendor/(.*)",
       "headers": [
         {
