@@ -1612,6 +1612,35 @@ function findSheetText(sheet, matcher, maxRow = 32) {
   return "";
 }
 
+function groupPickingItemsBySku(items) {
+  const grouped = [];
+  const bySku = new Map();
+
+  items.forEach((item) => {
+    const key = normalizeSku(item.sku);
+    if (!key) return;
+
+    const quantity = parseNumber(item.quantity);
+    const existing = bySku.get(key);
+    if (existing) {
+      existing.quantity = parseNumber(existing.quantity) + quantity;
+      existing.sourceCount = (existing.sourceCount || 1) + 1;
+      return;
+    }
+
+    const groupedItem = {
+      ...item,
+      sku: key,
+      quantity,
+      sourceCount: 1,
+    };
+    bySku.set(key, groupedItem);
+    grouped.push(groupedItem);
+  });
+
+  return grouped.map((item, index) => ({ ...item, index: index + 1 }));
+}
+
 function extractPickingData(sheet, columns, rows) {
   const remarkRow = 29;
   const usedRange = XLSX.utils.decode_range(sheet["!ref"]);
@@ -1640,7 +1669,7 @@ function extractPickingData(sheet, columns, rows) {
     if (value && !shipToParts.includes(value)) shipToParts.push(value);
   }
 
-  const items = rows.map((item, index) => ({
+  const rawItems = rows.map((item, index) => ({
     index: index + 1,
     sku: item.sku,
     description: String(sheetValue(sheet, item.row, columns.DESCRIPTION)).trim(),
@@ -1650,6 +1679,7 @@ function extractPickingData(sheet, columns, rows) {
     location: locationDb?.get(item.sku) || "",
     packing: "",
   }));
+  const items = groupPickingItemsBySku(rawItems);
 
   const salesPersonParts = [
     String(sheetValue(sheet, 10, 14))
@@ -1670,7 +1700,8 @@ function extractPickingData(sheet, columns, rows) {
     remark,
     salesPerson,
     shippingCarrier,
-    totalQuantity: items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
+    rawItemCount: rawItems.length,
+    totalQuantity: items.reduce((sum, item) => sum + parseNumber(item.quantity), 0),
     items,
   };
 }
@@ -1710,9 +1741,10 @@ function formatSalesPersonDisplay(value) {
 }
 
 function updatePickingSummary() {
-  const missing = pickingRows.filter((item) => !locationDb?.get(item.sku));
-  const matched = pickingRows.length - missing.length;
-  pickingDom.total.textContent = String(pickingRows.length);
+  const summaryItems = pickingData?.items?.length ? pickingData.items : pickingRows;
+  const missing = summaryItems.filter((item) => !locationDb?.get(item.sku));
+  const matched = summaryItems.length - missing.length;
+  pickingDom.total.textContent = String(summaryItems.length);
   pickingDom.matched.textContent = String(matched);
   pickingDom.missing.textContent = String(missing.length);
   pickingDom.missingList.hidden = !missing.length;
@@ -1776,7 +1808,10 @@ async function inspectPickingFile(file) {
     pickingData = extractPickingData(sheet, columns, rows);
 
     pickingDom.fileName.textContent = file.name;
-    pickingDom.fileInfo.textContent = `${formatBytes(file.size)} · ${rows.length}개 상품 확인`;
+    const mergedCount = Math.max(0, (pickingData.rawItemCount || rows.length) - pickingData.items.length);
+    pickingDom.fileInfo.textContent = `${formatBytes(file.size)} · ${pickingData.items.length}개 SKU 확인${
+      mergedCount ? ` · 중복 ${mergedCount}행 합산` : ""
+    }`;
     setIfPresent(pickingDom.outputName, `${safeBaseName(file.name)}_피킹리스트`);
     updatePickingSummary();
     pickingDom.dropZone.hidden = true;
