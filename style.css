@@ -1492,6 +1492,12 @@ html[data-theme="dark"] .unit-button.is-active {
   stroke-linejoin: round;
 }
 
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .admin-status-card {
   display: grid;
   gap: 16px;
@@ -1502,6 +1508,17 @@ html[data-theme="dark"] .unit-button.is-active {
     radial-gradient(circle at top right, rgba(242, 107, 58, 0.12), transparent 34%),
     #fffdf9;
   box-shadow: var(--shadow-soft);
+}
+
+.admin-control-card {
+  border-color: rgba(242, 107, 58, 0.22);
+}
+
+.admin-placeholder-card {
+  opacity: 0.72;
+  background:
+    linear-gradient(135deg, rgba(23, 23, 23, 0.03), transparent 40%),
+    #fffdf9;
 }
 
 .admin-status-main {
@@ -1525,7 +1542,14 @@ html[data-theme="dark"] .unit-button.is-active {
   letter-spacing: -0.05em;
 }
 
-.admin-status-main p {
+.admin-status-card h3 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: -0.04em;
+}
+
+.admin-status-main p,
+.admin-status-card p {
   margin: 8px 0 0;
   color: var(--muted);
   font-size: 13px;
@@ -2615,6 +2639,7 @@ html[data-theme="dark"] .label-fields input,
 html[data-theme="dark"] .password-form input,
 html[data-theme="dark"] .admin-editor textarea,
 html[data-theme="dark"] .admin-status-card,
+html[data-theme="dark"] .admin-placeholder-card,
 html[data-theme="dark"] .admin-status-preview,
 html[data-theme="dark"] .local-chat,
 html[data-theme="dark"] .chat-topbar,
@@ -2642,6 +2667,12 @@ html[data-theme="dark"] .chat-message.user .chat-bubble {
 html[data-theme="dark"] .admin-status-card {
   background:
     radial-gradient(circle at top right, rgba(242, 107, 58, 0.16), transparent 34%),
+    #211f1d;
+}
+
+html[data-theme="dark"] .admin-placeholder-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 42%),
     #211f1d;
 }
 
@@ -2885,6 +2916,10 @@ html[data-theme="dark"] .license-note {
   .admin-actions {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
   }
 
   .custom-label-toolbar {

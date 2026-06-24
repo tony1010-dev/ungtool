@@ -838,7 +838,7 @@
             <section class="dash-materials-card dash-library-card">
               <h3>자료실</h3>
               <div class="dash-library-grid">
-                <a class="dash-library-item is-active" href="https://drive.google.com/file/d/1SCubRqMDm-XrwwdvY6Kkk4gJB82uUQrs/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+                <a class="dash-library-item is-active" href="https://drive.google.com/file/d/1NcZ7-6rPubI9zWvwCTBp98CfXf7pGOfD/view?usp=sharing" target="_blank" rel="noopener noreferrer">
                   <span class="dash-library-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /><path d="M14 3v5h5" /><path d="M8.5 14.5h7M8.5 17.5h5" /></svg>
                   </span>
@@ -882,7 +882,6 @@
           <div class="tool-heading">
             <div>
               <h2 id="admin-title">Admin</h2>
-              <p>소메뉴 상태를 관리합니다.</p>
             </div>
             <span class="local-badge admin-badge">
               <svg viewBox="0 0 20 20" aria-hidden="true">
@@ -893,29 +892,53 @@
             </span>
           </div>
 
-          <section class="admin-status-card">
-            <div class="admin-status-main">
-              <div>
-                <span class="admin-section-kicker">소메뉴 관리</span>
-                <h3>자동피킹 처리기</h3>
-                <p>자료실의 자동피킹 보조 기능 사용 상태를 켜고 끕니다.</p>
+          <div class="admin-grid">
+            <section class="admin-status-card admin-control-card">
+              <div class="admin-status-main">
+                <div>
+                  <span class="admin-section-kicker">Auto Picking</span>
+                  <p>자동피킹 처리기 (Y/N)</p>
+                </div>
+                <label class="admin-switch" aria-label="자동피킹 처리기 사용 상태">
+                  <input id="admin-picking-switch" type="checkbox" />
+                  <span class="admin-switch-track"><span class="admin-switch-thumb"></span></span>
+                </label>
               </div>
-              <label class="admin-switch" aria-label="자동피킹 처리기 사용 상태">
-                <input id="admin-picking-switch" type="checkbox" />
-                <span class="admin-switch-track"><span class="admin-switch-thumb"></span></span>
-              </label>
-            </div>
-            <div class="admin-status-preview" id="admin-picking-status-preview">
-              <span class="admin-status-dot"></span>
-              <strong>상태 확인 중</strong>
-              <small>-</small>
-            </div>
-            <div class="admin-status-actions">
-              <button class="secondary-button admin-refresh-button" id="admin-picking-refresh-button" type="button">상태 새로고침</button>
-              <a class="secondary-button admin-json-link" href="/ungtool-picking-status.json" target="_blank" rel="noopener noreferrer">JSON 보기</a>
-            </div>
-            <div class="message" id="admin-message" role="status" aria-live="polite" hidden></div>
-          </section>
+              <div class="message" id="admin-message" role="status" aria-live="polite" hidden></div>
+            </section>
+
+            <section class="admin-status-card">
+              <div>
+                <span class="admin-section-kicker">Status</span>
+                <h3>현재 상태</h3>
+              </div>
+              <div class="admin-status-preview" id="admin-picking-status-preview">
+                <span class="admin-status-dot"></span>
+                <strong>상태 확인 중</strong>
+                <small>-</small>
+              </div>
+            </section>
+
+            <section class="admin-status-card">
+              <div>
+                <span class="admin-section-kicker">Data</span>
+                <h3>상태 파일</h3>
+                <p>저장된 사용 상태를 확인합니다.</p>
+              </div>
+              <div class="admin-status-actions">
+                <button class="secondary-button admin-refresh-button" id="admin-picking-refresh-button" type="button">상태 새로고침</button>
+                <a class="secondary-button admin-json-link" href="/ungtool-picking-status.json" target="_blank" rel="noopener noreferrer">JSON 보기</a>
+              </div>
+            </section>
+
+            <section class="admin-status-card admin-placeholder-card">
+              <div>
+                <span class="admin-section-kicker">Next</span>
+                <h3>관리 항목 준비중</h3>
+                <p>추가 소메뉴 관리를 넣을 수 있는 공간입니다.</p>
+              </div>
+            </section>
+          </div>
         </div>
 
       </section>
