@@ -1495,15 +1495,15 @@ html[data-theme="dark"] .unit-button.is-active {
 .admin-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .admin-status-card {
   display: grid;
-  gap: 16px;
-  padding: 22px;
+  gap: 10px;
+  padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 18px;
   background:
     radial-gradient(circle at top right, rgba(242, 107, 58, 0.12), transparent 34%),
     #fffdf9;
@@ -1515,7 +1515,7 @@ html[data-theme="dark"] .unit-button.is-active {
 }
 
 .admin-empty-card {
-  min-height: 190px;
+  min-height: 136px;
   background:
     linear-gradient(135deg, rgba(23, 23, 23, 0.02), transparent 44%),
     #fffdf9;
@@ -1533,14 +1533,14 @@ html[data-theme="dark"] .unit-button.is-active {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 22px;
+  gap: 14px;
 }
 
 .admin-section-kicker {
   display: inline-flex;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   color: var(--accent);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
 }
 
@@ -1558,10 +1558,11 @@ html[data-theme="dark"] .unit-button.is-active {
 
 .admin-status-main p,
 .admin-status-card p {
-  margin: 8px 0 0;
+  margin: 0;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 800;
 }
 
 .admin-switch {
@@ -1576,8 +1577,8 @@ html[data-theme="dark"] .unit-button.is-active {
 }
 
 .admin-switch-track {
-  width: 74px;
-  height: 40px;
+  width: 54px;
+  height: 30px;
   display: block;
   position: relative;
   border-radius: 999px;
@@ -1587,11 +1588,11 @@ html[data-theme="dark"] .unit-button.is-active {
 }
 
 .admin-switch-thumb {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 3px;
+  left: 3px;
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 8px 16px rgba(23, 23, 23, 0.18);
@@ -1603,7 +1604,7 @@ html[data-theme="dark"] .unit-button.is-active {
 }
 
 .admin-switch input:checked + .admin-switch-track .admin-switch-thumb {
-  transform: translateX(34px);
+  transform: translateX(24px);
 }
 
 .admin-switch input:disabled + .admin-switch-track {
@@ -1614,28 +1615,28 @@ html[data-theme="dark"] .unit-button.is-active {
 .admin-status-preview {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 56px;
-  padding: 13px 15px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 11px;
   border: 1px solid #e4dfd5;
-  border-radius: 16px;
+  border-radius: 13px;
   background: #f7f4ee;
 }
 
 .admin-status-preview strong {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
 }
 
 .admin-status-preview small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .admin-status-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #aaa39a;
 }
@@ -1669,15 +1670,16 @@ html[data-theme="dark"] .unit-button.is-active {
 .admin-status-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
+  gap: 7px;
 }
 
 .admin-status-actions .secondary-button {
-  min-height: 42px;
+  min-height: 34px;
   margin-top: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
   text-decoration: none;
 }
 

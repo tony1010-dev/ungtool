@@ -3295,7 +3295,11 @@ const adminDom = {
   message: document.querySelector("#admin-message"),
 };
 
-let adminUnlocked = sessionStorage.getItem("woongtoolAdminUnlocked") === "yes";
+try {
+  sessionStorage.removeItem("woongtoolAdminUnlocked");
+} catch {}
+
+let adminUnlocked = false;
 let adminPickingStatusBusy = false;
 let adminPickingStatusReady = false;
 
@@ -3308,7 +3312,6 @@ function showAdminMessage(text, isError = false) {
 
 function renderAdminPickingStatus(status) {
   const enabled = Boolean(status?.enabled);
-  const message = String(status?.message || (enabled ? "사용 가능" : "현재 사용할 수 없습니다."));
   const updatedAt = String(status?.updatedAt || "-");
   if (adminDom.pickingSwitch) adminDom.pickingSwitch.checked = enabled;
   if (adminDom.pickingPreview) {
@@ -3316,8 +3319,8 @@ function renderAdminPickingStatus(status) {
     adminDom.pickingPreview.classList.toggle("is-disabled", !enabled);
     adminDom.pickingPreview.innerHTML = `
       <span class="admin-status-dot"></span>
-      <strong>${enabled ? "사용" : "불가능"}</strong>
-      <small>${escapeHtml(message)} · ${escapeHtml(updatedAt)}</small>
+      <strong>${enabled ? "ON" : "OFF"}</strong>
+      <small>${escapeHtml(updatedAt)}</small>
     `;
   }
 }
@@ -3387,7 +3390,6 @@ async function unlockAdmin(event) {
     return;
   }
   adminUnlocked = true;
-  sessionStorage.setItem("woongtoolAdminUnlocked", "yes");
   adminDom.password.value = "";
   adminDom.passwordError.hidden = true;
   updateAdminLock();
