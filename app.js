@@ -470,7 +470,13 @@ customLabelDom.fontSize.addEventListener("input", updateCustomLabelState);
 customLabelDom.downloadButton.addEventListener("click", downloadCustomLabelPdf);
 updateCustomLabelState();
 
-const DEFAULT_HOME_NOTICE = `2026.06.22 | New Release
+const DEFAULT_HOME_NOTICE = `2026.06.24 | Release Update
+
+• List Print: 중복 SKU 수량 합산 출력 기능 추가
+• Export Permit: DHL 면허 출력 기능 개선
+• Location Pick: JSON 분석 보조 기능 추가
+
+2026.06.22 | New Release
 
 • Label Print: PLT 출력 전환 지원
 • Export Permit: DHL 면허 다운로드 추가
