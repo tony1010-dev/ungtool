@@ -1691,43 +1691,6 @@ html[data-theme="dark"] .unit-button.is-active {
   text-decoration: none;
 }
 
-.temp-storage-panel {
-  padding: 20px;
-}
-
-.temp-storage-open {
-  width: auto;
-  min-height: 38px;
-  margin-top: 0;
-  padding: 0 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.temp-storage-frame-wrap {
-  overflow: hidden;
-  width: 100%;
-  min-height: 680px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)),
-    repeating-linear-gradient(-45deg, #fffaf5, #fffaf5 8px, #f7f1e8 8px, #f7f1e8 16px);
-  box-shadow: var(--shadow-soft);
-}
-
-.temp-storage-frame {
-  width: 100%;
-  height: min(78vh, 820px);
-  min-height: 680px;
-  display: block;
-  border: 0;
-  background: #ffffff;
-}
-
 .local-chat {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2731,12 +2694,6 @@ html[data-theme="dark"] .admin-empty-card {
     #211f1d;
 }
 
-html[data-theme="dark"] .temp-storage-frame-wrap {
-  background:
-    linear-gradient(rgba(31, 30, 28, 0.82), rgba(31, 30, 28, 0.82)),
-    repeating-linear-gradient(-45deg, #242321, #242321 8px, #1d1c1a 8px, #1d1c1a 16px);
-}
-
 html[data-theme="dark"] .admin-placeholder-card {
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 42%),
@@ -2938,15 +2895,6 @@ html[data-theme="dark"] .license-note {
 
   .tool-heading {
     flex-direction: column;
-  }
-
-  .temp-storage-panel {
-    padding: 14px;
-  }
-
-  .temp-storage-frame-wrap,
-  .temp-storage-frame {
-    min-height: 620px;
   }
 
   .dashboard-header-right {
