@@ -546,12 +546,6 @@ main {
   align-items: center;
 }
 
-.stock-audit-open {
-  min-width: 92px;
-  justify-content: center;
-  white-space: nowrap;
-}
-
 .stock-audit-frame-wrap {
   overflow: hidden;
   margin-top: 18px;
