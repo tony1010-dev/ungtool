@@ -2552,10 +2552,20 @@ footer {
   width: 25px;
 }
 
-footer p {
+.footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   margin: 0;
-  color: #8a8883;
+  color: #7b756c;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.footer-credit span {
   font-size: 12px;
+  line-height: 1;
 }
 
 html[data-theme="dark"] {
@@ -2647,6 +2657,10 @@ html[data-theme="dark"] .metric-text small {
 }
 
 html[data-theme="dark"] .footer-right {
+  color: #c7c0b8;
+}
+
+html[data-theme="dark"] .footer-credit {
   color: #c7c0b8;
 }
 
