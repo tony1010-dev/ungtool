@@ -831,6 +831,7 @@ const upsDom = {
     picking: document.querySelector("#picking-tool"),
     sync: document.querySelector("#sync-tool"),
     locationPick: document.querySelector("#location-pick-tool"),
+    stockAudit: document.querySelector("#stock-audit-tool"),
     license: document.querySelector("#license-tool"),
     business: document.querySelector("#business-tool"),
     dashboard: document.querySelector("#dashboard-tool"),
@@ -1098,7 +1099,7 @@ const GOOGLE_DB_GID = "1060200137";
 const GOOGLE_LICENSE_GID = "820278293";
 const PICKING_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
 const DASHBOARD_PASSWORD_HASH = "03aaef0fd45d47ee37afee60b41f0a80010f58f95d3d34e9b7dc253c8558bf2a";
-const ADMIN_PASSWORD_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
+const ADMIN_PASSWORD_HASH = "877db6ca4d30e8807e913118ffc6fc505b33573224266eb83ef6084785845d58";
 
 const pickingDom = {
   content: document.querySelector("#picking-content"),

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const ADMIN_TOKEN_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
+const ADMIN_TOKEN_HASH = "877db6ca4d30e8807e913118ffc6fc505b33573224266eb83ef6084785845d58";
 const STATUS_FILE = "ungtool-picking-status.json";
 const DEFAULT_REPOSITORY = "tony1010-dev/ungtool";
 const DEFAULT_BRANCH = "main";

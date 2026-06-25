@@ -61,12 +61,16 @@
             <span class="tab-number">07</span>
             <span><strong>로케이션 피킹</strong><small>JSON 변환</small></span>
           </button>
-          <button class="tool-tab" type="button" data-tool="dashboard">
+          <button class="tool-tab" type="button" data-tool="stockAudit">
             <span class="tab-number">08</span>
+            <span><strong>재고조사</strong><small>Share 연결</small></span>
+          </button>
+          <button class="tool-tab" type="button" data-tool="dashboard">
+            <span class="tab-number">09</span>
             <span><strong>대시보드</strong><small>입고 · 출고 현황</small></span>
           </button>
           <button class="tool-tab" type="button" data-tool="admin">
-            <span class="tab-number">09</span>
+            <span class="tab-number">10</span>
             <span><strong>관리</strong><small>기능없음</small></span>
           </button>
         </nav>
@@ -584,6 +588,28 @@
               <div class="location-pick-empty">왼쪽에 데이터를 붙여넣으면 결과가 표시됩니다.</div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="tool-card tool-panel" id="stock-audit-tool" aria-labelledby="stock-audit-title" hidden>
+        <div class="tool-heading stock-audit-heading">
+          <div>
+            <h2 id="stock-audit-title">재고조사</h2>
+            <p>share.ungtool.com 화면을 웅툴 안에서 바로 확인합니다.</p>
+          </div>
+          <a class="secondary-button stock-audit-open" href="https://share.ungtool.com/" target="_blank" rel="noopener noreferrer">
+            새 창 열기
+          </a>
+        </div>
+
+        <div class="stock-audit-frame-wrap">
+          <iframe
+            class="stock-audit-frame"
+            src="https://share.ungtool.com/"
+            title="재고조사"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
         </div>
       </section>
 
