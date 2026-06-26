@@ -84,24 +84,12 @@ button {
   flex-shrink: 0;
 }
 
-.brand-mark {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 11px;
-  color: white;
-  background: var(--ink);
-  transform: rotate(-3deg);
-}
-
-.brand-mark svg {
-  width: 30px;
-  fill: currentColor;
-}
-
-.brand-mark .spark {
-  fill: var(--accent);
+.brand-logo {
+  display: block;
+  width: 148px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(31, 132, 255, 0.22));
 }
 
 .header-note {
@@ -2542,14 +2530,8 @@ footer {
   font-size: 17px;
 }
 
-.footer-brand .brand-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-}
-
-.footer-brand .brand-mark svg {
-  width: 25px;
+.footer-logo {
+  width: 116px;
 }
 
 .footer-credit {
@@ -2591,9 +2573,9 @@ html[data-theme="dark"] footer {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-html[data-theme="dark"] .brand-mark {
-  color: #171717;
-  background: #f3f1ec;
+html[data-theme="dark"] .brand-logo {
+  content: url("assets/ungtool-logo-dark.png");
+  filter: drop-shadow(0 0 12px rgba(31, 132, 255, 0.32));
 }
 
 html[data-theme="dark"] .theme-switcher,
@@ -2911,6 +2893,14 @@ html[data-theme="dark"] .license-note {
   .theme-button {
     width: 27px;
     height: 28px;
+  }
+
+  .brand-logo {
+    width: 122px;
+  }
+
+  .footer-logo {
+    width: 104px;
   }
 
   .tool-tab {
