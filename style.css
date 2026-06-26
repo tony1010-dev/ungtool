@@ -456,6 +456,7 @@ main {
   background: transparent;
   flex: 0 1 auto;
   min-width: 0;
+  font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
 .header-tabs .tool-tab:hover {
@@ -472,18 +473,24 @@ main {
 
 .header-tabs .tool-tab strong {
   font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
   line-height: 1;
   white-space: nowrap;
 }
 
 .header-tabs .tool-tab small {
   font-size: 8px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   line-height: 1;
   white-space: nowrap;
 }
 
 .header-tabs .tab-number {
   font-size: 10px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
   line-height: 1;
   flex: 0 0 auto;
 }
