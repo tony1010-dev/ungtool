@@ -65,7 +65,7 @@ button {
 
 .header-top-row {
   display: grid;
-  grid-template-columns: minmax(132px, 180px) minmax(0, 1fr) minmax(132px, 180px);
+  grid-template-columns: minmax(122px, 162px) minmax(0, 1fr) minmax(104px, 116px);
   justify-content: center;
   flex-wrap: nowrap;
 }
@@ -92,7 +92,7 @@ button {
 
 .brand-logo {
   display: block;
-  width: 150px;
+  width: 138px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(21, 122, 85, 0.12));
@@ -335,7 +335,7 @@ main {
 .header-tabs {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: 3px;
   margin: 0;
   width: 100%;
   min-width: 0;
@@ -414,7 +414,7 @@ main {
 }
 
 .theme-button {
-  width: 30px;
+  width: 28px;
   height: 30px;
   display: grid;
   place-items: center;
@@ -448,12 +448,14 @@ main {
 }
 
 .header-tabs .tool-tab {
-  min-height: 54px;
-  gap: 8px;
-  padding: 9px 9px;
+  min-height: 48px;
+  gap: 5px;
+  padding: 7px 6px;
   border-color: transparent;
   border-radius: 10px;
   background: transparent;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .header-tabs .tool-tab:hover {
@@ -469,15 +471,21 @@ main {
 }
 
 .header-tabs .tool-tab strong {
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .header-tabs .tool-tab small {
-  font-size: 9px;
+  font-size: 8px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .header-tabs .tab-number {
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 1;
+  flex: 0 0 auto;
 }
 
 .tool-tab {
@@ -517,6 +525,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
 }
 
 .tool-tab strong {
